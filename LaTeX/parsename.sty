@@ -1,0 +1,378 @@
+%%%%%
+%%
+%% \parsename{<english name>}
+%%
+%% Parses out the parts of the given english name, i.e. the last name,
+%% first name, middle names (rest), prefix titles, and suffix titles.
+%% It puts each of these into a macro.
+%%
+%% macros:          meaning:
+%%   \parseprefix     prefix title(s)
+%%   \parsefirst      first name
+%%   \parserest       middle name(s)
+%%   \parselast       last name
+%%   \parsesuffix     suffix title(s)
+%%   \parsecomma      normally blank (see below)
+%%   \parsealpha      alphabetic string
+%%
+%%
+%% Does first, rest (middle), and last names on its own:
+%%
+%% \parsename{Jones}
+%%   \parseprefix -> ""
+%%   \parsefirst  -> ""
+%%   \parserest   -> ""
+%%   \parselast   -> "Jones"
+%%   \parsesuffix -> ""
+%%   \parsecomma  -> ""
+%%
+%% \parsename{John Doe}
+%%   \parseprefix -> ""
+%%   \parsefirst  -> "John"
+%%   \parserest   -> ""
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> ""
+%%   \parsecomma  -> ""
+%%
+%% \parsename{John Billy Bo Bob Doe}
+%%   \parseprefix -> ""
+%%   \parsefirst  -> "John"
+%%   \parserest   -> "Billy Bo Bob"
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> ""
+%%   \parsecomma  -> ""
+%%
+%%
+%% Handles comma separated suffixes on its own:
+%%
+%% \parsename{John Doe, Jr.}
+%%   \parseprefix -> ""
+%%   \parsefirst  -> "John"
+%%   \parserest   -> ""
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> "Jr."
+%%   \parsecomma  -> ","
+%%
+%%
+%% Uses 2 markers: \pre and \suf, for prefixes and suffixes,
+%% respectively. \pre overrides \suf; \suf overrides ","; and
+%% \parsecomma is blank if \suf is used:
+%%
+%% \parsename{Doctor \pre John Doe \suf III}
+%%   \parseprefix -> "Doctor"
+%%   \parsefirst  -> "John"
+%%   \parserest   -> ""
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> "III"
+%%   \parsecomma  -> ""
+%%
+%% \parsename{Doctor \pre John Doe, Jr.}
+%%   \parseprefix -> "Doctor"
+%%   \parsefirst  -> "John"
+%%   \parserest   -> ""
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> "Jr."
+%%   \parsecomma  -> ","
+%%
+%%
+%% Includes \parsealpha as the name string for alphabetizing.  (spaces
+%% between parts in \parsealpha are not "ignored" by TeX, i.e.
+%% similar to effect of \obeyspaces):
+%%
+%% \parsename{Doctor \pre John Bob Doe \suf III, PhD}
+%%   \parseprefix -> "Doctor"
+%%   \parsefirst  -> "John"
+%%   \parserest   -> "Bob"
+%%   \parselast   -> "Doe"
+%%   \parsesuffix -> "III, PhD"
+%%   \parsecomma  -> ""
+%%   \parsealpha  -> "Doe  John  Bob  Doctor  III, PhD"
+%%
+%% \parsename{Doctor \pre John}
+%%   \parseprefix -> "Doctor"
+%%   \parsefirst  -> ""
+%%   \parserest   -> ""
+%%   \parselast   -> "John"
+%%   \parsesuffix -> ""
+%%   \parsecomma  -> ""
+%%   \parsealpha  -> "John      Doctor  "
+%%
+%%
+%% Order it parses: first looks for \pre, and anything before it
+%% becomes \parseprefix.  Second looks in remainder of name for \suf,
+%% anything after it becomes \parsesuffix.  If there was no \suf,
+%% looks for the first comma, anything after it and the comma become
+%% \parsesuffix and \parsecomma becomes "," (if neither \suf nor any
+%% commas are there, \parsesuffix is blank).  Next, last word in
+%% remainder becomes \parselast (words are delimited by spaces).
+%% First word in remainder, if any, becomes \parsefirst.  Anything
+%% left becomes \parserest.
+%%
+%%
+%% Since words are parsed by spaces, to make two or more words parse as
+%% one, enclose them in matching braces:
+%%
+%% \parsename{John {Bob Doe}}
+%%   \parsefirst  -> "John"
+%%   \parserest   -> ""
+%%   \parselast   -> "Bob Doe"
+%%
+%%
+%% \parsename[<string>]{<english name>} appends <string> to the
+%% command names (so multiple uses of \parsename won't try to use the
+%% same macro names):
+%%
+%% \parsename[FOO]{John Doe}
+%%   \parsefirstFOO -> "John"
+%%   \parselastFOO  -> "Doe"
+%%   etc.
+%%
+%% \parsename[BAR]{Jane Smith}
+%%   \parsefirstBAR -> "Jane"
+%%   \parselastBAR  -> "Smith"
+%%   etc.
+%%
+%%%%%
+
+
+%%%%%
+%% Allows * to be used in TeX command names, for this file, so
+%% internal commands that use it can't be used directly/messed with
+%% outside of this file.
+\catcode`\*=11
+
+%%%%%
+%% \parsename[<string>]{<english name>}
+\def\parsename{\futurelet\*tmp\*parsename}
+\def\*parsename{\ifx\*tmp[\let\*tmp\**parsename%
+  \else\def\*tmp{\**parsename[]}\fi\*tmp}
+\def\**parsename[#1]#2{%
+  \expandafter\def\csname parsecomma#1\endcsname{}%
+  \let\*pvalsuffix\empty%
+  \let\*pvalprefix\empty%
+  \let\*pvallast\empty%
+  \let\*pvalfirst\empty%
+  \let\*pvalrest\empty%
+  \def\pre{\noexpand\pre}%
+  \def\suf{\noexpand\suf}%
+  \def\*space{ }%
+  \protected@edef\*pvalrest{#2}%  %%% LaTeX's \protect mechanism
+  \ifx\*pvalrest\empty\relax\else%
+    \ifx\*pvalrest\*pre\def\*pvalrest{}%
+    \else\ifx\*pvalrest\*space\def\*pvalrest{}%
+    \else\expandafter\*parsepre\*pvalrest\*pmmark\pre\*pmark\*endparse%
+    \fi\fi%
+  \fi%
+  \ifx\*pvalrest\empty\relax\else%
+    \ifx\*pvalrest\*suff\def\*pvalrest{}%
+    \else%
+      \expandafter\*parsesuff\expandafter\empty\expandafter\empty%
+        \*pvalrest\*pmark\suf\*pmark\*endparse%
+      \ifx\*pvalsuffix\*pmark%
+        \expandafter\*parsecomma\expandafter\empty\expandafter\empty%
+        \*pvalrest\*pmark,\*pmark\*endparse%
+        \ifx\*pvalsuffix\empty\relax\else%
+          \expandafter\def\csname parsecomma#1\endcsname{,}%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+  \ifx\*pvalrest\empty\relax\else%
+    \expandafter\*addlastspace\*pvalrest\*endparse%
+    \expandafter\*preparselast\*pvalrest\*pmark\*endparse%
+    \expandafter\*addfirstspace\*pvalrest\*endparse%
+    \expandafter\*parsefirst\*pvalrest\*endparse%
+  \fi%
+  \expandafter\let\csname parsesuffix#1\endcsname\*pvalsuffix%
+  \expandafter\let\csname parseprefix#1\endcsname\*pvalprefix%
+  \expandafter\let\csname parselast#1\endcsname\*pvallast%
+  \expandafter\let\csname parsefirst#1\endcsname\*pvalfirst%
+  \expandafter\let\csname parserest#1\endcsname\*pvalrest%
+  \*makeallchars\*pvalsuffix%
+  \*makeallchars\*pvalprefix%
+  \*makeallchars\*pvallast%
+  \*makeallchars\*pvalfirst%
+  \*makeallchars\*pvalrest%
+  \expandafter\edef\csname parsealpha#1\endcsname{%
+    \*pvallast\*sp\*pvalfirst\*sp\*pvalrest\*sp\*pvalprefix\*sp\*pvalsuffix}%
+  \let\*pvalsuffix\empty%
+  \let\*pvalprefix\empty%
+  \let\*pvallast\empty%
+  \let\*pvalfirst\empty%
+  \let\*pvalrest\empty%
+  \def\pre{\unskip\space\ignorespaces}%
+  \def\suf{\unskip\space\ignorespaces}%
+  }
+
+%%%%%
+%% what \suf and \pre actually "do" on their own
+\def\pre{\unskip\space\ignorespaces}
+\def\suf{\unskip\space\ignorespaces}
+
+%%%%%
+%% Internal macros.
+\begingroup
+  \def\*{\global\let\*sptok= }\*
+
+  \catcode` =12%
+  \gdef\*sp{  }%
+\endgroup
+
+\def\*makeallchars#1{%
+  \let\*str\empty%
+  \expandafter\*cloop#1\*pmark%
+  \let#1\*str\let\*str\empty}
+\def\*cloop{\futurelet\*nxt\**cloop}
+\def\**cloop{%
+  \ifx\*nxt\*sptok\def\*nxt{\*dospc}%
+  \else\ifx\*nxt\bgroup\def\*nxt{\*dogrp}%
+  \else\ifx\*nxt\*pmark\def\*nxt{\*doend}%
+  \else\def\*nxt{\*dotok}%
+  \fi\fi\fi\*nxt}
+\def\*dospc#1 {\edef\*str{\*str\*sp}\*cloop}
+\def\*dogrp#1{%
+  \def\*tmp{#1}%
+  \ifx\*tmp\empty\else\*dogrptst#1\*pmark\fi%
+  \ifx\*tmp\empty\let\*tmp#1\else\let\*tmp\empty\fi%
+  \ifx\*tmp\bgroup\relax%
+  \else\*cloop#1\*pmark%
+  \fi\let\*tmp\relax\*cloop}
+\def\*dogrptst#1#2\*pmark{\def\*tmp{#2}}
+\def\*doend#1{}
+\def\*dotok#1{%
+  \expandafter\*dogrptst\string#1\*pmark%
+  \ifx\*tmp\empty\edef\*str{\*str\string#1}\fi%
+  \*cloop}
+
+\def\*pre{\pre}
+\def\*suff{\suf}
+\def\*pmark{\*pmark}
+\def\*pmmark{\*pmmark}
+\def\*psuck#1\*endparse{}
+\def\*pcheck#1 #2\*endparse{\def\*tmp{#2}}
+
+\def\*parsepre#1\pre#2{%
+  \def\*tmp{#2}%
+  \ifx\*tmp\*pmark%
+    \let\*tmp\*psuck%
+    \let\*pvalprefix\empty%
+  \else\ifx\*tmp\*pmmark%
+    \def\*pvalprefix{}%
+    \*zotprespace#1 \*pmark\*endparse%
+    \def\*pvalrest{}%
+    \let\*tmp\*psuck%
+  \else%
+    \def\*pvalprefix{}%
+    \*zotprespace#1 \*pmark\*endparse%
+    \*pcheck#2 \*endparse%
+    \ifx\*tmp\empty%
+      \def\*tmp{\*cleanpre#2}%
+    \else%
+      \def\*tmp{\*cleanpre{{#2}}}%
+    \fi%
+  \fi\fi\*tmp}
+\def\*zotprespace#1 #2{%
+  \def\*tmp{#2}%
+  \ifx\*tmp\*pmark%
+    \expandafter\def\expandafter\*pvalprefix\expandafter{\*pvalprefix#1}%
+    \let\*tmp\*psuck%
+  \else%
+    \expandafter\def\expandafter\*pvalprefix\expandafter{\*pvalprefix#1 }%
+    \def\*tmp{\*zotprespace#2}%
+  \fi\*tmp}%
+\def\*cleanpre#1#2\*pmmark#3\*endparse{%
+  \def\*pvalrest{#1#2}}
+
+\def\*parsesuff#1#2\suf#3{%
+  \def\*tmp{#3}%
+  \ifx\*tmp\*pmark%
+    \let\*pvalsuffix\*pmark%
+    \let\*tmp\*psuck%
+  \else%
+    \*pcheck#1 \*endparse%
+    \ifx\*tmp\empty%
+      \def\*pvalrest{ #1#2}%
+    \else%
+      \def\*pvalrest{ {#1}#2}%
+    \fi%
+    \def\*tmp{\*cleansuff#3}%
+  \fi\*tmp}
+\def\*cleansuff#1\*pmark#2\*endparse{%
+  \def\*pvalsuffix{#1}}
+
+\def\*parsecomma#1#2,#3{%
+  \def\*tmp{#3}%
+  \ifx\*tmp\*pmark%
+    \let\*pvalsuffix\empty%
+    \let\*tmp\*psuck%
+  \else%
+    \*pcheck#1 \*endparse%
+    \ifx\*tmp\empty%
+      \def\*pvalrest{#1#2}%
+    \else%
+      \def\*pvalrest{{#1}#2}%
+    \fi%
+    \def\*tmp{\*cleancomma#3}%
+  \fi\*tmp}
+\def\*cleancomma#1\*pmark#2\*endparse{%
+  \def\*pvalsuffix{#1}}
+
+\def\*addlastspace#1#2\*endparse{%
+  \*pcheck#1 \*endparse%
+  \ifx\*tmp\empty%
+    \def\*pvalrest{#1#2 }%
+  \else%
+    \def\*pvalrest{{#1}#2 }%
+  \fi}
+
+\def\*preparselast{\def\*pvallast{}\def\*pvalrest{}\*parselast}
+\def\*parselast#1 #2{%
+  \def\*tmp{#2}%
+  \ifx\*tmp\*pmark%
+    \def\*pvallast{#1}%
+    \ifx\*pvalrest\empty\def\*pvalrest{ }\fi%
+    \let\*tmp\*psuck%
+  \else%
+    \def\*pvallast{#1}%
+    \*pcheck#1 \*endparse%
+    \ifx\*tmp\empty%
+      \let\*tmp\0\let\0\*pvalrest%
+      \protected@edef\*pvalrest{\0 #1}%  %%% LaTeX's \protect mechanism
+      \let\0\*tmp%
+    \else%
+      \let\*tmp\0\let\0\*pvalrest%
+      \protected@edef\*pvalrest{\0 {#1}}%  %%% LaTeX's \protect mechanism
+      \let\0\*tmp%
+    \fi%
+    \*pcheck#2 \*endparse%
+    \ifx\*tmp\empty%
+      \def\*tmp{\*parselast#2}%
+    \else%
+      \def\*tmp{\*parselast{#2}}%
+    \fi%
+  \fi\*tmp}
+
+\def\*addfirstspace#1\*endparse{%
+  \*pcheck#1 \*endparse%
+  \ifx\*tmp\empty%
+    \def\*pvalrest{{#1} }%
+  \else%
+    \def\*pvalrest{#1 }%
+  \fi}
+
+\def\*parsefirst#1 #2 {\def\*pvalfirst{#2}\*cleanfirst}
+\def\*cleanfirst#1\*endparse{%
+  \def\*pvalrest{#1}%
+  \ifx\*pvalrest\empty%
+    \relax%
+  \else%
+    \*cleanrest#1\*endparse%
+  \fi}
+\def\*cleanrest#1 \*endparse{\def\*pvalrest{#1}}
+
+%%%%%
+%% Returns * to its default behavior, so it can no longer be used in
+%% TeX command names.
+\catcode`\*=12
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
