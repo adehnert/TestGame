@@ -1531,6 +1531,7 @@
         \expandafter\@setowner\expandafter{\myowner\ UNLISTED}##1}%
       \expandafter\@setowner\expandafter{\@ownerstring}%
       \BRANCHTYPES{Element}{\RESURFACEMAP{\TYPE}}%
+      \let\@myidchar\relax%
       \@flatten@field{#1}#2%
       \@setowner{}%
     \endpunt}}%
@@ -1819,7 +1820,6 @@
   \parsename{\MYname}	%% parse the character name
   \let\@noplayer\relax\@procplayer
   \parsename[P]{\MYplayer}	%% parse the player name
-  \let\@myidmap\MYMAP
   \edef\@ownerstring{\MYname\ifx\MYplayer\empty\else\ (\MYplayer)\fi}
   }
 
@@ -1854,10 +1854,13 @@
   \INSTANCE{Identity}{\s\MYname{\string#1}\s\MYmods{#2##1}}}}
 \newinstance{Identity}{\identity[1]}{\s\MYname{identity}\s\MYmods{#1}}
 
-\MAP{Identity}{\@myidmap}
+\MAP{Identity}{\@idmap}
 \let\@myidchar\relax
 \let\@myidmap\relax
+\def\@@idmap{\@idmap}
 \long\def\doid#1{\begingroup\let\@tmp\empty%
+  \def\@idarg{#1}\expandafter%
+  \ifx\@idarg\@@idmap\let\@idarg\empty\fi%
   \ifx\@transowner\relax\let\@tmp\relax\fi%
   \ifx\@myidchar\relax\let\@tmp\relax\fi%
   \ifx\@listcharstuff\empty%
@@ -1870,9 +1873,9 @@
   \ifx\@tmp\relax%
     \preprocess{\@prepend\MYmods{%
       \rs\MYname{\?\MYname}\rs\MYnumber{\?\MYnumber}}}%
-    \etoss{\INSTANCE{Char}{\s\MYname{}\?\MYmods}{\X{#1}}}%
+    \etoss{\INSTANCE{Char}{\s\MYname{}\?\MYmods}{\?\@idarg}}%
   \else%
-    \etoss{\@myidchar[\?\MYmods]{\X{#1}}}%
+    \etoss{\@myidchar[\?\MYmods]{\?\@idarg}}%
   \fi\endgroup}
 
 

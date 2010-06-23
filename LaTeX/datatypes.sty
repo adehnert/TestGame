@@ -563,7 +563,8 @@
   \endgroup\expandafter\:ap\csname\:id :l\endcsname{#1}%
   \begingroup}
 
-\long\def\EXTEND#1#2{#1{\:EXTEND{#2}}}
+\def\:optionfix{\long\def\OPTIONHOOK##1{##1}}
+\long\def\EXTEND#1#2{#1[\:optionfix]{\:EXTEND{#2}}}
 
 
 \long\def\:prep#1#2#3#4{%

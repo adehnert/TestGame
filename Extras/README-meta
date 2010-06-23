@@ -1,4 +1,4 @@
-GameTeX is currently at version 1.1.
+GameTeX is currently at version 1.1a.
 
 
 
@@ -88,6 +88,12 @@ control of element ownership (\owner, \notowner, \ownerdefault,
 \suite, \notsuite, \transowner, \nottransowner).  Removed use of
 deprecated pstcol package (standard pstricks package now incorporates
 pstcol's features).
+
+1.1a (4/4/2010): Fixed a bug with using \EXTEND on datatypes that use
+\OPTIONHOOK (e.g. using \updatemacro directly on Identities).  Fixed
+an infinite loop bug that occurred during certain invocations of
+Identities.  Removed obsolete paragraph about texmf.cnf from
+LaTeX/README.
 
 
 
