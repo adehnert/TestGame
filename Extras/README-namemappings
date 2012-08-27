@@ -1,11 +1,21 @@
 This file describes a set of commands for using and controlling
 various forms of character names.
 
+LaTeX/parsename.sty provides name-parsing functionality, included
+high-level logical names like \formal and \informal (see the comments
+at the top of LaTeX/parsename.sty for thorough documentation).  The
+identity datatype provides the ability to give characters alternate
+names (see Extras/README-identity).  GameTeX's namemapping
+functionality combines these two features with a high-level (and often
+very simple) system for controlling name forms.
 
 
-Common Examples: This file describes namemapping commands in full
-detail.  However, most of the time, you'll only be using a limited set
-of high-level commands.
+
+Overview:
+
+This file describes namemapping commands in full detail.  However,
+most of the time, you'll only be using a limited set of high-level
+commands.
 
 When writing sheets and other game text, you'll generally refer to
 characters with no argument, like \cJamesBond{}, or as a character
@@ -64,13 +74,22 @@ Commands For Using Name Forms:
 These commands usually go in the datatype macro argument,
 e.g. \cTest{\intro}, or as part of Char mappings.
 
-The low-level commands are the raw parts of a name.  The mid-level
-commands are logical combinations.  The high-level commands are
-structured by how you use them rather than what they generate.  You
-control what they generate with a set of controlling commands.  You
-will only rarely use the low- and mid-level commands directly.  Most
-of the high-level commands are used automatically, based on context
-(when you use Char macros with a blank argument).
+The low-level commands are the raw parts of a name
+(e.g. \cTest{\parseprefix} gives you the prefix title(s), and
+\cTest{\parseword{1}} gives you the first name).  See
+LaTeX/parsename.sty.  You will rarely if ever use these.
+
+The mid-level commands are logical combinations (e.g. \cTest{\formal}
+for a formal name, \cTest{\informal} for a more familiar version).
+See LaTeX/parsename.sty.  You will only rarely use these directly.
+
+The high-level commands are structured by how you use them rather than
+what they generate (e.g. \cTest{\intro} to introduce a character,
+\cTest{} is used most everywhere else).  See below for an exhaustive
+list.  You control what they generate with a set of controlling
+commands (see below).  Most of the high-level commands are used
+automatically, based on context (when you use Char macros with a blank
+argument).
 
 
 
@@ -94,50 +113,6 @@ generated.
 
 \titlemapping is what a Char macro with a blank arg will generate in
 the sheet title, e.g. "\name{\cBobSmith{}}".
-
-
-
-Mid-Level Logical Name Commands: These commands based on \parse...
-commands and represent logical uses of names.
-
-\full is a shortcut for \MYname.
-
-\fullplain is the full name minus any prefixes or suffixes.
-
-\formal gives the last name (or first name, if the last is blank),
-with any prefixes (but not suffixes) tacked on.
-
-\informal gives the first name (or last if the first is blank).
-
-Given:
-
-  \NEW{PC}{\cBobSmith}{
-    \s\MYname	{Dr.\null\pre Robert Smith}
-    \nickname	{Dr.\null\pre Bob}
-    }
-
-"\cBobSmith{\formal}" would generate "Dr. Smith" and
-"\cBobSmith{\informal}" would generate "Robert" (and
-"\cBobSmith{\nick{\informal}}" would generate "Bob").
-
-
-
-Low-Level \parsename Commands: Char macros use \parsename, from
-parsename.sty, on \MYname.  This generates a number of \parse...
-commands for each character that correspond to parts of the name, e.g.
-the first and last names, suffixes, etc.  See parsename.sty for a
-description of all the \parse... commands.
-
-
-
-Low-Level Shortcuts: These are shortcuts for \parse... commands.
-
-\first is a shortcut for \parsefirst, i.e. the first name.
-
-\middle is a shortcut for \parserest, i.e. the middle name(s).
-
-\last is a shortcut for \parselast, i.e. the last name.
-
 
 
 

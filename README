@@ -1,6 +1,6 @@
 GameTeX/README
 
-This is GameTeX 1.1a.  The copyright notice for any and all of GameTeX
+This is GameTeX 1.3b.  The copyright notice for any and all of GameTeX
 as distributed is at the end of this file.
 
 
@@ -128,7 +128,13 @@ high-level customizations.
 
 
 Your Environment File: In short, to be able to use GameTeX, add the
-following lines to your .environment file:
+following lines to your .bash_environment file:
+
+  export <gameclassname>=<pathtoyourgame>
+  export TEXINPUTS=.:$<gameclassname>/LaTeX/:
+
+If your Athena account is older, or you otherwise use tcsh instead of
+bash, you add the following to your .environment file:
 
   setenv <gameclassname> <pathtoyourgame>
   setenv TEXINPUTS .:$<gameclassname>/LaTeX/:
@@ -137,8 +143,8 @@ following lines to your .environment file:
 somegame.  <pathtoyourgame> is the filepath, such as
 /mit/assassin/games/SomeGame.  For example:
 
-  setenv somegame /mit/assassin/games/SomeGame
-  setenv TEXINPUTS .:$somegame/LaTeX/:
+  export somegame=/mit/assassin/games/SomeGame
+  export TEXINPUTS=.:$somegame/LaTeX/:
 
 The TEXINPUTS environment variable tells LaTeX where to find the class
 file for your game, and should at least include the path to the LaTeX/
@@ -146,11 +152,11 @@ directory for your game.  The game-specific environment variable
 (e.g. $london) is used by the class file for relative filepaths.  If
 you are writing multiple games using GameTeX, use something like this:
 
-  setenv somegame /mit/assassin/games/SomeGame
-  setenv london /mit/assassin/games/London
-  setenv TEXINPUTS .:$somegame/LaTeX/:$london/LaTeX/:
+  export somegame=/mit/assassin/games/SomeGame
+  export london=/mit/assassin/games/London
+  export TEXINPUTS=.:$somegame/LaTeX/:$london/LaTeX/:
 
-Once you have edited your .environment file, the simplest way to load
+Once you have edited your environment file, the simplest way to load
 the changes is logging out and in.
 
 

@@ -630,7 +630,7 @@
     \:remap{#1}%
     \edef\:ti{\csname#1:t\endcsname}%
     \expandafter\let\expandafter\:mydo\csname\:ti :rdo\endcsname%
-    \let\:tmp\:mydo%
+    \def\:tmp{\MYMAP}%
   \fi\expandafter\OPTIONHOOK\expandafter{\:tmp}}
 
 

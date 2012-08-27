@@ -11,7 +11,7 @@ commands, add the following 4 aliases to your .cshrc.mine file:
   alias update 'ci -l'
   alias steal 'rcs -l \!^; ci \!^; co -l \!^;'
 
-Loggin out and back in is the simplest way to make this take effect.
+Logging out and back in is the simplest way to make this take effect.
 
 
 

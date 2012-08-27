@@ -76,11 +76,11 @@ namebadge, and gives him a namebadge for when he is using his press
 pass.
 
 A handful of standardized, pre-built instances are provided for
-alternate names.  \nickname{<name>} creates \nick[<mods>]{<arg>} for
-nicknames, \realname creates \real for secret identities (when the
-normal name is just a cover), and \maidenname creates \maiden, for a
-pre-marriage name.  These instances are defined locally to the
-character.
+alternate names.  \nickname[<mods>]{<name>} creates
+\nick[<mods>]{<arg>} for nicknames, \realname creates \real for secret
+identities (when the normal name is just a cover), and \maidenname
+creates \maiden, for a pre-marriage name.  These instances are defined
+locally to the character.
 
   \NEW{PC}{\cTommy}{
     \s\MYname	{Thomas Barker}
@@ -200,7 +200,7 @@ will show up on Jekyl's charsheet and Hyde's charsheet.
 Extra Statcards and SkillLists: Stats and Skills, produced as entries
 on statcards and skilllists, are just special type of elements.  When
 you use an identity to give someone an extra statcard or skilllist, it
-will set the stats and skills to be just the identities stats and
+will set the stats and skills to be just the identity's stats and
 skills (similar to the lists of owned elements at the end of the
 character sheets, as above).  For example:
 
@@ -218,7 +218,7 @@ character sheets, as above).  For example:
     }
 
 will, when given to a character, give them a second statcard and
-skilllist that only list the identities skills and stats (Theta 2,
+skilllist that only list the identity's skills and stats (Theta 2,
 Maul, and Regenerate).  These cards will not list any of the
 character's normal stats.  These stats and skills will also appear on
 the character's normal statcard and skilllist (via the normal

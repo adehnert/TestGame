@@ -77,22 +77,9 @@
   \badgetrue\statstrue\skillstrue\sheettrue\listtrue\labeltrue
   }
 
-
-\DECLARESUBTYPE{Stat}{Element}
-\PRESETS{Stat}{
-  \FD\MYabbrev	{\MYname}
-  \FD\MYvalue	{}
-  \rs\MYlistmap{\item\makebox[2in]{\MYname: \hfill}\MYvalue}
+\POSTSETS{Char}{
+  \resolvestats
   }
-
-
-%%%%%
-%% \stat{<name>}{<abbrev>}{<value>}
-%%
-%% \stat is a wrapper around \INSTANCE.  \stat commands are generated
-%% \newstat.
-\newinstance{Stat}{\stat[3]}{
-  \s\MYname{#1}\s\MYabbrev{#2}\s\MYvalue{#3}}
 
 
 %%%%%

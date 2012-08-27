@@ -25,6 +25,11 @@
   }
 \POSTSETS{Place}{
   \edef\mylocation{\MYwhere}
+  \protected@edef\@ownerstring{%
+    \MYname%
+    \ifx\mylocation\empty\else\ (\mylocation)\fi%
+    \ifx\MYwhen\empty\else\ (\MYwhen)\fi%
+    }
   }
 
 

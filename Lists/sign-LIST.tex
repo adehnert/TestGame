@@ -44,8 +44,14 @@
   }
 \POSTSETS{Sign}{
   \edef\mylocation{\MYloc}
+  \protected@edef\@ownerstring{%
+    \MYname%
+    \ifx\mylocation\empty\else\ (\mylocation)\fi%
+    }
   }
 \def\mylocation{}
+
+\def\loc#1{\rs\MYloc{#1}}
 
 \DECLARESUBTYPE{SignMedium}{Sign}
 \DECLARESUBTYPE{SignSmall}{Sign}
@@ -65,7 +71,7 @@
 \DECLARESUBTYPE{EOG}{Sign}
 \PRESETS{EOG}{%
   \s\MYname	{End Of Game}
-  \s\MYtext	{You may not pass through here.}
+  \s\MYtext	{{\bf\Huge You may not pass through here.}}
   }
 
 
@@ -111,6 +117,13 @@
   \s\MYname{#1}\s\MYtext{#2}}
 \newinstance{LabelPage}{\labelpage[2]}{
   \s\MYname{#1}\s\MYtext{#2}}
+
+
+%%%%%
+%% \sEOG{}
+%% use \sEOg[\loc{<location>}]{} for EOG sign at a specific place
+\NEW{EOG}{\sEOG}{
+  }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

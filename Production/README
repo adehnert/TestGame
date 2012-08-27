@@ -52,6 +52,29 @@ subowners, can be distributed as-is.
 
 
 
+Workflow: When printing your game, you'll generally use the
+latex/dvips/lpr workflow.  You latex a file with:
+
+  latex filename.tex
+
+Then you produce the postscript file based on the resulting .dvi with:
+
+  dvips filename.dvi
+
+Finally, you send to the local printer with:
+
+  lpr -l filename.ps
+
+The -l option tells lpr to send the raw postscript file, which will
+preserve print-level postscript commands that automate duplex/simplex
+printing.  You can also specify a specific printer with -P.
+
+You can use pdflatex, instead, for previewing files while you write,
+but it is not recommended for production.  Automated duplex/simplex
+printing requires postscript, as do the various map-drawing commands.
+
+
+
 Printing and Collating: Elements print together by type.  You'll
 generally latex and print a single file per type (rather than per
 owner).  A given file will print quickly because the elements are

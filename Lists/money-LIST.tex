@@ -158,7 +158,7 @@
         #1\relax%
         \edef\@numbills{\the\count0}%
         \ifnum\@numbills>0\relax%
-          \multiply\count0by\MYamountnum\relax%
+          \multiply\count0by\@tmp\relax%
           \edef\@tmp{\the\count0}%
           \count0=\@mctotal\relax%
           \advance\count0-\@tmp\relax%

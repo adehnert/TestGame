@@ -1,4 +1,4 @@
-GameTeX is currently at version 1.1a.
+GameTeX is currently at version 1.3b.
 
 
 
@@ -15,7 +15,7 @@ gametex.tar.bz2").
 Setting up GameTeX: To install GameTeX, simply copy the files from
 GameTeX/ to wherever you are keeping files for your game.  You will
 probably rename the top GameTeX/ directory to something representative
-of your game, such that Blusheets/, Charsheets/, etc. are under
+of your game, such that Bluesheets/, Charsheets/, etc. are under
 YourGame/, or you'll put the entire GameTeX/ tree under
 YourGame/GameTeX/.
 
@@ -94,6 +94,41 @@ pstcol's features).
 an infinite loop bug that occurred during certain invocations of
 Identities.  Removed obsolete paragraph about texmf.cnf from
 LaTeX/README.
+
+1.1.1 (7/10/2010): Updated documentation for bash users (the new
+Athena default).  Made quote macros, like \cenquote and \bigquote,
+available in most any document.
+
+1.1.1a (7/25/2010): Fixed a bug in Identity code that prevented
+cheatsheets from compiling.
+
+1.2 (7/16/2011): Fixed another minor Identity bug.  Moved Stat
+datatype to gametex.sty, and added the \resolvestats command.  Added
+the skilllist environment for convenience.  Added workflow
+documentation to Production/README, and fixed some documentation
+typos.
+
+1.3 (4/22/2012): Name-parsing now supports both \western and \eastern
+parsing styles (with support for \custom as well); low-level name
+parsing much more powerful; parsename.sty has much more full
+documentation.  \loc{<location>} is a shortcut provided for signs.
+EOG signs smarter, with new \sEOG{} macro.  \unpunt tweaked so serial
+uses work intuitively.  \nickname, \realname, and \maidenname take an
+optional [<mods>] argument.  Places and signs put location in
+ownership string (e.g. page headers).  ulem and alltt packages now
+included everywhere.  Fixed bug with making change from multiple
+currencies.  Other bugs and typos fixed.  Various expansions and
+changes made to example rules document, including new guideline
+comments, generic interruptible mechanic, new bag-searching rules,
+bodies are written as 3-hands bulky, draft stub of "New Rule Summary"
+section, and other small additions.
+
+1.3a (6/3/2012): Sign and place ownership strings correctly leave out
+() for blank locations.  Rope rules have explicit tying/untying
+mechanic.
+
+1.3b (7/21/2012): Fixed an obscure bug for using \notowner inside
+\raw.  Fixed some cheatsheet formatting and recursion detection.
 
 
 

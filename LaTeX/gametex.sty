@@ -108,10 +108,6 @@
 %%
 %% Character etc. commands
 %%
-%%   \first
-%%   \middle
-%%   \last
-%%
 %%   \changeplayer{<playername>}
 %%   \unknownplayer
 %%   \deceased
@@ -161,10 +157,12 @@
 %% files, and -LIST.tex files are set up.
 %%
 %%   Char datatype
-%%
-%%   \newstat{<field>}{<name>}{<abbrev>}{<default>}
-%%
 %%   Player datatype
+%%
+%%   Stat datatype
+%%   \stat{<name>}{<abbrev>}{<value>}
+%%   \newstat{<field>}{<name>}{<abbrev>}{<default>}
+%%   \resolvestats
 %%
 %%   Identity datatype
 %%   \listcharstuff
@@ -172,27 +170,27 @@
 %%   <command>[<mods>]{<arg>}
 %%   \identity{<mods>}
 %%
-%%   \realname{<name>}
+%%   \realname[<mods>]{<name>}
 %%   \real[<mods>]{<arg>}
-%%   \nickname{<name>}
+%%   \nickname[<mods>]{<name>}
 %%   \nick[<mods>]{<arg>}
-%%   \maidenname{<name>}
+%%   \maidenname[<mods>]{<name>}
 %%   \maiden[<mods>]{<arg>}
 %%
 %%   \intro
 %%   \usual
 %%   \contactmapping
 %%   \titlemapping
-%%   \full
-%%   \fullplain
-%%   \formal
-%%   \informal
 %%
 %%   \extrabadge{<name>}{<number>}{<desc>}
 %%   \same
 %%   \boxlabel{<label>}
 %%
 %% A few options-wide commands are declared.
+%%
+%%   \basequote{<text>}{<author>}
+%%   \bigquote{<text>}{<author>}
+%%   \cenquote{<text>}{<author>}
 %%
 %%   \begin{contacts}
 %%     \contact{<character>}
@@ -867,7 +865,7 @@
   \endgroup%
   }
 \def\unpunt#1#2{\begingroup%
-  \EVERY{#1}{\etoss{\stoss{\?\ME{\puntme}}}}%
+  \EVERY{#1}{\ifx\@unpunted\empty\etoss{\stoss{\?\ME{\puntme}}}\fi}%
   \BRANCHTYPES{#1}{\MAP{\TYPE}{\etoss{\stoss{\?\ME{\unpuntme}}}}}#2%
   \endgroup}
 
@@ -875,8 +873,9 @@
 \def\unpuntme{\ADD{\@unpuntme}}
 
 \def\@puntme{\let\@punted\relax}
-\def\@unpuntme{\let\@punted\empty}
+\def\@unpuntme{\let\@punted\empty\let\@unpunted\relax}
 \let\@punted\empty
+\let\@unpunted\empty
 
 \long\def\beginpunt#1\endpunt{\ifx\@punted\empty#1\fi}
 \def\endpunt{%
@@ -961,8 +960,8 @@
 %% These are wrappers around basic uses of \SORT{Char}... that list
 %% Char macros alphabetically by either name or player.  See
 %% datatypes.sty.
-\def\charsbycharacter{\SORT{Char}{alpha<}{\parsealpha}{\EVERY{Char}{}}{}}
-\def\charsbyplayer{\SORT{Char}{alpha<}{\parsealphaP}{\EVERY{Char}{}}{}}
+\def\charsbycharacter{\SORT{Char}{alpha<}{\alphabetical}{\EVERY{Char}{}}{}}
+\def\charsbyplayer{\SORT{Char}{alpha<}{\playeralphabetical}{\EVERY{Char}{}}{}}
 \def\charsasis{\EVERY{Char}{}}
 
 
@@ -983,15 +982,6 @@
 %% and control how character names are typeset in sheets.
 %%
 %%%%%
-
-
-%%%%%
-%% \first
-%% \middle
-%% \last
-\def\first{\parsefirst}
-\def\middle{\parserest}
-\def\last{\parselast}
 
 
 %%%%%
@@ -1323,8 +1313,8 @@
   \def\@tmp{#2}\ifx\@tmp\empty\else%
     \let\@prevowner\myowner\let\@prevsubowner\mysubowner%
     \begingroup%
-      #1{\etoss{\@setowner{\?\myowner\ - \?\MYname}%
-                \global\let\mysubowner\MYname}}%
+      #1{\etoss{\@setowner{\?\myowner\ - \?\@ownerstring}%
+                \global\let\mysubowner\@ownerstring}}%
       \unless\ifx\@prevsubowner\empty%
         \expandafter\@global@prepend\expandafter%
         \mysubowner\expandafter{\@prevsubowner\ - }%
@@ -1339,7 +1329,7 @@
   \def\@tmp{#2}\ifx\@tmp\empty\else%
     \let\@prevowner\myowner\let\@prevsubowner\mysubowner%
     \begingroup%
-      #1{\etoss{\@setowner{\?\myowner\ - \?\MYname}%
+      #1{\etoss{\@setowner{\?\myowner\ - \?\@ownerstring}%
                 \global\let\mysubowner\MYname}}%
       \let\@transowner\relax%
       #1{\BRANCHTYPES{Owner}{\RESURFACEMAP{\TYPE}}#2}%
@@ -1457,8 +1447,8 @@
       \def\@elementfmap{\@subownerfmap}%
       \def\@ownerfmap{%
         \ifx\@flat@mark\ME%
-          \typeout{! \expandafter\string\ME{} repeated within itself
-            (ignored)}%
+          \typeout{! \expandafter\unexpanded\expandafter{\ME{}} %
+            repeated within itself (ignored)}%
         \else%
           \expandafter\stoss\expandafter{%
             \expandafter\EXTEND\expandafter{\ME}{\let\@flat@mark\ME}}%
@@ -1466,11 +1456,13 @@
           %% go through all fields (#2 first). if member is an element in #2
           %% or a suite anywhere, add it.  if suite, recurse.  if subowner,
           %% throw it.
-          \def\@ownerfmap{}%
-          \def\@subownerfmap{\uniquemark\@sofmap}%
-	  \@infield#2%
-          \def\@i####1####2{####1}%
-          \@outfield\@otherfields%
+          \ifx\@notowner\empty%
+            \def\@ownerfmap{}%
+            \def\@subownerfmap{\uniquemark\@sofmap}%
+            \@infield#2%
+            \def\@i####1####2{####1}%
+            \@outfield\@otherfields%
+          \fi%
           \expandafter\stoss\expandafter{%
             \expandafter\EXTEND\expandafter{\ME}{\let\@flat@mark\relax}}%
         \fi}%
@@ -1493,8 +1485,8 @@
       \long\def\doid##1{##1}%
       \BRANCHTYPES{Owner}{\MAP{\TYPE}{%
         \ifx\@flat@mark\ME%
-          \typeout{! \expandafter\string\ME{} repeated within itself
-            (ignored)}%
+          \typeout{! \expandafter\unexpanded\expandafter{\ME{}} %
+            repeated within itself (ignored)}%
         \else%
           \uniquemark%
           \ifx\@owner\empty%
@@ -1537,14 +1529,14 @@
     \endpunt}}%
   \BRANCHTYPES{Place}{\SURFACEMAP{\TYPE}{%
     \beginpunt%
-      \expandafter\@setowner\expandafter{\MYname}%
+      \expandafter\@setowner\expandafter{\@ownerstring}%
       \BRANCHTYPES{Element}{\RESURFACEMAP{\TYPE}}%
       \@flatten@field{#1}#2%
       \@setowner{}%
     \endpunt}}%
   \def\@subownermap##1{%
     \beginpunt%
-      \expandafter\@setowner\expandafter{\MYname}%
+      \expandafter\@setowner\expandafter{\@ownerstring}%
       ##1%
       \BRANCHTYPES{Element}{\RESURFACEMAP{\TYPE}}%
       \@flatten@field{#1}#2%
@@ -1589,7 +1581,7 @@
   \BRANCHTYPES{Char}{\SURFACEMAP{\TYPE}{\@charmap}}%
   \BRANCHTYPES{Place}{\SURFACEMAP{\TYPE}{%
     \beginpunt%
-      \expandafter\@setowner\expandafter{\MYname}%
+      \expandafter\@setowner\expandafter{\@ownerstring}%
       \BRANCHTYPES{SubOwner}{\REMAP{\TYPE}}%
       \BRANCHTYPES{Identity}{\SURFACEMAP{\TYPE}{#1}}%
       \@flatten@field{Identity}\MYids%
@@ -1597,7 +1589,7 @@
     \endpunt}}%
   \def\@subownermap{%
     \beginpunt%
-      \expandafter\@setowner\expandafter{\MYname}%
+      \expandafter\@setowner\expandafter{\@ownerstring}%
       \BRANCHTYPES{Identity}{\SURFACEMAP{\TYPE}{#1}}%
       \@flatten@field{Identity}\MYids%
       \@setowner{}%
@@ -1667,13 +1659,14 @@
 
 
 %%%%%
-%%
-\message{\space\space Packages: pslatex verbatim multicol comma multido
-  pstricks graphicx lscape}
+%% Packages are loaded, with compressed output.
+\message{\space\space Packages: verbatim multicol comma multido alltt ulem}
+\message{\space\space Graphics Packages: pstricks graphicx lscape}
 \message{\space\space Symbol Packages: latexsym amssymb textcomp}
 \batchmode
-\usepackage{pslatex,verbatim,multicol,comma,multido,pstricks}
-\usepackage{graphicx,lscape}
+\usepackage{pslatex,verbatim,multicol,comma,multido,alltt}
+\usepackage[normalem]{ulem}
+\usepackage{pstricks,graphicx,lscape}
 \usepackage{latexsym,amssymb,textcomp}
 \errorstopmode
 
@@ -1712,6 +1705,9 @@
   \owner
   \suite
   \nottransowner
+  }
+\POSTSETS{Owner}{
+  \protected@edef\@ownerstring{\MYname}
   }
 
 \DECLARESUBTYPE{SubOwner}{Owner}
@@ -1757,8 +1753,6 @@
 
 %%%%%
 %% Char datatype
-%% \newstat{<field>}{<name>}{<abbrev>}{<default>}
-%% Stat datatype
 \DECLARESUBTYPE{Char}{Owner}
 \newif\ifbadge
 \newif\ifstats
@@ -1767,17 +1761,14 @@
 \newif\iflist
 \newif\iflabel
 
-\newcommand{\newstat}[4]{%
-  \FD#1{#4}%
-  \append\MYstats{\stat{#2}{#3}{#1}}%
-  }
 
 \def\@playerfields{%
-  \@i\MYplayer	%% player name
-  \@i\MYemail	%% player email address
-  \@i\MYaddress	%% player address
-  \@i\MYphone	%% player phone number
-  \@i\MYnote	%% playerlist note
+  \@i\MYplayer		%% player name
+  \@i\MYemail		%% player email address
+  \@i\MYaddress		%% player address
+  \@i\MYphone		%% player phone number
+  \@i\MYnote		%% playerlist note
+  \@i\MYplayerparse	%% playername's parse type
   }
 
 \let\@@declaredplayer\empty
@@ -1819,8 +1810,13 @@
 \POSTSETS{Char}{
   \parsename{\MYname}	%% parse the character name
   \let\@noplayer\relax\@procplayer
-  \parsename[P]{\MYplayer}	%% parse the player name
-  \edef\@ownerstring{\MYname\ifx\MYplayer\empty\else\ (\MYplayer)\fi}
+  \begingroup
+    \western
+    \MYplayerparse
+    \parsename{\MYplayer} %% parse the player name
+    \etoss{\def\playeralphabetical{\?\alphabetical}}
+  \endgroup
+  \protected@edef\@ownerstring{\MYname\ifx\MYplayer\empty\else\ (\MYplayer)\fi}
   }
 
 
@@ -1833,6 +1829,58 @@
   \labeltrue
   }
 \MAP{Player}{\MYplayer}
+
+
+%%%%%
+%% Stat datatype
+\DECLARESUBTYPE{Stat}{Element}
+\PRESETS{Stat}{
+  \FD\MYabbrev	{\MYname}
+  \FD\MYvalue	{}
+  \rs\MYlistmap{\item\makebox[2in]{\MYname: \hfill}\MYvalue}
+  }
+
+
+%%%%%
+%% \stat{<name>}{<abbrev>}{<value>}
+%%
+%% \stat is a wrapper around \INSTANCE.  \stat commands are generated
+%% \newstat.
+\newinstance{Stat}{\stat[3]}{
+  \s\MYname{#1}\s\MYabbrev{#2}\s\MYvalue{#3}}
+
+
+%%%%%
+%% \newstat{<field>}{<name>}{<abbrev>}{<default>}
+%%
+%% \newstat declares a new field for a stat, gives it a default value,
+%% and adds a \stat command to \MYstats that uses that field as its\
+%% value.  \newstat is usually called from \PRESETS.
+\newcommand{\newstat}[4]{%
+  \FD#1{#4}%
+  \append\MYstats{\stat{#2}{#3}{#1}}%
+  }
+
+
+%%%%%
+%% \resolvestats
+%%
+%% \resolvestats makes each Stat inside \MYstats base its value on the
+%% current expansion of its value field, e.g. the current value of
+%% \MYhp instead of the macro \MYhp.  This allows the Stats to carry
+%% their actual value into other scopes.
+%%
+%% \resolvestats is usually called in \POSTSETS when \newstat was used
+%% in \PRESETS.
+\newcommand{\resolvestats}{%
+  \begingroup%
+    \BRANCHTYPES{Stat}{\MAP{\TYPE}{%
+      \edef\@tmpvalue{\MYvalue}%
+      \etoss{\stoss{\append\MYstats{\?\ME[\rs\MYvalue{\?\@tmpvalue}]{}}}}%
+      }}
+    \stoss{\rs\MYstats{}}%
+    \MYstats%
+  \endgroup}
 
 
 %%%%%
@@ -1854,13 +1902,11 @@
   \INSTANCE{Identity}{\s\MYname{\string#1}\s\MYmods{#2##1}}}}
 \newinstance{Identity}{\identity[1]}{\s\MYname{identity}\s\MYmods{#1}}
 
-\MAP{Identity}{\@idmap}
+\MAP{Identity}{}
 \let\@myidchar\relax
-\let\@myidmap\relax
-\def\@@idmap{\@idmap}
+\def\@@idmap{\MYMAP}
 \long\def\doid#1{\begingroup\let\@tmp\empty%
-  \def\@idarg{#1}\expandafter%
-  \ifx\@idarg\@@idmap\let\@idarg\empty\fi%
+  \def\@idarg{#1}%
   \ifx\@transowner\relax\let\@tmp\relax\fi%
   \ifx\@myidchar\relax\let\@tmp\relax\fi%
   \ifx\@listcharstuff\empty%
@@ -1880,17 +1926,17 @@
 
 
 %%%%%
-%% \realname{<name>}
+%% \realname[<mods>]{<name>}
 %% \real[<mods>]{<arg>}
-%% \nickname{<name>}
+%% \nickname[<mods>]{<name>}
 %% \nick[<mods>]{<arg>}
-%% \maidenname{<name>}
+%% \maidenname[<mods>]{<name>}
 %% \maiden[<mods>]{<arg>}
-\def\realname#1{\newid\real{\rs\MYname{#1}}}
+\newcommand\realname[2][]{\newid\real{\rs\MYname{#2}#1}}
 \newid\real{}
-\def\nickname#1{\newid\nick{\rs\MYname{#1}}}
+\newcommand\nickname[2][]{\newid\nick{\rs\MYname{#2}#1}}
 \newid\nick{}
-\def\maidenname#1{\newid\maiden{\rs\MYname{#1}}}
+\newcommand\maidenname[2][]{\newid\maiden{\rs\MYname{#2}#1}}
 \newid\maiden{}
 
 
@@ -1899,39 +1945,11 @@
 %% \usual
 %% \contactmapping
 %% \titlemapping
-%% \full
-%% \fullplain
-%% \formal
-%% \informal
 \PRESETS{Char}{%
   \def\intro{\@iid{\@imap}}%
   \def\usual{\@uid{\@umap}}%
   \def\contactmapping{\@cid{\@cmap}}%
   \def\titlemapping{\@tmap}%
-  \def\full{\MYname}%
-  \def\fullplain{%
-    \parsefirst%
-    \unless\ifx\parsefirst\empty\unless\ifx\parserest\empty\ \fi\fi%
-    \parserest%
-    \unless\ifx\parselast\empty\unless\ifx\parserest\empty\ \else%
-      \unless\ifx\parsefirst\empty\ \fi\fi\fi%
-    \parselast}%
-  \def\formal{%
-    \parseprefix%
-    \unless\ifx\parseprefix\empty%
-      \unless\ifx\parselast\empty\ %
-      \else\unless\ifx\parsefirst\empty\ \fi%
-      \fi%
-    \fi%
-    \ifx\parselast\empty\parsefirst\else\last\fi%
-    \ifx\parseprefix\empty\ifx\parsefirst\empty\ifx\parselast\empty%
-      \parsesuffix%
-    \fi\fi\fi}%
-  \def\informal{%
-    \unless\ifx\parsefirst\empty\parsefirst\else%
-      \unless\ifx\parselast\empty\parselast\else%
-        \unless\ifx\parseprefix\empty\parseprefix\else%
-          \parsesuffix\fi\fi\fi}%
   }
 
 \PRESETS{Identity}{%
@@ -2024,7 +2042,12 @@
 
 \POSTSETS{GM}{
   \parsename{\MYname}
-  \parsename[P]{\MYplayer}
+  \begingroup
+    \western
+    \MYplayerparse
+    \parsename{\MYplayer}
+    \etoss{\def\playeralphabetical{\?\alphabetical}}
+  \endgroup
   }
 
 \input \lists/gm-LIST.tex
@@ -2053,6 +2076,50 @@
 
 
 %%%%%
+%% \basequote{<text>}{<author>}
+%%
+%% \basequote is the basis for the other quote macros below.  It
+%% typesets <text> and then, if <author> isn't empty, typesets
+%% <author>.
+\long\def\basequote#1#2{{%
+  \vbox{%
+    \vskip\parskip%
+    \baselineskip0pt%
+    \def\baselinestretch{1}%
+    \hbox to\textwidth{%
+      \hsize\textwidth%
+      \advance\hsize-1in%
+      \hfill%
+      \parbox[b]{\hsize}{#1}
+      \hfill}%
+    \setbox0=\hbox{\parbox[b]{2.5in}{#2}}\par%
+    \ifdim\wd0>0sp%
+      \vskip-.5\baselineskip%
+      \noindent\makebox[\textwidth][r]{\box0}%
+    \fi}}}
+
+
+%%%%%
+%% \bigquote{<text>}{<author>}
+%%
+%% Based on \basequote.  It typesets <text> in a paragraph, suitable
+%% for larger quotes.
+\long\def\bigquote#1#2{%
+  \basequote{\em #1}{\raggedright\scriptsize\em #2}%
+  }
+
+
+%%%%%
+%% \cenquote{<text>}{<author>}
+%%
+%% Based on \basequote.  It typesets <text> centered, suitable for
+%% smaller quotes, song lyrics, and the like.
+\long\def\cenquote#1#2{%
+  \basequote{\centering\em #1}{\raggedright\scriptsize\em #2}%
+  }
+
+
+%%%%%
 %% \begin{contacts}
 %%   \contact{<character>}
 %% \end{contacts}
@@ -2069,6 +2136,12 @@
 \def\endmembers{\enditemz}
 \def\member#1{\item\relax{\MAP{Char}{\@contact}#1:}}
 
+
+%%%%%
+%%
+\def\skilllist{\itemz%
+  \BRANCHTYPES{Abil}{\SURFACEMAP{\TYPE}{\item\MYname:\MYtext}}}
+\def\endskilllist{\enditemz}
 
 %%%%%
 %% \pageof{<card>}
@@ -2097,10 +2170,6 @@
 %%  \title@display{<text>}
 %%  \sheettitle{<title>}
 %%  \name{<title>}
-%%
-%%  \basequote{<text>}{<author>}
-%%  \bigquote{<text>}{<author>}
-%%  \cenquote{<text>}{<author>}
 %%
 %%  \begin{tlist}[<cols>]{<title>}
 %%    \unlist{<stuff>}
@@ -2270,50 +2339,6 @@
 \long\def\name#1{{%
   \MAP{Owner}{\MYname\ifx\MYnumber\empty\else\\\MYnumber\fi}%
   \sheettitle{#1}}}
-
-
-%%%%%
-%% \basequote{<text>}{<author>}
-%%
-%% \basequote is the basis for the other quote macros below.  It
-%% typesets <text> and then, if <author> isn't empty, typesets
-%% <author>.
-\long\def\basequote#1#2{{%
-  \vbox{%
-    \vskip\parskip%
-    \baselineskip0pt%
-    \def\baselinestretch{1}%
-    \hbox to\textwidth{%
-      \hsize\textwidth%
-      \advance\hsize-1in%
-      \hfill%
-      \parbox[b]{\hsize}{#1}
-      \hfill}%
-    \setbox0=\hbox{\parbox[b]{2.5in}{#2}}\par%
-    \ifdim\wd0>0sp%
-      \vskip-.5\baselineskip%
-      \noindent\makebox[\textwidth][r]{\box0}%
-    \fi}}}
-
-
-%%%%%
-%% \bigquote{<text>}{<author>}
-%%
-%% Based on \basequote.  It typesets <text> in a paragraph, suitable
-%% for larger quotes.
-\long\def\bigquote#1#2{%
-  \basequote{\em #1}{\raggedright\scriptsize\em #2}%
-  }
-
-
-%%%%%
-%% \cenquote{<text>}{<author>}
-%%
-%% Based on \basequote.  It typesets <text> centered, suitable for
-%% smaller quotes, song lyrics, and the like.
-\long\def\cenquote#1#2{%
-  \basequote{\centering\em #1}{\raggedright\scriptsize\em #2}%
-  }
 
 
 %%%%%
@@ -2873,22 +2898,22 @@
 %% \allplayers
 %% \allgms
 \def\allchars{%
-  \SORT{Char}{alpha<}{\parsealpha\space\space\parsealphaP}{%
+  \SORT{Char}{alpha<}{\alphabetical\divider\playeralphabetical}{%
     \@charids}{\ifx\@fakedplayer\relax\@playerlistmap\fi}%
   \@degenerateids}
 \def\allplayers{%
-  \SORT{Char}{alpha<}{\parsealphaP}{\@charids}{%
+  \SORT{Char}{alpha<}{\playeralphabetical}{\@charids}{%
     \@givennoplayer{\@playerlistmap}}%
   \@degenerateids}
 \def\allgms{%
-  \SORT{GM}{alpha<}{\parsealpha}{\EVERY{GM}{}}{}}
+  \SORT{GM}{alpha<}{\playeralphabetical}{\EVERY{GM}{}}{}}
 
 %%%%%
 %% \group{groupstring} -> alphabetize lists of Char macros in given
 %% group as determined by "groupstring" (see char-LIST.tex).
 %% Alphabetizing by first character name then player name.
 \newcommand{\group}[1]{%
-  \SORT{Char}{alpha<}{\parsealpha\space\space\parsealphaP}{%
+  \SORT{Char}{alpha<}{\alphabetical\divider\playeralphabetical}{%
     \SIFT{Char}{=}{\MYgroupstr}{#1}{\@charids}{}%
     }{\@playerlistmap}}
 
@@ -4223,7 +4248,7 @@
 %%%%%
 %% \begin{page}{<string>}  <contents>  \end{page}
 \newcommand\page[2][]{\begingroup%
-  \edef\identifier{\@nbref{#2}}%
+  \def\identifier{\@nbref{#2}}%
   \fboxsep=-\fboxrule%
   \baselineskip=0pt%
   \parindent=0pt%
@@ -4302,7 +4327,7 @@
           \xdef\@nbpagecount{\the\count0}%
           \xdef\@nbid{\@nbpagecount}%
         \else%
-          \gdef\@nbid{##1}%          
+          \gdef\@nbid{##1}%
         \fi%
       \endgroup%
       \etoss{\toss[2]{%
@@ -4850,7 +4875,7 @@
 \SURFACEMAP{GM}{\iflist\GMbadge{\MYname}{\MYplayer}\fi}
 
 \def\@production{%
-  \@setowner{GMs}\SORT{GM}{alpha<}{\parsealpha}{\EVERY{GM}{}}{}%
+  \@setowner{GMs}\SORT{GM}{alpha<}{\playeralphabetical}{\EVERY{GM}{}}{}%
   \@setowner{Observers}\pageof{\Observer}%
   \charsproduction\EVERY{Place}{}}
 \def\@compendium{\@production}
@@ -5242,14 +5267,13 @@
         {\bfseries\small{#1}}\break
         \vfil
         {\parbox{\skill@wd}{\scriptsize\raggedright{%
-          \parindent5pt\begin{itemz}%
-	    \BRANCHTYPES{Abil}{\SURFACEMAP{\TYPE}{\item\MYname:\MYtext}}%
+          \parindent5pt\begin{skilllist}%
 	    \BRANCHTYPES{Stat}{\SURFACEMAP{\TYPE}{%
 	      \item\makebox[1.3in]{\MYname:\hfill\MYvalue}}}%
 	    \multicolsep\lineskip\relax%
 	    \begin{multicols}{2}\raggedcolumns#2\end{multicols}%
 	    #3%
-	  \end{itemz}%
+	  \end{skilllist}%
 	  }}}\break
         \vskip\whitespace\vfil
         {\small\gamenameabbrev/\gamedateabbrev\hfill\skill@trans}%
@@ -5285,7 +5309,8 @@
   \@bycharmappings{\@boxmap}%
   \def\@production{%
     \@preprocids{\EVERY{Char}{}\EVERY{Place}{}\EVERY{Player}{\@fakeplayer}}%
-    \SORT{Char}{alpha<}{\parsealphaP}{\@charids}{\@givennoplayer{\@boxmap}}%
+    \SORT{Char}{alpha<}{\playeralphabetical}{\@charids}{%
+      \@givennoplayer{\@boxmap}}%
     \@degenerateids\boxlabel{GMs}}%
   }
 
@@ -5298,7 +5323,7 @@
   \@bycharmappings{\@boxmap}%
   \def\@production{%
     \@preprocids{\EVERY{Char}{}\EVERY{Place}{}}%
-    \SORT{Char}{alpha<}{\parsealpha}{\@charids}{\@boxmap}%
+    \SORT{Char}{alpha<}{\alphabetical}{\@charids}{\@boxmap}%
     \@degenerateids\boxlabel{GMs}}%
   }
 
@@ -5392,7 +5417,7 @@
     \@cheatid\maiden{maiden name}
     \@cheatnotempty\MYdesc{desc}
     \BRANCHTYPES{Stat}{\SURFACEMAP{\TYPE}{%
-      {\em\MYabbrev}: \MYvalue\hspace{1em}}}%
+      {\em\MYabbrev}:~\MYvalue\hspace{1em}}}%
     \unless\ifx\MYstats\empty\@cheatmark\MYstats\fi%
     \long\def\doid#1{#1}
     \@cheatfields}%
@@ -5407,14 +5432,15 @@
     \@cheatfields}%
   }}
 
-\BRANCHTYPES{SubOwner}{\MAP{\TYPE}{%
+\def\@subownercheatsheet#1{%
   \uniquemark%
   \begingroup%
     \ifx\@cheatmark\ME%
-       \typeout{! \expandafter\string\ME{} repeated within itself (ignored)}%
+       \typeout{! \expandafter\unexpanded\expandafter{\ME{}} %
+         repeated within itself (ignored)}%
     \else%
-      \MYname\unless\ifx\MYnumber\empty\ (\MYnumber)\fi%
       \ADD{\let\@cheatmark\ME}%
+      #1%
       \@testfields%
       \ifx\@owner\relax%
         \let\@cheatmark\empty%
@@ -5423,28 +5449,21 @@
         \hskip-1em{\bf)}%
       \fi%
       \hskip1em%
+      \ADD{\let\@cheatmark\relax}%
     \fi%
   \endgroup%
+  }
+
+\BRANCHTYPES{SubOwner}{\MAP{\TYPE}{%
+  \@subownercheatsheet{\MYname\unless\ifx\MYnumber\empty\ (\MYnumber)\fi}%
   }}
 
 \def\@testloc{\mylocation}
 \BRANCHTYPES{Sign}{\MAP{\TYPE}{%
-  \uniquemark%
-  \ifx\@cheatmark\ME%
-     \typeout{! \expandafter\string\ME{} repeated within itself (ignored)}%
-  \else%
-    \ADD{\let\@cheatmark\ME}%
+  \@subownercheatsheet{%
     \MYname\unless\ifx\MYnumber\empty\ (\MYnumber)\fi%
     \unless\ifx\MYloc\@testloc\unless\ifx\MYloc\empty\ {\bf(\MYloc)}\fi\fi%
-    \@testfields%
-    \ifx\@owner\relax%
-      \let\@cheatmark\empty%
-      \ {\bf(}%
-      \@cheatfields%
-      \hskip-1em{\bf)}%
-    \fi%
-    \hskip1em%
-  \fi%
+    }%
   }}
 
 
@@ -5459,7 +5478,7 @@
       \ifnum##1>1\ensuremath{\mathbf{##1\times}}\fi%
       \ifnum##1>0\relax##2\fi}%
     \makenochange%
-    \long\def\raw##1{{\em raw code}}%
+    \long\def\raw##1{{\em raw code}\hskip1em}%
     \long\def\pageof##1{page\ensuremath{\mathbf{\times}}##1}%
     %% if no \items, produce \item none
     \global\let\@itemzhere\empty%
