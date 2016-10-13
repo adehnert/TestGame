@@ -1,7 +1,7 @@
 machine:
   environment:
-    testgame: /home/ubuntu/TestGame
-    TEXINPUTS: /home/ubuntu/TestGame/LaTeX:
+    testgame: "/home/ubuntu/TestGame"
+    TEXINPUTS: "/home/ubuntu/TestGame/LaTeX:"
 
 dependencies:
   pre:
@@ -9,7 +9,7 @@ dependencies:
 
 test:
   override:
-    - cd Production && make
+    - "cd Production && make"
   post:
     - mkdir $CIRCLE_ARTIFACTS/sheets
     - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
