@@ -1,0 +1,8 @@
+machine:
+  environment:
+    testgame: /home/ubuntu/TestGame
+    TEXINPUTS: /home/ubuntu/TestGame/LaTeX:
+
+dependencies:
+  pre:
+    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended
