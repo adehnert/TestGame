@@ -6,3 +6,10 @@ machine:
 dependencies:
   pre:
     - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+
+test:
+  override:
+    - cd Production && make
+  post:
+    - mkdir $CIRCLE_ARTIFACTS/sheets
+    - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
