@@ -42,6 +42,12 @@ how to incorporate into a section on game areas.
 
 
 
+wrapup.tex: This is a template for a wrapup document (usually most
+suitable for longer games).  It automatically generates wrapup entries
+for all PCs, basically printing out everyone's \MYwrapup entries.
+
+
+
 Public Greensheets: A public greensheet is one that any character can
 optionally have.  To create one, just make a normal greensheet with
 the \publicgreensheet command added right after \begin{document}:

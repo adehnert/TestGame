@@ -1,4 +1,4 @@
-GameTeX is currently at version 1.3b.
+GameTeX is currently at version 1.4.1b.
 
 
 
@@ -129,6 +129,26 @@ mechanic.
 
 1.3b (7/21/2012): Fixed an obscure bug for using \notowner inside
 \raw.  Fixed some cheatsheet formatting and recursion detection.
+
+1.4 (7/12/2014): json-PRINT.tex produces a .json file with select
+parts of game's database; \jsonkeyval provided for populating \MYjson
+with sanitized custom values; README-json suspiciously blank.  Added
+smoother version of the dagger graphic for smaller image use.  Added
+support for point-based skills on statcards (see char-LIST.tex).
+Added \MYwrapup field for characters.  Added wrapup document template
+to Handouts/.
+
+1.4.1 (8/9/2014): \MYfile added to cheatsheet; cheatsheet formatting
+corrected.  Added bluesheets template to wrapup.tex; added example
+wrapup entry to \cTest; added wrapup.tex mention to Handouts/README.
+Some typos fixed.
+
+1.4.1a (11/12/2014): Fixed gametex.pl to account for ghostscript bug.
+
+1.4.1b (7/15/2016): Notebook-style labels use \bookspace instead of
+\packetspace, to ease some customization hackery.  Fixed bugs with
+transferable owners, subowners, and \unlist.  Some typos fixed in
+comments.
 
 
 

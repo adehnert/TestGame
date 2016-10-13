@@ -52,7 +52,7 @@ sub dvipdf {
 	"-sPAPERSIZE=letter -dPDFSETTINGS=/printer -sOutputFile=$outfile " .
 	"-dEmbedAllFonts=true -dSubsetFonts=true -dMaxSubsetPct=100 " .
 	"-dCompatibilityLevel=1.3 -dParseDSCCommentsForDocInfo=false " .
-	"-dParseDSCComments=false " .
+	"-dParseDSCComments=false -dUseCIEColor " .
 	"-c save pop -";
 }
 

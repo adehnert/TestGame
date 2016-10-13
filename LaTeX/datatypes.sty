@@ -327,6 +327,17 @@
         \endgroup%
       \fi%
       \expandafter\def\csname\:ti :p\endcsname{#2}%
+      \expandafter\ifx\csname\:ti :p\endcsname\empty%
+        \expandafter\def\csname\:ti :pt\endcsname{}%
+      \else%
+        \expandafter\def\csname\:ti :pt\endcsname{\:i{#2}}%
+      \fi%
+      \begingroup%
+        \aftergroup\:ap\expandafter\aftergroup\csname\:ti :pt\endcsname%
+        \aftergroup{%
+          \expandafter\aftergroup\csname\:pi :pt\endcsname%
+          \aftergroup}%
+      \endgroup%
       \expandafter\def\csname\:ti :ct\endcsname{}%
       \begingroup%
         \aftergroup\def\expandafter\aftergroup\csname\:ti :ca\endcsname%
@@ -431,6 +442,12 @@
   \def\:i##1{\def\TYPE{##1}\:dotypes}%
   \:i{#1}%
   \expandafter\csname\csname#1:t\endcsname :ct\endcsname%
+  \let\TYPE\empty}
+
+\long\def\PARENTTYPES#1#2{%
+  \edef\:dotypes{\unexpanded{#2}}%
+  \def\:i##1{\def\TYPE{##1}\:dotypes}%
+  \expandafter\csname\csname#1:t\endcsname :pt\endcsname%
   \let\TYPE\empty}
 
 
@@ -563,8 +580,8 @@
   \endgroup\expandafter\:ap\csname\:id :l\endcsname{#1}%
   \begingroup}
 
-\def\:optionfix{\long\def\OPTIONHOOK##1{##1}}
-\long\def\EXTEND#1#2{#1[\:optionfix]{\:EXTEND{#2}}}
+\def\DEFAULTOPTIONHOOK{\long\def\OPTIONHOOK##1{##1}}
+\long\def\EXTEND#1#2{#1[\DEFAULTOPTIONHOOK]{\:EXTEND{#2}}}
 
 
 \long\def\:prep#1#2#3#4{%
@@ -1428,6 +1445,7 @@
 \gdef\:d{}
 \gdef\:t{}
 \gdef\:p{}
+\gdef\:pt{}
 \gdef\:ct{}
 \gdef\:ca#1{}
 \gdef\:pdo{}

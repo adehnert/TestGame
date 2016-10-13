@@ -74,6 +74,7 @@
   \FS\MYtext	{\ifx\MYfile\empty\else%
 		  \getextractenvs{document}{\chars/\MYfile}%
 		\fi}
+  \FD\MYwrapup	{}
   \badgetrue\statstrue\skillstrue\sheettrue\listtrue\labeltrue
   }
 
@@ -150,6 +151,59 @@
   }
 
 
+%%%%%
+%% support code for point skills, which appear on statcards.  This is
+%% a useful alternative to abilities (or skills) for things expressed
+%% as a simple level or number of points.
+%%
+%% Once declared, a point skill can be: 
+%%
+%%   invoked in a character's definition to give that character the
+%%   skill (e.g. given \perdayskill\engineering{Engineering},
+%%   use \engineering{2} in a Char to give them "Engineering: 2/day"
+%%   on the statcard)
+%%
+%%   or invoked in game text to show a number of points
+%%   (e.g. \engineering{2} in game text for "Engineering 2"), for
+%%   requirements and such.
+%%
+%% Use \newpointskilltype{<command>}{<string>} to declare a type of
+%% point skill.  E.g. \newpointskilltype{\perdayskill}{/day} to create
+%% the \perdayskill{<skill>} command, which in turn creates per-day
+%% skills.
+\def\newpointskilltype#1#2{
+  \def#1##1##2{%
+    \def##1{\@skill{##2}}%
+    \PRESETS{Char}{\@setval##1{-1}\def##1{\@pointstat{##1}{#2}{##2}}}%
+    \POSTSETS{Char}{\def##1{\@skill{##2}}}%
+    }
+  }
+\def\@pointstat#1#2#3#4{%
+  \append\MYstats{\stat{#3}{#3}{#4#2}}%
+  \@setval#1{#4}}
+\def\@skill#1#2{#1\ifx\relax#2\relax\else\space #2\fi}
+\def\@setval#1#2{\expandafter\def\csname\string#1\endcsname{#2}}
+\def\@skillvalue#1{\csname\string#1\endcsname}
+
+%% per-day skills are for N points per day.
+\newpointskilltype{\perdayskill}{/day}
+
+\perdayskill\engineering{Engineering}
+\perdayskill\security{Security}
+
+%% If a character hasn't been given a point skill, they will still
+%% have a value (of -1) accessible.  This is useful for tests
+%% (in \POSTSETS) where you want do things like assign greensheets to
+%% people with points of the skill (and let value 0 mean they get the
+%% greensheet but have no points).
+
+%\POSTSETS{PC}{
+%  \ifnum\@skillvalue\security>-1\relax
+%    \append\MYgreens	{\gSecurity{}}
+%  \fi
+%  }
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% don't use \cTest as a copy-and-paste template to populate your
@@ -174,9 +228,11 @@
   \s\MYabils	{\aTest{}
 		\aTestCombat{}
 		}
+  \engineering	{2}
   \s\MYitems	{\iTest{}\nTest{}}
   \s\MYwhites	{\wTest{}}
   \s\MYcash	{\cash{Dollar}{261}}
+  \s\MYwrapup	{MIT cruft, originally from London, who knows some people.}
   }
 
 \NEW{NPC}{\cNPC}{

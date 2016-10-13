@@ -398,7 +398,7 @@
 \AtBeginDocument{\ifdraft%
   \long\def\TODO#1{%
     \typeout{\space\space TODO: \unexpanded{#1}}%
-    TODO: \unexpanded{#1} :TODO}%
+    \textbf{TODO: \unexpanded{#1} :TODO}}%
   \fi}
 
 
@@ -1314,7 +1314,7 @@
     \let\@prevowner\myowner\let\@prevsubowner\mysubowner%
     \begingroup%
       #1{\etoss{\@setowner{\?\myowner\ - \?\@ownerstring}%
-                \global\let\mysubowner\@ownerstring}}%
+                \gdef\mysubowner{\?\MYname}}}%
       \unless\ifx\@prevsubowner\empty%
         \expandafter\@global@prepend\expandafter%
         \mysubowner\expandafter{\@prevsubowner\ - }%
@@ -1330,7 +1330,7 @@
     \let\@prevowner\myowner\let\@prevsubowner\mysubowner%
     \begingroup%
       #1{\etoss{\@setowner{\?\myowner\ - \?\@ownerstring}%
-                \global\let\mysubowner\MYname}}%
+                \gdef\mysubowner{\?\MYname}}}%
       \let\@transowner\relax%
       #1{\BRANCHTYPES{Owner}{\RESURFACEMAP{\TYPE}}#2}%
     \endgroup%
@@ -1459,6 +1459,7 @@
           \ifx\@notowner\empty%
             \def\@ownerfmap{}%
             \def\@subownerfmap{\uniquemark\@sofmap}%
+            \@outunlist%
             \@infield#2%
             \def\@i####1####2{####1}%
             \@outfield\@otherfields%
@@ -1520,7 +1521,11 @@
     \beginpunt%
       \gettags%
       \long\def\unlist##1{%
-        \expandafter\@setowner\expandafter{\myowner\ UNLISTED}##1}%
+        \let\@listedowner\myowner
+        \expandafter\@setowner\expandafter{\myowner\ UNLISTED}%
+        ##1%
+        \expandafter\@setowner\expandafter{\@listedowner}%
+        }%
       \expandafter\@setowner\expandafter{\@ownerstring}%
       \BRANCHTYPES{Element}{\RESURFACEMAP{\TYPE}}%
       \let\@myidchar\relax%
@@ -1700,6 +1705,7 @@
   \F\MYname
   \FD\MYnumber	{}
   \FD\MYlistmap	{\item\MYname}
+  \FD\MYjson	{}
   \@@declaredfields
   %% \relax -> true, \empty -> false
   \owner
@@ -1749,6 +1755,47 @@
 \let\@@declaredfields\empty
 \def\@i#1#2{\@append\@@declaredfields{\FD#1{}}}
 \@ownedfields
+
+
+%%%%%
+%%
+\long\def\jsonkeyval#1#2{%
+  \protected@edef\@valcontents{#2}
+  \begingroup%
+    \gdef\@sanitizedjson{}%
+    \catcode`\\12%
+    \catcode`\{12%
+    \catcode`\}12%
+    \catcode`\ 12%
+    \everyeof{\@endsanitize}%
+    \expandafter\expandafter\expandafter\@iteratesanitize\expandafter%
+      \scantokens\expandafter{\@valcontents}%
+  \endgroup%
+  \append\MYjson{"#1":"}%
+  \expandafter\append\expandafter\MYjson\expandafter{\@sanitizedjson}%
+  \append\MYjson{",}%
+  }
+
+\def\@iteratesanitize{\@sanitizeforjson}
+\def\@endsanitize{\@@endsanitize}
+\def\@@endsanitize{\relax}
+\def\@appendbackslash{\expandafter\@global@append\expandafter\@sanitizedjson%
+  \expandafter{\string\\}}
+\def\@appendbackquote{\expandafter\@global@append\expandafter\@sanitizedjson%
+  \expandafter{\string\`}}
+\def\@appendfrontquote{\expandafter\@global@append\expandafter\@sanitizedjson%
+  \expandafter{\string\'}}
+\def\@appenddoublequote{\expandafter\@global@append\expandafter\@sanitizedjson%
+  \expandafter{\string\"}}
+\long\def\@sanitizeforjson#1{%
+  \def\@@next{\@sanitizeforjson}%
+  \ifx#1'\@appendfrontquote%
+  \else\ifx#1`\@appendbackquote%
+  \else\ifx#1"\@appenddoublequote%
+  \else\expandafter\ifx\expandafter#1\@backslashchar\@appendbackslash%
+  \else\ifx#1\@endsanitize\def\@@next{}%
+  \else\@global@append\@sanitizedjson{#1}\fi\fi\fi\fi\fi%
+  \@@next}
 
 
 %%%%%
@@ -1817,6 +1864,11 @@
     \etoss{\def\playeralphabetical{\?\alphabetical}}
   \endgroup
   \protected@edef\@ownerstring{\MYname\ifx\MYplayer\empty\else\ (\MYplayer)\fi}
+  \jsonkeyval{player}{\MYplayer}
+  \jsonkeyval{email}{\MYemail}
+  \jsonkeyval{address}{\MYaddress}
+  \jsonkeyval{phone}{\MYphone}
+  \jsonkeyval{note}{\MYnote}
   }
 
 
@@ -1875,8 +1927,10 @@
 \newcommand{\resolvestats}{%
   \begingroup%
     \BRANCHTYPES{Stat}{\MAP{\TYPE}{%
+      \edef\@tmpname{\MYname}%
       \edef\@tmpvalue{\MYvalue}%
       \etoss{\stoss{\append\MYstats{\?\ME[\rs\MYvalue{\?\@tmpvalue}]{}}}}%
+      \etoss{\stoss{\jsonkeyval{\?\@tmpname}{\?\@tmpvalue}}}%
       }}
     \stoss{\rs\MYstats{}}%
     \MYstats%
@@ -3704,6 +3758,7 @@
 %% internal typesetting
 \newdimen\bookwidth      \bookwidth  = \textwidth
 \newdimen\bookheight     \bookheight = 3in
+\newdimen\bookspace      \bookspace = 15pt
 \newdimen\temp@dimen
 \newbox\temp@box
 
@@ -3724,34 +3779,33 @@
 %% \Cover{<name>}{<text>}
 \newcommand{\Cover}[2]{%
   \begingroup%
-    \packetspace=15pt%
     \fboxsep=-\fboxrule%
     \baselineskip=0pt%
     \parindent=0pt%
     \def\baselinstretch{0}%
-    \advance\bookwidth-2\packetspace%
+    \advance\bookwidth-2\bookspace%
     \divide\bookwidth2%
     \setbox\temp@box=\vbox{%
         \hsize\bookwidth%
-        \leftskip\packetspace plus1fil%
-        \rightskip\packetspace plus1fil%
-        \vskip\packetspace%
+        \leftskip\bookspace plus1fil%
+        \rightskip\bookspace plus1fil%
+        \vskip\bookspace%
         {\mbox{\gamenameabbrev}\hfill\mbox{\signdate}}\break\vfill
-        {\advance\bookwidth-6\packetspace%
-         \fboxsep\packetspace\fbox{\parbox{\bookwidth}{%
+        {\advance\bookwidth-6\bookspace%
+         \fboxsep\bookspace\fbox{\parbox{\bookwidth}{%
           \centering\bfseries\baselineskip=0pt\relax#1}}}\break\vfill
-        \advance\bookwidth-2\packetspace%
+        \advance\bookwidth-2\bookspace%
         \begin{minipage}{\bookwidth}%
           \parindent0pt%
           \parskip.5\baselineskip%
           \small#2%
         \end{minipage}%
-        \vskip\packetspace\vfill\vfill}%
+        \vskip\bookspace\vfill\vfill}%
     \temp@dimen\ht\temp@box%
     \ifdim\bookheight<\ht\temp@box%
       \bookheight\ht\temp@box%
     \fi%
-    \advance\bookwidth2\packetspace%
+    \advance\bookwidth2\bookspace%
     \card%
       {\fbox{\hbox to\bookwidth{\vsize\bookheight\relax%
         \hfill
@@ -3768,19 +3822,18 @@
 %% \Page{<label>}{<text>}
 \newcommand{\Page}[2]{%
   \begingroup%
-    \packetspace=15pt%
     \fboxsep=-\fboxrule%
     \baselineskip=0pt%
     \parindent=0pt%
     \def\baselinstretch{0}%
     \setbox\temp@box=\vbox{%
         \hsize\bookwidth%
-        \advance\hsize-2\packetspace%
-        \leftskip\packetspace plus1fil%
-        \rightskip\packetspace plus1fil%
-        \vskip.5\packetspace%
+        \advance\hsize-2\bookspace%
+        \leftskip\bookspace plus1fil%
+        \rightskip\bookspace plus1fil%
+        \vskip.5\bookspace%
         {\mbox{\gamenameabbrev}/\mbox{\signdate}\hfill\mbox{#1}}\break
-        \vskip.5\packetspace\vfill%
+        \vskip.5\bookspace\vfill%
         \begin{minipage}{.7\bookwidth}%
           \parindent0pt%
           \parskip.5\baselineskip%
@@ -3788,7 +3841,7 @@
           #2%
           \relax%
         \end{minipage}%
-        \vskip\packetspace\vfill}
+        \vskip\bookspace\vfill}
     \ifdim\bookheight<\ht\temp@box%
       \bookheight\ht\temp@box%
     \fi%
@@ -3803,15 +3856,15 @@
       {\mbox{\hbox to\bookwidth{\vsize\bookheight\relax%
         \vbox to\vsize{
           \hsize\bookwidth%
-          \advance\hsize-2\packetspace%
+          \advance\hsize-2\bookspace%
           \divide\hsize2%
-          \leftskip\packetspace plus1fil%
-          \rightskip\packetspace plus1fil%
-          \vskip\packetspace
+          \leftskip\bookspace plus1fil%
+          \rightskip\bookspace plus1fil%
+          \vskip\bookspace
           {\tiny staple along here}\break
           \vfill
           \parbox{.3\hsize}{\centering%
-            {\bfseries#1}%\\[.5\packetspace]%
+            {\bfseries#1}%\\[.5\bookspace]%
             %\tiny Do not open this page until you are directed to do so.%
             }\break
           \vfill
@@ -5393,7 +5446,7 @@
 
 \def\@cheatfields{%
   \def\@i##1##2{\unless\ifx##1\empty%
-    \@cheatmark{\em##2}: ##1%
+    \@cheatmark{\em##2}: {\let\par\empty##1}%
   \fi}%
   \@ownedfields%
   }
@@ -5411,11 +5464,13 @@
   \CheatsheetEntry{\MYname%
     \unless\ifx\MYplayer\empty\ (\MYplayer)\fi%
     \unless\ifx\MYnumber\empty\ (\MYnumber)\fi%
+    \unless\ifx\MYfile\empty\ \MYfile\fi%
     }{%
     \@cheatid\real{real name}
     \@cheatid\nick{nickname}
     \@cheatid\maiden{maiden name}
     \@cheatnotempty\MYdesc{desc}
+    \@cheatnotempty\MYwrapup{wrapup}
     \BRANCHTYPES{Stat}{\SURFACEMAP{\TYPE}{%
       {\em\MYabbrev}:~\MYvalue\hspace{1em}}}%
     \unless\ifx\MYstats\empty\@cheatmark\MYstats\fi%
@@ -5444,6 +5499,7 @@
       \@testfields%
       \ifx\@owner\relax%
         \let\@cheatmark\empty%
+        \let\par\empty%
         \ {\bf(}%
         \@cheatfields%
         \hskip-1em{\bf)}%
@@ -5488,6 +5544,65 @@
     \let\item\@normitem%
     \ifx\@itemzhere\empty\item none\fi%
   \end{itemz}}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}
+
+
+
+\begingroup%
+  \catcode`[=1
+  \catcode`]=2
+  \catcode`{=12
+  \catcode`}=12
+  \gdef\@openbrace[{]%
+  \gdef\@closebrace[}]%
+\endgroup
+
+\DeclareGameOption{json}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%
+%%%%%
+\pagestyle{empty}
+
+\def\@production{\EVERY{Owner}[\DEFAULTOPTIONHOOK]{}}
+\def\@compendium{\@production}
+
+\newwrite\@outfile
+\long\def\@writeout#1{\begingroup%
+  \let\protect\@unexpandable@protect%
+  \immediate\write\@outfile{#1}%
+  \endgroup}
+
+\def\@@strip#1{}
+\def\@strip{\expandafter\@@strip\string}
+\gdef\@firstjson{}
+
+\BRANCHTYPES{Owner}{\MAP{\TYPE}{%
+  \ifx\@firstjson\empty%
+    \@writeout{ \@openbrace}%
+    \gdef\@firstjson{\relax}%
+  \else%
+    \@writeout{ \@closebrace,\@openbrace}%
+  \fi%
+  \edef\@macro{\expandafter\@strip\MYCOMMAND}%
+  \def\@types{"\MYTYPESTRING"}%
+  \PARENTTYPES{\MYTYPESTRING}{\edef\@types{\@types,"\TYPE"}}%
+  \jsonkeyval{macro}{\@macro}%
+  \jsonkeyval{name}{\MYname}%
+  \jsonkeyval{number}{\MYnumber}%
+  \unless\ifx\MYjson\empty\@writeout{ \space\MYjson}\fi%
+  \@writeout{ \space"classes":[\@types]}%
+  }}
+
+\immediate\openout\@outfile=\jobname.json
+\@writeout{[}
+\AtEndDocument{%
+  \@writeout{ \@closebrace}%
+  \@writeout{]}%
+  \immediate\closeout\@outfile}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

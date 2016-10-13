@@ -27,6 +27,12 @@ skilllists, and/or other information.
 
 
 
+README-json: This file describes how to produce a subset of the game's
+Lists/ database in JSON format, suitable for reading by a webapp or
+other piece of software.
+
+
+
 README-meta: This file is a copy of the GameTeX distribution README,
 which (among other things) describes the version numbers and known
 issues.
