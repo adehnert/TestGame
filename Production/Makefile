@@ -10,7 +10,7 @@ clean :
 	rm $(OUTPUTS) *.aux *.log
 
 %.pdf : %.tex $(GENERAL_DEPS)
-	pdflatex $<
+	pdflatex -halt-on-error $<
 
 json-PRINT.json : json-PRINT.tex $(GENERAL_DEPS)
-	pdflatex $<
+	pdflatex -halt-on-error $<
