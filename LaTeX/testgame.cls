@@ -235,7 +235,17 @@
 \def\postscript{\gamepath/Postscript}
 \def\whites{\gamepath/Whitesheets}
 
+% Support for the sidebar used for "Why CircleCI?" in the CI instructions
+\usepackage{wrapfig,tcolorbox}
+
+\newenvironment{WrapText}[1][r]
+  {\wrapfigure{#1}{0.5\textwidth}\tcolorbox}
+  {\endtcolorbox\endwrapfigure}
+
 
 %%%%%
-%% Lastly, gametex.sty is input, making everything work.
+%% gametex.sty is input, making everything work.
 \input \latex/gametex.sty
+
+% Allow hyperlinks; apparently hyperref likes to be last
+\usepackage{hyperref}

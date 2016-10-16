@@ -2,15 +2,6 @@
 \def\gamename{Gamewriting}
 \def\gamedate{Whenever}
 
-\usepackage{hyperref}
-
-\usepackage{wrapfig}
-\usepackage{tcolorbox}
-
-\newenvironment{WrapText}[1][r]
-  {\wrapfigure{#1}{0.5\textwidth}\tcolorbox}
-  {\endtcolorbox\endwrapfigure}
-
 \begin{document}
 
 \newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
@@ -20,46 +11,48 @@
 This document assumes that you're using Git for version control and Github (or Bitbucket) for hosting. If that is not true, you will not be able to fully follow these instructions.
 
 \section{Why CI?}
-\label{sec:why}
+%\label{sec:why}
 
 \begin{WrapText}
   \paragraph*{Why CircleCI?} I went into this assuming that most GMs would have two requirements:
-  \begin{description}
+  \begin{desc}
   \item[Private repos] They must be able to use a private repo so that players can't happen across the game and spoil themselves.
   \item[Free] Most GMs won't be willing to pay much, if anything. \$10/month \emph{might} be reasonable, but is distinctly on the high side.
-  \end{description}
+  \end{desc}
 
   It turns out that continuous integration systems are mostly sold to people writing software, for whom this is a productivity tool worth much more than \$10/month. Many of them are sold on a ``freemium'' model: they'll let you use it for free for public repos (which presumably have lower commercial value, but can be a good way to get users hooked), but charge a significant amount for private repos (which are more likely to be commercial companies). Unfortunately, Guild games want the private repos, but have little commercial value.
 
   I found four candidate CI systems from a small amount of research:
-  \begin{description}
+  \begin{desc}
   \item[TravisCI] \href{https://travis-ci.com/plans}{\$129/mo for private repos}
   \item[SnapCI] \href{https://snap-ci.com/my_plans/}{\$30/mo for private repos}
   \item[Solano CI] \href{https://www.solanolabs.com/#pricing}{\$15/mo for anything}
   \item[CircleCI] \href{https://circleci.com/pricing/}{free for non-parallel Linux builds}
-  \end{description}
+  \end{desc}
+
+\TODO{Veronica was confused by ``non-parallel Linux builds''}
 
   There are presumably other CI systems, but having found one that supported what I needed, I stuck with it.
 \end{WrapText}
 
-``Continuous integration'' (CI) is the idea, now quite popular in software development, that any time somebody commits to a software project their change should be immediately, automatically built and tests run against it. In a context like Guild game writing, this has two chief advantages:
-\begin{description}
+``Continuous integration'' (CI) is the idea, now quite popular in software development, that any time somebody commits to a software project their change should be immediately, automatically built and tested. In a context like Guild game writing, this has two chief advantages:
+\begin{desc}
 \item[Finding compile errors quickly] GMs will sometimes make a change and accidentally make it so the game no longer fully compiles. Without CI, this will be discovered whenever another GM updates and happens to try to compile whatever broke. If the breakage only impacted a few files, this may take a while, so by the time the issue is discovered there might be several commits to go through to find the error. With CI, within minutes of pushing the commit, the CI system will attempt to build the commit, fail, and email the GMs. Whoever made the change (or is best at GameTeX) then has only a single commit to look over to find the cause.
 \item[Downloadable sheets without \LaTeX] Less important, but possibly still helpful, a CI system can save the generated sheets and allow GMs to download them with a browser but no \LaTeX{} compiler. This could be mildly useful for a variety of reasons -- quick changes on a borrowed computer (using Github's online editor), a GM who can't get \LaTeX{} to work, linking to a specific version, etc..
-\end{description}
+\end{desc}
 
 \section{Prerequisites}
-\label{sec:prereqs}
+%\label{sec:prereqs}
 
 Before you get started, you will need some familiarity with Git, a Github account, and a Github repo for your game that you have admin access to. CircleCI requires \href{https://circleci.com/docs/github-permissions/}{a bunch of permissions}, so if you have a bunch of stuff in your Github account and are generally distrustful, you may want to use a separate Github account for interacting with Github. Note that you will most likely want a private Github repo, which requires somebody on your team either \href{https://github.com/pricing}{paying Github money} or \href{https://education.github.com/pack}{being a student}.
 
 Alternatively, CircleCI also supports Bitbucket. It seems less popular than Github, but if you're more familiar with it or don't have private repos with Github, it might make sense. Bitbucket private repos are \href{https://bitbucket.org/product/pricing?tab=host-in-the-cloud}{free as long as your team has at most five members}. I haven't tried using Bitbucket or CircleCI's support for it, but they're presumably straightforward.
 
 \section{Setup}
-\label{sec:repo}
+%\label{sec:repo}
 
 \subsection{Makefile}
-\label{sec:makefile}
+%\label{sec:makefile}
 
 CircleCI will need to know how to build your game. Rather than configuring it with a complicated command line, it probably makes sense to create a Makefile, which you can use to build locally as well. Here's a sample Makefile to put in the Production directory:
 
@@ -88,7 +81,7 @@ json-PRINT.json : json-PRINT.tex $(GENERAL_DEPS)
 It's not perfect, but it'll usually recompile things when they need to be recompiled, and most GameTeX games won't need internal references, which can require multiple runs of \LaTeX{} to get right. Note that CircleCI will be building from scratch each time, so Make's incremental build support isn't actually needed.
 
 \subsection{circle.yml}
-\label{sec:circle.yml}
+%\label{sec:circle.yml}
 
 CircleCI \href{https://circleci.com/docs/configuration/}{will need to be told} how to prepare and build the game, which you do with a file called circle.yml. In it, you need to set up the TEXINPUTS and game name environment variable, install the LaTeX packages needed to build the game, tell CircleCI how to actually build the game, and finally tell it what artifacts to make available after the build. To do this, in the root of your repo, create a file called circle.yml containing:
 
@@ -111,14 +104,14 @@ test:
 \end{verbatim}
 
 \subsection{Signing up for CircleCI}
-\label{sec:signup}
+%\label{sec:signup}
 
 From the \href{https://circleci.com/}{CircleCI website}, choose to log in. After authorizing CircleCI with Github, you can choose ``Add Projects'' to set up the project. Pick your game's repo. NEED TO CHECK THIS WORKFLOW MORE.
 
-\todo{Add note on accessing artifacts}
+\TODO{Add note on accessing artifacts}
 
 \section{Afterword}
-\label{sec:afterword}
+%\label{sec:afterword}
 
 Hopefully this is all straightforward and your game will build just fine. Feel free to contact me (adehnert) for help, though I have little experience with CircleCI. I'd also love to hear from you if you got this working and whether or not it proved useful.
 
