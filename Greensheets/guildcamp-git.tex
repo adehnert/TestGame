@@ -1,0 +1,270 @@
+\documentclass[green]{testgame}
+\def\gamename{Gamewriting}
+\def\gamedate{Whenever}
+
+\begin{document}
+
+\newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
+
+
+
+\name{Crash Intro to Git}
+
+This is a short document on how to use the Git version control
+system.\footnote{last modified October 16, 2016; based on ``Crash Intro to SVN''} It will teach you the
+bare minimum you need to know to use it with game development.
+
+\paragraph*{What is Git?}
+
+Git is a ``version control system'': basically,
+it tries to solve all of the things that can go wrong when multiple
+people are editing, adding and deleting files from a big directory all
+at once (two people trying to edit the same file, nobody knowing who
+has the newest version of a given file, etc.). This is what you will
+be doing while writing a game.
+
+Although Git is a ``distributed VCS'', you will most likely want to use it in a centralized fashion, as follows:
+
+
+\begin{itemz}[]
+
+\item You will maintain one central repository with the latest version of your sheets. Most likely, this will be on \href{https://github.com}{Github} (a hosting service), but it could also be on \href{https://bitbucket.org/}{BitBucket} (another hosting service) or in an Athena locker.
+
+\item Each user will have their own ``clone'' of the repository, which will also have all the sheets. You will write the game by modifying this local copy and ``pushing'' those changes back to the repository.
+
+\item When a user asks for the most up-to-date version of the project, Git will give it to them, being careful not to overwrite changes that they've made on their copy.
+
+\end{itemz}
+
+We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \TODO{install instructions} for advice.
+
+\section{Creating a git repository}
+
+{\em You will only have to do this step once per game.}
+
+You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves.
+
+\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student}, they can get free private repositories through the \TODO{name of student pack}. If one of your GMs already pays Github for private repos, they can also create another one for free.
+
+Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than its worth. See ``\gCI{}'' for details. \TODO{link to CircleCI docs}}.
+
+If you choose to use Github, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings->Collaborators and add all your co-GMs to the list of collaborators.
+
+\paragraph*{Bitbucket} Bitbucket is another large commercial Git host, which provides free public repos and \href{https://bitbucket.org/product/pricing/}{free private repos with up to five collaborators each}. Bitbucket has many of the same features as Github, including CircleCI support, but it's less widely used.
+
+\paragraph*{\href{https://github.mit.edu}{github.mit.edu}} Github also has an ``enterprise'' version that MIT has purchased. This has much the same web interface as the normal Github, has unlimited free private repos, and uses Touchstone for authentication (which is convenient for people with Athena account and usable for those without), but doesn't support CircleCI. If you choose to use github.mit.edu, any GM can go to \url{https://github.mit.edu/new}, after which the procedure should be similar to the normal Github procedure.
+
+\paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account.
+
+\TODO{Athena directions}
+
+\paragraph*{Creating a repository}
+
+{\em You will only have to do this step once per game.}
+
+Before you do this step, you should have a GameTeX tree already set up
+in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
+life will be easier if you've already run Extras/changeclass.pl). The
+central SVN repository (often called ``the repo'') needs someplace to
+live. One of you should agree to host it in your locker, say in a
+directory called {\tt svngamename}. From the command line, you should
+do several things.
+
+You should also have an MIT mailing list for your team.  It should
+be a moira list ({\em not} mailman) and an AFS group.
+
+First, create the directory and give your GM team access to it (let's
+say that your GMs are all on a list called {\tt gamename-gms}. Then,
+remove everybody else's ``list'' permissions from it. We'll call the
+user creating the repo {\tt joeuser}.
+
+\ter{\% mkdir svngamename\\
+\% fs sa svngamename system:gamename-gms write\\
+\% fs sa svngamename system:anyuser none}
+
+You can double check the permissions. They should look something like
+this:
+
+\ter{\% fs la svngamename\\
+Access list for svngamename is\\
+Normal rights:\\
+  system:gamename-gms rlidwk\\
+  system:expunge ld\\
+  joeuser rlidwka}
+
+Then, let's create a fresh, blank repository inside:
+
+\ter{\% svnadmin create svngamename/}
+
+Good. If you look inside the repo, it will have all sorts of
+mysterious directories. 
+
+\ter{\% ls svngamename/\\
+conf  dav  db  format  hooks  locks  README.txt}
+
+{\bf Do not manually change anything inside the repository.} It will
+look like garbage anyway. Only use the SVN commands we'll talk about
+in a second.
+
+This blank repository needs a copy of your GameTeX tree in it so that
+you can start using the repo. To do this, you need to {\em import} the
+tree so that the repo can start keeping track of it. Go to the root of
+a GameTeX tree you've previously set up, and run the following
+command. A text editor will pop up. Just enter ``Initial commit'' and
+exit the text editor.
+
+\ter{GameName\% svn import . file:///mit/joeuser/svngamename\\
+Adding         README\\
+Adding         Bluesheets\\
+Adding         Bluesheets/README.tex\\
+... lots of other output ... \\
+Committed revision 1.}
+
+Now your repo contains a copy of your GameTeX tree and is ready to be
+used.
+
+\paragraph*{Checking out a copy}
+
+{\em You will only have to do this step once per GM.}
+
+Good. Now that the repository is up and running in {\tt joeuser}'s
+locker, each GM needs to check out a local copy of it. Since the repo
+is running out of {\tt joeuser}'s locker, let's make sure it is always
+attached by adding the following line to your {\tt .environment}:
+
+\ter{add joeuser}
+
+Now, create the folder to wherever you decided your local copy will
+sit (you probably want it somewhere like\\ {\tt
+/mit/yourusername/GameName/}, but consult the ``Intro to GameTeX''
+greensheet). The SVN command to checkout a copy from the repo has this
+form:
+
+\ter{\% svn checkout file:///mit/joeuser/svngamename GameName/\\
+A    GameName/README\\
+A    GameName/Bluesheets\\
+A    GameName/Bluesheets/README.tex\\
+... lots of other output ... \\Checked out revision 2.}
+
+Above, make sure to replace {\tt /mit/joeuser/svngamename} with the
+actual location of the repository up above and {\tt GameName} with the
+directory you want to keep your game tree in. After all is said and
+done, you will now have a working local copy of the repository. Each
+GM should do this, including the one who created the repository. Your
+checked out copy will have hidden {\tt .svn/} folders all over the
+place that you may notice. Don't mess with those - that's just how SVN
+keeps track of some information.
+
+\paragraph*{Updating and committing}
+
+This section will tell you about the most common operations. Once you
+have checked out a copy of the repository, you can start to use SVN in
+full. To update your local copy with the newest version of the
+repository, use the {\tt svn update} command.
+
+\ter{\% svn update\\
+U  Greensheets/magic.tex\\
+G  Bluesheets/anarchists.tex}
+
+A ``U'' means that a file was updated with the newest version. A ``G''
+means that the file was updated with the newest version, but you had
+some local changes in the file, and SVN merged the two just fine.  A
+``C'' means there was a conflict, but we'll talk about that in the
+next section. An ``A'' means that the file was recently added to the
+repo and that this is your first time you are receiving a copy. A
+``D'' means the file was deleted. {\bf You should update early and
+often.}
+
+After you have made some changes to a file, you should {\em commit}
+them to the central repository, so that when everybody else updates,
+they get a copy of your changes. When you commit, you will be asked to
+supply a {\em log}, which is any written comments you want to make for
+your other users. You can also just specify the log message with {\tt
+-m}.
+
+\ter{\% svn commit Lists/char-LIST.tex -m "Gave James Bond a pistol."\\
+Sending     Lists/char-LIST.tex\\
+Transmitting file data.\\
+Committed revision 43.}
+
+Now, whenever the other users update, their copy of {\tt
+char-LIST.tex} will include your changes. You can commit individual
+files, or entire directories. {\bf You should commit early and often.}
+
+There's one more issue. If a version of the file already exists in the
+repository, you can update and commit normally. However, if you want
+to add a new file for the first time, you have to use the {\tt add}
+command. This will schedule the file for inclusion next time you
+commit:
+
+\ter{\% svn add Charsheets/nickfury.tex\\
+A         Charsheets/nickfury.tex\\
+\% svn commit Charsheets/ -m "Added Nick's charsheet."\\
+Sending     Charsheets/nickfury.tex\\
+Transmitting file data.\\
+Committed revision 46.}
+
+Similarly, you can {\tt add} individual files or entire directories
+all at once. When other users update, they will receive a copy of {\tt
+nickfury.tex} for the first time. Then you can all update and commit
+changes to it normally.
+
+
+\paragraph*{Handling conflicts}
+
+When Alice and Bob are make changes to the same file, Alice will
+commit her changes and Bob will have to update his local copy before
+commiting his changes. Most of the time, SVN will merge Alice's
+changes intelligently into Bob's local copy and integrate their
+changes (and Bob will see a ``G'' when he updates). Sometimes, for
+whatever reason\footnote{Most likely, that Alice and Bob and were
+making changes to the exact same place.}, SVN doesn't trust itself
+that it knows how Alice and Bob want their changes merged. When this
+happens, Bob will see a ``C'' when updating, which stands for {\em
+conflict}.
+
+\ter{\% svn update\\
+C Charsheets/warlock.tex}
+
+SVN will markup any file that is in {\em conflict} with special
+symbols to show you where the conflict is, showing Bob both Alice's
+version that is now in the repo and Bob's version, and where they
+disagree. Bob will have to manually merge the changes. When Bob looks
+at the file, he might see a lot of blocks like this:
+
+\ter{<<<<<<< .mine\\
+and so you came to Moscow to kill your enemy James Bond.\\
+=======\\
+and so you came to Moscow to help your friend Nick Fury.\\
+>>>>>>> .r54}
+
+Every block between the less than and greater than signs is a part of
+the file that is in conflict. What Bob's local file has is shown after
+the {\tt <<<<<<< .mine}. What the repository has (in this case,
+Alice's changes) is shown above the {\tt >>>>>>> .r54}.\footnote{The
+``54'' is just indicating tha the current revision of the project in
+the repo is revision \#54.} The {\tt =======} deliniates between the
+two versions. Bob needs to get rid of this whole block and merge the
+two changes so that they make sense:
+
+\ter{and so you came to Moscow to kill your enemy James Bond and help your friend Nick Fury.}
+
+When Bob is done editing the file so that it merges Alice's and his
+changes the way they want, he needs to tell SVN that he fixed the
+problem with the {\em resolved} command.
+
+\ter{\% svn resolved Charsheets/warlock.tex \\
+ Resolved conflicted status of Charsheets/warlock.tex !}
+
+Now Bob can commit normally. When Alice updates, SVN will give her the
+correct copy of {\tt warlock.tex} with both sets of changes.
+
+\paragraph*{Afterword}
+
+SVN is one of those things that you won't be able to imagine you lived
+without. It will help get your whole house in order. Commit and update
+early and often, and you will save yourself and your GM team a lot of
+pain. Type {\tt svn help} for more documentation, or look it up
+online.
+
+\end{document}
