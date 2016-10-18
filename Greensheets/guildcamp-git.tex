@@ -38,9 +38,11 @@ Although Git is a ``distributed VCS'', you will most likely want to use it in a 
 
 We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \TODO{install instructions} for advice.
 
-\section{Creating a git repository}
+\section{Creating and populating a git repository}
 
 {\em You will only have to do this step once per game.}
+
+\subsection{Choosing a repo host}
 
 You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves.
 
@@ -54,39 +56,28 @@ If you choose to use Github, the GM with private repos available should go to \u
 
 \paragraph*{\href{https://github.mit.edu}{github.mit.edu}} Github also has an ``enterprise'' version that MIT has purchased. This has much the same web interface as the normal Github, has unlimited free private repos, and uses Touchstone for authentication (which is convenient for people with Athena account and usable for those without), but doesn't support CircleCI. If you choose to use github.mit.edu, any GM can go to \url{https://github.mit.edu/new}, after which the procedure should be similar to the normal Github procedure.
 
-\paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account.
+\paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account for any collaborators.
+
+You will need an MIT mailing list for your team.  It should be a moira list (\emph{not} mailman) and an AFS group.
 
 \TODO{Athena directions}
 
-\paragraph*{Creating a repository}
-
-{\em You will only have to do this step once per game.}
-
-Before you do this step, you should have a GameTeX tree already set up
-in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
-life will be easier if you've already run Extras/changeclass.pl). The
-central SVN repository (often called ``the repo'') needs someplace to
-live. One of you should agree to host it in your locker, say in a
-directory called {\tt svngamename}. From the command line, you should
-do several things.
-
-You should also have an MIT mailing list for your team.  It should
-be a moira list ({\em not} mailman) and an AFS group.
+One of you should agree to host it in your locker, say in a directory called \texttt{gitgamename}. From the command line, you should do several things.
 
 First, create the directory and give your GM team access to it (let's
-say that your GMs are all on a list called {\tt gamename-gms}. Then,
+say that your GMs are all on a list called \texttt{gamename-gms}. Then,
 remove everybody else's ``list'' permissions from it. We'll call the
-user creating the repo {\tt joeuser}.
+user creating the repo \texttt{joeuser}.
 
-\ter{\% mkdir svngamename\\
-\% fs sa svngamename system:gamename-gms write\\
-\% fs sa svngamename system:anyuser none}
+\ter{\$ mkdir gitgamename\\
+\$ fs sa gitgamename system:gamename-gms write\\
+\$ fs sa gitgamename system:anyuser none}
 
 You can double check the permissions. They should look something like
 this:
 
-\ter{\% fs la svngamename\\
-Access list for svngamename is\\
+\ter{\$ fs la gitgamename\\
+Access list for gitgamename is\\
 Normal rights:\\
   system:gamename-gms rlidwk\\
   system:expunge ld\\
@@ -94,20 +85,23 @@ Normal rights:\\
 
 Then, let's create a fresh, blank repository inside:
 
-\ter{\% svnadmin create svngamename/}
+\ter{\$ git init --bare gitgamename.git}
 
-Good. If you look inside the repo, it will have all sorts of
-mysterious directories. 
+If you look inside the repo, it will have all sorts of mysterious directories.
 
-\ter{\% ls svngamename/\\
-conf  dav  db  format  hooks  locks  README.txt}
+\ter{\$ ls gitgamename.git/\\
+branches/  config  description  HEAD  hooks/  info/  objects/  refs/}
 
-{\bf Do not manually change anything inside the repository.} It will
-look like garbage anyway. Only use the SVN commands we'll talk about
-in a second.
+\textbf{Do not manually change anything inside the repository}, unless you know how to use git (or are following directions from somebody who does). It will look like garbage anyway. Only use the Git commands we'll talk about in a second.
+
+\subsection{Add \gametex{} to a repo}
+
+Before you do this step, you should have a GameTeX tree already set up
+in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
+life will be easier if you've already run Extras/changeclass.pl). The
 
 This blank repository needs a copy of your GameTeX tree in it so that
-you can start using the repo. To do this, you need to {\em import} the
+you can start using the repo. To do this, you need to \emph{import} the
 tree so that the repo can start keeping track of it. Go to the root of
 a GameTeX tree you've previously set up, and run the following
 command. A text editor will pop up. Just enter ``Initial commit'' and
@@ -125,7 +119,7 @@ used.
 
 \paragraph*{Checking out a copy}
 
-{\em You will only have to do this step once per GM.}
+\emph{You will only have to do this step once per GM.}
 
 Good. Now that the repository is up and running in {\tt joeuser}'s
 locker, each GM needs to check out a local copy of it. Since the repo
