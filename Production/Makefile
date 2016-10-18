@@ -14,3 +14,7 @@ clean :
 
 json-PRINT.json : json-PRINT.tex $(GENERAL_DEPS)
 	pdflatex -halt-on-error $<
+
+# Delete PDF's when they fail to compile
+# See https://www.gnu.org/software/make/manual/html_node/Errors.html#Errors
+.DELETE_ON_ERROR:
