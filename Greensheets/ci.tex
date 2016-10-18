@@ -11,7 +11,6 @@
 This document assumes that you're using Git for version control and Github (or Bitbucket) for hosting. If that is not true, you will not be able to fully follow these instructions.
 
 \section{Why CI?}
-%\label{sec:why}
 
 \begin{WrapText}
   \paragraph*{Why CircleCI?} I went into this assuming that most GMs would have two requirements:
@@ -42,17 +41,16 @@ This document assumes that you're using Git for version control and Github (or B
 \end{desc}
 
 \section{Prerequisites}
-%\label{sec:prereqs}
 
 Before you get started, you will need some familiarity with Git, a Github account, and a Github repo for your game that you have admin access to. CircleCI requires \href{https://circleci.com/docs/github-permissions/}{a bunch of permissions}, so if you have a bunch of stuff in your Github account and are generally distrustful, you may want to use a separate Github account for interacting with Github. Note that you will most likely want a private Github repo, which requires somebody on your team either \href{https://github.com/pricing}{paying Github money} or \href{https://education.github.com/pack}{being a student}.
 
 Alternatively, CircleCI also supports Bitbucket. It seems less popular than Github, but if you're more familiar with it or don't have private repos with Github, it might make sense. Bitbucket private repos are \href{https://bitbucket.org/product/pricing?tab=host-in-the-cloud}{free as long as your team has at most five members}. I haven't tried using Bitbucket or CircleCI's support for it, but they're presumably straightforward.
 
 \section{Setup}
-%\label{sec:repo}
+
+\emph{You will only have to do this step once per game.}
 
 \subsection{Makefile}
-%\label{sec:makefile}
 
 CircleCI will need to know how to build your game. Rather than configuring it with a complicated command line, it probably makes sense to create a Makefile, which you can use to build locally as well. Here's a sample Makefile to put in the Production directory:
 
@@ -81,7 +79,6 @@ json-PRINT.json : json-PRINT.tex $(GENERAL_DEPS)
 It's not perfect, but it'll usually recompile things when they need to be recompiled, and most GameTeX games won't need internal references, which can require multiple runs of \LaTeX{} to get right. Note that CircleCI will be building from scratch each time, so Make's incremental build support isn't actually needed.
 
 \subsection{circle.yml}
-%\label{sec:circle.yml}
 
 CircleCI \href{https://circleci.com/docs/configuration/}{will need to be told} how to prepare and build the game, which you do with a file called circle.yml. In it, you need to set up the TEXINPUTS and game name environment variable, install the LaTeX packages needed to build the game, tell CircleCI how to actually build the game, and finally tell it what artifacts to make available after the build. To do this, in the root of your repo, create a file called circle.yml containing:
 
@@ -103,20 +100,18 @@ test:
     - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
 \end{verbatim}
 
-\subsection{Signing up for CircleCI}
-%\label{sec:signup}
+\section{Using CircleCI}
 
-\emph{Each GM}, starting with the private repo's owner, will need to visit the \href{https://circleci.com/}{CircleCI website} and choose to log in. After authorizing CircleCI with Github, you can choose ``Add Projects'' to set up the project. Pick your game's repo. The repo owner should see an option to ``build project'', after which other GMs should see an option to ``follow project''.
+\emph{Each GM}, starting with the private repo's owner, will need to visit the \href{https://circleci.com/}{CircleCI website} (\url{https://circleci.com/}) and choose to log in. After authorizing CircleCI with Github, you can choose ``Add Projects'' to set up the project. Pick your game's repo. The repo owner should see an option to ``build project'', after which other GMs should see an option to ``follow project''.
 
-To view built files, choose ``Builds'' on the left sidebar, pick a build (presumably the most recent one), and then choose ``Artifacts''. You'll be shown a hierarchy of built files, and can download them by clicking the links.
+To view built files (that is, your compiled sheets), choose ``Builds'' on the left sidebar, pick a build (presumably the most recent one), and then choose ``Artifacts''. You'll be shown a hierarchy of built files (under a label \verb|$CIRCLE_ARTIFACTS|), and can expand the hierarchy and download the files by clicking the links.
 
 \TODO{How does signing up for emails work?}
 
+For debugging, one thing to know is that CircleCI does allow you to ssh into the build VMs, which can be very useful. If the build doesn't just work out of the box (but is working locally), I recommend sshing in, installing missing packages and whatnot interactively, and only once you've gotten it to build that way updating circle.yml with the corrected build recipe.
+
 \section{Afterword}
-%\label{sec:afterword}
 
 Hopefully this is all straightforward and your game will build just fine. Feel free to contact me (adehnert) for help, though I have little experience with CircleCI. I'd also love to hear from you if you got this working and whether or not it proved useful.
-
-For debugging, one thing to know is that CircleCI does allow you to ssh into the build VMs, which can be very useful. If the build doesn't just work out of the box (but is working locally), I recommend sshing in, installing missing packages and whatnot interactively, and only once you've gotten it to build that way updating circle.yml with the corrected build recipe.
 
 \end{document}
