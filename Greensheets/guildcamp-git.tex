@@ -58,9 +58,7 @@ If you choose to use Github, the GM with private repos available should go to \u
 
 \paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account for any collaborators.
 
-You will need an MIT mailing list for your team.  It should be a moira list (\emph{not} mailman) and an AFS group.
-
-\TODO{Athena directions}
+You will need an MIT mailing list for your team -- create one at \TODO{list creation}.  It should be a moira list (\emph{not} mailman) and an AFS group.
 
 One of you should agree to host it in your locker, say in a directory called \texttt{gitgamename}. From the command line, you should do several things.
 
@@ -96,58 +94,77 @@ branches/  config  description  HEAD  hooks/  info/  objects/  refs/}
 
 \subsection{Add \gametex{} to a repo}
 
-Before you do this step, you should have a GameTeX tree already set up
-in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
-life will be easier if you've already run Extras/changeclass.pl). The
+\paragraph*{Cloning a copy}
+
+\emph{You will only have to do this step once per GM.}
+
+Each GM needs to clone a local copy of the game's repo.
+
+Decide where your local copy will sit (if using Athena, you probably
+want it somewhere like\\ {\tt /mit/yourusername/Private/GameName/},
+but consult the ``Intro to GameTeX'' greensheet). Make sure any parent directories exist, change into the parent directory, and then clone the repository:
+
+\ter{%
+\% mkdir -p /mit/yourusername/Private/\\
+\% cd /mit/yourusername/Private/\\
+\% git clone \emph{path-to-repo} GameName/\\
+Cloning into 'GameName'...
+warning: You appear to have cloned an empty repository.
+done.
+}
+
+(The warning message will appear until one GM does the next step, ``Initializing the repo''. However, it's harmless, and it's fine for all the GMs to do this step before any does the next one.)
+
+Above, make sure to replace \texttt{\emph{path-to-repo}} up above with
+the actual location of the repository (something like
+\texttt{ssh://git@github.com/joeuser/GameName} for Github or
+\texttt{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).
+After all is said and done, you will now have a working local copy of
+the repository. Each GM should do this, including the one who created
+the repository. Your checked out copy will have a hidden
+\texttt{.git/} folders all over the place that you may notice. Don't
+mess with those -- that's just how Git keeps track of some
+information.
+
+\paragraph{Initializing the repo} \emph{You will only need to do this step once per game.}
+
+One (and only one) GM will need to add GameTeX to the repository. Before starting this, you should already have the git repository cloned (from the above step), but it should still be empty.
+
+%Before you do this step, you should have a GameTeX tree already set up
+%in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
+%life will be easier if you've already run Extras/changeclass.pl).
 
 This blank repository needs a copy of your GameTeX tree in it so that
 you can start using the repo. To do this, you need to \emph{import} the
 tree so that the repo can start keeping track of it. Go to the root of
 a GameTeX tree you've previously set up, and run the following
-command. A text editor will pop up. Just enter ``Initial commit'' and
+commands. A text editor will pop up. Just enter ``Initial commit'' and
 exit the text editor.
 
-\ter{GameName\% svn import . file:///mit/joeuser/svngamename\\
-Adding         README\\
-Adding         Bluesheets\\
-Adding         Bluesheets/README.tex\\
-... lots of other output ... \\
-Committed revision 1.}
+\ter{%
+\$ git add .\\
+\$ git commit\\
+\$ git push\\
+Counting objects: 98, done.\\
+Delta compression using up to 4 threads.\\
+Compressing objects: 100\% (97/97), done.\\
+Writing objects: 100\% (98/98), 173.93 KiB | 0 bytes/s, done.\\
+Total 98 (delta 14), reused 0 (delta 0)\\
+To \emph{path-to-repo}\\
+ * [new branch]      master -> master\\
+}
 
 Now your repo contains a copy of your GameTeX tree and is ready to be
 used.
 
-\paragraph*{Checking out a copy}
+\section{Normal git operations}
+\label{sec:normal}
 
-\emph{You will only have to do this step once per GM.}
-
-Good. Now that the repository is up and running in {\tt joeuser}'s
-locker, each GM needs to check out a local copy of it. Since the repo
-is running out of {\tt joeuser}'s locker, let's make sure it is always
-attached by adding the following line to your {\tt .environment}:
-
-\ter{add joeuser}
-
-Now, create the folder to wherever you decided your local copy will
-sit (you probably want it somewhere like\\ {\tt
-/mit/yourusername/GameName/}, but consult the ``Intro to GameTeX''
-greensheet). The SVN command to checkout a copy from the repo has this
-form:
-
-\ter{\% svn checkout file:///mit/joeuser/svngamename GameName/\\
-A    GameName/README\\
-A    GameName/Bluesheets\\
-A    GameName/Bluesheets/README.tex\\
-... lots of other output ... \\Checked out revision 2.}
-
-Above, make sure to replace {\tt /mit/joeuser/svngamename} with the
-actual location of the repository up above and {\tt GameName} with the
-directory you want to keep your game tree in. After all is said and
-done, you will now have a working local copy of the repository. Each
-GM should do this, including the one who created the repository. Your
-checked out copy will have hidden {\tt .svn/} folders all over the
-place that you may notice. Don't mess with those - that's just how SVN
-keeps track of some information.
+- update
+- new files
+- commit / push
+- merge
+- additional resources
 
 \paragraph*{Updating and committing}
 
