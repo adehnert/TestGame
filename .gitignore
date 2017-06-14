@@ -3,6 +3,7 @@
 *.tex~
 Production/json-PRINT.json
 Production/*.pdf
+Production/*.out
 Charsheets/*.pdf
 Bluesheets/*.pdf
 Greensheets/*.pdf
