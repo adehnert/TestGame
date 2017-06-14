@@ -149,14 +149,13 @@ Compressing objects: 100\% (97/97), done.\\
 Writing objects: 100\% (98/98), 173.93 KiB | 0 bytes/s, done.\\
 Total 98 (delta 14), reused 0 (delta 0)\\
 To \emph{path-to-repo}\\
- * [new branch]      master -> master\\
+ * {[}new branch{]}      master -> master\\
 }
 
 Now your repo contains a copy of your GameTeX tree and is ready to be
 used.
 
 \section{Normal git operations}
-\label{sec:normal}
 
 \paragraph*{Committing and pushing changes}
 
@@ -169,116 +168,5 @@ used.
 - additional resources
 }
 
-\paragraph*{Updating and committing}
-
-This section will tell you about the most common operations. Once you
-have checked out a copy of the repository, you can start to use SVN in
-full. To update your local copy with the newest version of the
-repository, use the {\tt svn update} command.
-
-\ter{\% svn update\\
-U  Greensheets/magic.tex\\
-G  Bluesheets/anarchists.tex}
-
-A ``U'' means that a file was updated with the newest version. A ``G''
-means that the file was updated with the newest version, but you had
-some local changes in the file, and SVN merged the two just fine.  A
-``C'' means there was a conflict, but we'll talk about that in the
-next section. An ``A'' means that the file was recently added to the
-repo and that this is your first time you are receiving a copy. A
-``D'' means the file was deleted. {\bf You should update early and
-often.}
-
-After you have made some changes to a file, you should {\em commit}
-them to the central repository, so that when everybody else updates,
-they get a copy of your changes. When you commit, you will be asked to
-supply a {\em log}, which is any written comments you want to make for
-your other users. You can also just specify the log message with {\tt
--m}.
-
-\ter{\% svn commit Lists/char-LIST.tex -m "Gave James Bond a pistol."\\
-Sending     Lists/char-LIST.tex\\
-Transmitting file data.\\
-Committed revision 43.}
-
-Now, whenever the other users update, their copy of {\tt
-char-LIST.tex} will include your changes. You can commit individual
-files, or entire directories. {\bf You should commit early and often.}
-
-There's one more issue. If a version of the file already exists in the
-repository, you can update and commit normally. However, if you want
-to add a new file for the first time, you have to use the {\tt add}
-command. This will schedule the file for inclusion next time you
-commit:
-
-\ter{\% svn add Charsheets/nickfury.tex\\
-A         Charsheets/nickfury.tex\\
-\% svn commit Charsheets/ -m "Added Nick's charsheet."\\
-Sending     Charsheets/nickfury.tex\\
-Transmitting file data.\\
-Committed revision 46.}
-
-Similarly, you can {\tt add} individual files or entire directories
-all at once. When other users update, they will receive a copy of {\tt
-nickfury.tex} for the first time. Then you can all update and commit
-changes to it normally.
-
-
-\paragraph*{Handling conflicts}
-
-When Alice and Bob are make changes to the same file, Alice will
-commit her changes and Bob will have to update his local copy before
-commiting his changes. Most of the time, SVN will merge Alice's
-changes intelligently into Bob's local copy and integrate their
-changes (and Bob will see a ``G'' when he updates). Sometimes, for
-whatever reason\footnote{Most likely, that Alice and Bob and were
-making changes to the exact same place.}, SVN doesn't trust itself
-that it knows how Alice and Bob want their changes merged. When this
-happens, Bob will see a ``C'' when updating, which stands for {\em
-conflict}.
-
-\ter{\% svn update\\
-C Charsheets/warlock.tex}
-
-SVN will markup any file that is in {\em conflict} with special
-symbols to show you where the conflict is, showing Bob both Alice's
-version that is now in the repo and Bob's version, and where they
-disagree. Bob will have to manually merge the changes. When Bob looks
-at the file, he might see a lot of blocks like this:
-
-\ter{<<<<<<< .mine\\
-and so you came to Moscow to kill your enemy James Bond.\\
-=======\\
-and so you came to Moscow to help your friend Nick Fury.\\
->>>>>>> .r54}
-
-Every block between the less than and greater than signs is a part of
-the file that is in conflict. What Bob's local file has is shown after
-the {\tt <<<<<<< .mine}. What the repository has (in this case,
-Alice's changes) is shown above the {\tt >>>>>>> .r54}.\footnote{The
-``54'' is just indicating tha the current revision of the project in
-the repo is revision \#54.} The {\tt =======} deliniates between the
-two versions. Bob needs to get rid of this whole block and merge the
-two changes so that they make sense:
-
-\ter{and so you came to Moscow to kill your enemy James Bond and help your friend Nick Fury.}
-
-When Bob is done editing the file so that it merges Alice's and his
-changes the way they want, he needs to tell SVN that he fixed the
-problem with the {\em resolved} command.
-
-\ter{\% svn resolved Charsheets/warlock.tex \\
- Resolved conflicted status of Charsheets/warlock.tex !}
-
-Now Bob can commit normally. When Alice updates, SVN will give her the
-correct copy of {\tt warlock.tex} with both sets of changes.
-
-\paragraph*{Afterword}
-
-SVN is one of those things that you won't be able to imagine you lived
-without. It will help get your whole house in order. Commit and update
-early and often, and you will save yourself and your GM team a lot of
-pain. Type {\tt svn help} for more documentation, or look it up
-online.
 
 \end{document}
