@@ -36,7 +36,7 @@ Although Git is a ``distributed VCS'', you will most likely want to use it in a 
 
 \end{itemz}
 
-We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \TODO{install instructions} for advice.
+We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \href{https://git-scm.com/downloads} to download it.
 
 \section{Creating and populating a git repository}
 
@@ -46,11 +46,11 @@ We will talk about how to set it up and how to use it. First, make sure you have
 
 You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves.
 
-\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student}, they can get free private repositories through the \TODO{name of student pack}. If one of your GMs already pays Github for private repos, they can also create another one for free.
+\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student}, they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays Github for private repos, they can also create another one for free.
 
 Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than its worth. See ``\gCI{}'' for details. \TODO{link to CircleCI docs}}.
 
-If you choose to use Github, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings->Collaborators and add all your co-GMs to the list of collaborators.
+If you choose to use Github, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings$\,\to\,$Collaborators and add all your co-GMs to the list of collaborators.
 
 \paragraph*{Bitbucket} Bitbucket is another large commercial Git host, which provides free public repos and \href{https://bitbucket.org/product/pricing/}{free private repos with up to five collaborators each}. Bitbucket has many of the same features as Github, including CircleCI support, but it's less widely used.
 
@@ -58,7 +58,7 @@ If you choose to use Github, the GM with private repos available should go to \u
 
 \paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account for any collaborators.
 
-You will need an MIT mailing list for your team -- create one at \TODO{list creation}.  It should be a moira list (\emph{not} mailman) and an AFS group.
+You will need an MIT mailing list for your team -- create one at \url{https://listmaker.mit.edu/lc/}.  It should be a moira list (\emph{not} mailman) and an AFS group.
 
 One of you should agree to host it in your locker, say in a directory called \texttt{gitgamename}. From the command line, you should do several things.
 
