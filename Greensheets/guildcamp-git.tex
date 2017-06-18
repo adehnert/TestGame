@@ -4,6 +4,8 @@
 
 \begin{document}
 
+% I wanted to use fancyvrb for this, but it doesn't seem to work in (at least)
+% GameTeX compendia.
 \newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
 
 \name{Crash Intro to Git}
@@ -156,6 +158,51 @@ Now your repo contains a copy of your GameTeX tree and is ready to be
 used.
 
 \section{Normal git operations}
+
+\paragraph*{Examining changes}
+
+To see what changes you've made, you can run \texttt{git status} (to see a summary of changed files) and \texttt{git diff} (to see specific changes).
+
+For example, as I write this, \texttt{git status} tells me I have one modified file (this one -- \texttt{guildcamp-git.tex}) and two untracked files (my editor, \texttt{vim}'s, tempfiles):
+\begin{verbatim}
+$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   ../Greensheets/guildcamp-git.tex
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        ../Greensheets/.guildcamp-git.tex.swp
+        ../Lists/.green-LIST.tex.swp
+
+no changes added to commit (use "git add" and/or "git commit -a")
+\end{verbatim}
+
+Running \texttt{git diff} tells me exactly what changes I've made to \texttt{guildcamp-git.tex}:
+\begin{verbatim}
+$ git diff
+diff --git a/Greensheets/guildcamp-git.tex b/Greensheets/guildcamp-git.tex
+index 8553d3c..c7ecd74 100644
+--- a/Greensheets/guildcamp-git.tex
++++ b/Greensheets/guildcamp-git.tex
+@@ -157,6 +157,12 @@ used.
+
+ \section{Normal git operations}
+
++\paragraph*{Examining changes}
++
++To see what changes you've made, you can run \texttt{git status} [...]
++
++
++
+ \paragraph*{Committing and pushing changes}
+\end{verbatim}
 
 \paragraph*{Committing and pushing changes}
 
