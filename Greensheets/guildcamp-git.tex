@@ -11,7 +11,7 @@
 \name{Crash Intro to Git}
 
 This is a short document on how to use the Git version control
-system.\footnote{last modified October 16, 2016; based on ``Crash Intro to SVN''} It will teach you the
+system.\footnote{last modified June 19, 2017; based on ``Crash Intro to SVN''} It will teach you the
 bare minimum you need to know to use it with game development.
 
 \paragraph*{What is Git?}
@@ -20,8 +20,7 @@ Git is a ``version control system'': basically,
 it tries to solve all of the things that can go wrong when multiple
 people are editing, adding and deleting files from a big directory all
 at once (two people trying to edit the same file, nobody knowing who
-has the newest version of a given file, etc.). This is what you will
-be doing while writing a game.
+has the newest version of a given file, etc.).
 
 Although Git is a ``distributed VCS'', you will most likely want to use it in a centralized fashion, as follows:
 
@@ -36,7 +35,7 @@ Although Git is a ``distributed VCS'', you will most likely want to use it in a 
 
 \end{itemz}
 
-We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \href{https://git-scm.com/downloads} to download it.
+We will talk about how to set it up and how to use it. First, make sure you have it installed: run \texttt{git --version} at a command prompt. On an Athena machine, or any other machine with git installed, this should return \texttt{git version \textit{...}}. If you don't have git installed and are running Debian or Ubuntu, install it with \texttt{apt-get install git}. On other systems, see \url{https://git-scm.com/downloads} to download it.
 
 \section{Creating and populating a git repository}
 
@@ -48,7 +47,7 @@ You have several options for where to host your repository, with different advan
 
 \paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student}, they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays Github for private repos, they can also create another one for free.
 
-Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than its worth. See ``\gCI{}'' for details. \TODO{link to CircleCI docs}}.
+Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than its worth. See ``\gCI{}'' (\url{http://web.mit.edu/adehnert/Public/assassin/docs/ci.pdf}) for details.}.
 
 If you choose to use Github, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings$\,\to\,$Collaborators and add all your co-GMs to the list of collaborators.
 
@@ -115,31 +114,24 @@ done.
 
 (The warning message will appear until one GM does the next step, ``Initializing the repo''. However, it's harmless, and it's fine for all the GMs to do this step before any does the next one.)
 
-Above, make sure to replace \texttt{\emph{path-to-repo}} up above with
-the actual location of the repository (something like
-\texttt{ssh://git@github.com/joeuser/GameName} for Github or
-\texttt{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).
-After all is said and done, you will now have a working local copy of
-the repository. Each GM should do this, including the one who created
-the repository. Your checked out copy will have a hidden
-\texttt{.git/} folders all over the place that you may notice. Don't
-mess with those -- that's just how Git keeps track of some
-information.
+Above, make sure to replace \texttt{\emph{path-to-repo}} up above with the
+actual location of the repository (something like
+\path{ssh://git@github.com/joeuser/GameName} for Github or
+\path{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).  After all
+is said and done, you will now have a working local copy of the repository.
+Each GM should do this, including the one who created the repository. Your
+checked out copy will have a hidden \path{.git/} folder that you may notice.
+Don't mess with it -- that's just how Git keeps track of some information.
 
 \paragraph*{Initializing the repo} \emph{You will only need to do this step once per game.}
 
 One (and only one) GM will need to add GameTeX to the repository. Before starting this, you should already have the git repository cloned (from the above step), but it should still be empty.
 
-%Before you do this step, you should have a GameTeX tree already set up
-%in one of your lockers (see the ``Crash Intro to GameTeX'' greensheet;
-%life will be easier if you've already run Extras/changeclass.pl).
-
-This blank repository needs a copy of your GameTeX tree in it so that
-you can start using the repo. To do this, you need to \emph{import} the
-tree so that the repo can start keeping track of it. Go to the root of
-a GameTeX tree you've previously set up, and run the following
-commands. A text editor will pop up. Just enter ``Initial commit'' and
-exit the text editor.
+This blank repository needs a copy of your GameTeX tree in it so that you can
+start using the repo. To do this, you need to \emph{import} the tree so that
+the repo can start keeping track of it. Set up a copy of the GameTeX tree in
+your git repository clone. Then run the following commands. A text editor will
+pop up. Just enter ``Initial commit'' and exit the text editor.
 
 \ter{%
 \$ git add .\\
@@ -161,18 +153,18 @@ used.
 
 You'll need to do three main things while working on your game:
 \begin{enum}[]
-\item \emph{Pull} your fellow GM's changes from the central repo
+\item \emph{Pull} your fellow GMs' changes from the central repo
 \item Work on sheets
 \item \emph{Push} your changes to the central repo
 \end{enum}
 
-You'll learn more about the first and third steps later in this document; the second is out of scope.
+You'll learn more about the first and third steps later in this document; the second isn't git-specific and is thus out-of-scope.
 
 In general, we recommend that you pull immediately before beginning work on your sheets. When you finish a session working (and the game compiles), before you go do other things it's a good idea to push your changes. Otherwise, if somebody else edits the same file you did, the second of you to push may need to resolve conflicts, which can be tricky. If you pull just before working and push just after, life will be simpler.
 
 \paragraph*{Pulling changes from the central repo}
 
-To pull changes from the central repo, run \texttt{git pull}. Ideally, this will display something like:\\
+To pull changes from the central repo, run \texttt{git pull}. If nobody else has made changes, you'll just see:\\
 \ter{%
 \$ git pull\\
 Already up-to-date.
@@ -193,6 +185,8 @@ Fast-forward
  Greensheets/guildcamp-git.tex | 85 +++++++++++++++++++++++++++++++++++++++++++++++++----
  2 files changed, 79 insertions(+), 7 deletions(-)
 \end{verbatim}
+
+If one of your fellow GMs has made changes to the same place as you did, got will tell display "CONFLICT" and you will need to merge them (or throw away your changes). The \emph{Pro Git} book has a \href{https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts}{section on handling merge conflicts}, or you may be able to ask another GM or a friend who knows Git for help.
 
 \paragraph*{Examining changes}
 
@@ -243,14 +237,12 @@ index 8553d3c..c7ecd74 100644
 
 Git is a \emph{distributed} version control system, so it tracks changes locally by default and requires a separate operation to push them to the central repo, where your fellow GMs can see it.
 
-The most common way to commit changes is \texttt{git commit -a}, which will commit any files you've changed (ones that show up as "modified" in \texttt{git status}) but not unknown files. To commit new files (for example, a new character sheet), run \texttt{git add \emph{<filename}} to tell git to track that file, followed by \texttt{git commit} to store them. Either way, \texttt{git commit} will bring up an editor where you can describe your changes (which may be helpful for other GMs to see what you changed).
+The most common way to commit changes is \texttt{git commit -a}, which will commit any files you've changed (ones that show up as "modified" in \texttt{git status}) but not unknown files. To commit new files (for example, a new character sheet), run \texttt{git add \emph{filename}} with each file added to tell git to track those files, followed by \texttt{git commit} to store them. Either way, \texttt{git commit} will bring up an editor where you can describe your changes (which may be helpful for other GMs to see what you changed).
 
 Once you've stored your changes locally with \texttt{git commit}, you can run \texttt{git push} to send them to your central repo. If somebody else has pushed since you last pulled, \texttt{git} will give you an error -- pull, resolve any conflicts, and then try again.
 
-\ter{%
-- merge
-- additional resources
-}
+\paragraph*{Additional resources}
 
+Github links to a variety of Git (and Github) resources at \url{https://help.github.com/articles/git-and-github-learning-resources/}, including an interactive git course. The whole \emph{Pro Git} book is available free online at \url{https://git-scm.com/book/en/v2}. The Git project also has a range of other documentation at \url{https://git-scm.com/documentation}, including videos and a collection of external links.
 
 \end{document}
