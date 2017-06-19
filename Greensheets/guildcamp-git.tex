@@ -172,14 +172,27 @@ In general, we recommend that you pull immediately before beginning work on your
 
 \paragraph*{Pulling changes from the central repo}
 
-To pull changes from the central repo, run \texttt{git pull}. Ideally, this will display something like:
+To pull changes from the central repo, run \texttt{git pull}. Ideally, this will display something like:\\
 \ter{%
-\$ git pull
+\$ git pull\\
 Already up-to-date.
 }
 
-Or, if one of your fellow GMs has made changes:
-\TODO{git pull output}
+If one of your fellow GMs has made changes, you should see something like:
+\begin{verbatim}
+$ git pull
+remote: Counting objects: 15, done.
+remote: Compressing objects: 100\% (9/9), done.
+remote: Total 15 (delta 11), reused 10 (delta 6), pack-reused 0
+Unpacking objects: 100\% (15/15), done.
+From git://github.com/adehnert/TestGame
+   daf4cc0..8cae667  master     -> adehnert/master
+Updating daf4cc0..8cae667
+Fast-forward
+ .gitignore                    |  1 +
+ Greensheets/guildcamp-git.tex | 85 +++++++++++++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 79 insertions(+), 7 deletions(-)
+\end{verbatim}
 
 \paragraph*{Examining changes}
 
