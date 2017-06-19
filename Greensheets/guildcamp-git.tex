@@ -159,6 +159,28 @@ used.
 
 \section{Normal git operations}
 
+You'll need to do three main things while working on your game:
+\begin{enum}[]
+\item \emph{Pull} your fellow GM's changes from the central repo
+\item Work on sheets
+\item \emph{Push} your changes to the central repo
+\end{enum}
+
+You'll learn more about the first and third steps later in this document; the second is out of scope.
+
+In general, we recommend that you pull immediately before beginning work on your sheets. When you finish a session working (and the game compiles), before you go do other things it's a good idea to push your changes. Otherwise, if somebody else edits the same file you did, the second of you to push may need to resolve conflicts, which can be tricky. If you pull just before working and push just after, life will be simpler.
+
+\paragraph*{Pulling changes from the central repo}
+
+To pull changes from the central repo, run \texttt{git pull}. Ideally, this will display something like:
+\ter{%
+\$ git pull
+Already up-to-date.
+}
+
+Or, if one of your fellow GMs has made changes:
+\TODO{git pull output}
+
 \paragraph*{Examining changes}
 
 To see what changes you've made, you can run \texttt{git status} (to see a summary of changed files) and \texttt{git diff} (to see specific changes).
@@ -206,11 +228,13 @@ index 8553d3c..c7ecd74 100644
 
 \paragraph*{Committing and pushing changes}
 
+Git is a \emph{distributed} version control system, so it tracks changes locally by default and requires a separate operation to push them to the central repo, where your fellow GMs can see it.
+
+The most common way to commit changes is \texttt{git commit -a}, which will commit any files you've changed (ones that show up as "modified" in \texttt{git status}) but not unknown files. To commit new files (for example, a new character sheet), run \texttt{git add \emph{<filename}} to tell git to track that file, followed by \texttt{git commit} to store them. Either way, \texttt{git commit} will bring up an editor where you can describe your changes (which may be helpful for other GMs to see what you changed).
+
+Once you've stored your changes locally with \texttt{git commit}, you can run \texttt{git push} to send them to your central repo. If somebody else has pushed since you last pulled, \texttt{git} will give you an error -- pull, resolve any conflicts, and then try again.
 
 \ter{%
-- update
-- new files
-- commit / push
 - merge
 - additional resources
 }
