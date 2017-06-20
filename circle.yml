@@ -10,6 +10,8 @@ dependencies:
 test:
   override:
     - "cd Production && make"
+    - "cd Greensheets && make"
   post:
-    - mkdir $CIRCLE_ARTIFACTS/sheets
+    - mkdir $CIRCLE_ARTIFACTS/sheets $CIRCLE_ARTIFACTS/greensheets
     - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
+    - cp Greensheets/*.pdf $CIRCLE_ARTIFACTS/greensheets
