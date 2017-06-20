@@ -16,9 +16,9 @@ bare minimum you need to know to use it with game development.
 
 \paragraph*{What is Git?}
 
-Git is a ``version control system'': basically,
+Git is a ``version control system'' (VCS): basically,
 it tries to solve all of the things that can go wrong when multiple
-people are editing, adding and deleting files from a big directory all
+people are editing, adding, and deleting files from a big directory all
 at once (two people trying to edit the same file, nobody knowing who
 has the newest version of a given file, etc.).
 
@@ -45,7 +45,7 @@ We will talk about how to set it up and how to use it. First, make sure you have
 
 You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves.
 
-\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student}, they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays Github for private repos, they can also create another one for free.
+\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student} (at MIT or elsewhere), they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays Github for private repos, they can also create another one for free.
 
 Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than its worth. See ``\gCI{}'' (\url{http://web.mit.edu/adehnert/Public/assassin/docs/ci.pdf}) for details.}.
 
@@ -63,15 +63,14 @@ One of you should agree to host it in your locker, say in a directory called \te
 
 First, create the directory and give your GM team access to it (let's
 say that your GMs are all on a list called \texttt{gamename-gms}. Then,
-remove everybody else's ``list'' permissions from it. We'll call the
-user creating the repo \texttt{joeuser}.
+remove everybody else's ``list'' permissions from it.
 
 \ter{\$ mkdir gitgamename\\
 \$ fs sa gitgamename system:gamename-gms write\\
 \$ fs sa gitgamename system:anyuser none}
 
 You can double check the permissions. They should look something like
-this:
+this (assuming that "joeuser" is the user creating the repo):
 
 \ter{\$ fs la gitgamename\\
 Access list for gitgamename is\\
@@ -93,20 +92,29 @@ branches/  config  description  HEAD  hooks/  info/  objects/  refs/}
 
 \subsection{Add \gametex{} to a repo}
 
+\paragraph*{Setting up ssh keys}
+
+\TODO{fill in}
+
 \paragraph*{Cloning a copy}
 
 \emph{You will only have to do this step once per GM.}
 
 Each GM needs to clone a local copy of the game's repo.
 
-Decide where your local copy will sit (if using Athena, you probably
-want it somewhere like\\ {\tt /mit/yourusername/Private/GameName/},
-but consult the ``Intro to GameTeX'' greensheet). Make sure any parent directories exist, change into the parent directory, and then clone the repository:
+Decide where your local copy will sit (if using Athena, you probably want it
+somewhere like\\ {\tt /mit/yourusername/Private/GameName/}, but consult the
+``Intro to GameTeX'' greensheet). Make sure any parent directories exist,
+change into the parent directory, and then clone the repository. You can do
+this with the following commands, making sure to replace
+\texttt{\emph{path-to-repo}} with the actual location of the repository
+(something like \path{ssh://git@github.com/joeuser/GameName} for Github or
+\path{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).
 
 \ter{%
-\% mkdir -p /mit/yourusername/Private/\\
-\% cd /mit/yourusername/Private/\\
-\% git clone \emph{path-to-repo} GameName/\\
+\$ mkdir -p /mit/yourusername/Private/\\
+\$ cd /mit/yourusername/Private/\\
+\$ git clone \emph{path-to-repo} GameName/\\
 Cloning into 'GameName'...
 warning: You appear to have cloned an empty repository.
 done.
@@ -114,14 +122,11 @@ done.
 
 (The warning message will appear until one GM does the next step, ``Initializing the repo''. However, it's harmless, and it's fine for all the GMs to do this step before any does the next one.)
 
-Above, make sure to replace \texttt{\emph{path-to-repo}} up above with the
-actual location of the repository (something like
-\path{ssh://git@github.com/joeuser/GameName} for Github or
-\path{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).  After all
-is said and done, you will now have a working local copy of the repository.
-Each GM should do this, including the one who created the repository. Your
-checked out copy will have a hidden \path{.git/} folder that you may notice.
-Don't mess with it -- that's just how Git keeps track of some information.
+After all is said and done, you will now have a working local copy of the
+repository.  Each GM should do this, including the one who created the
+repository. Your checked out copy will have a hidden \path{.git/} folder that
+you may notice.  Don't mess with it -- that's just how Git keeps track of some
+information.
 
 \paragraph*{Initializing the repo} \emph{You will only need to do this step once per game.}
 
@@ -131,11 +136,12 @@ This blank repository needs a copy of your GameTeX tree in it so that you can
 start using the repo. To do this, you need to \emph{import} the tree so that
 the repo can start keeping track of it. Set up a copy of the GameTeX tree in
 your git repository clone. Then run the following commands. A text editor will
-pop up. Just enter ``Initial commit'' and exit the text editor.
+pop up. Just enter ``Initial commit'', save, and exit the text editor.
 
 \ter{%
 \$ git add .\\
 \$ git commit\\
+{[} edit the commit message {]}\\
 \$ git push\\
 Counting objects: 98, done.\\
 Delta compression using up to 4 threads.\\
@@ -186,7 +192,7 @@ Fast-forward
  2 files changed, 79 insertions(+), 7 deletions(-)
 \end{verbatim}
 
-If one of your fellow GMs has made changes to the same place as you did, got will tell display "CONFLICT" and you will need to merge them (or throw away your changes). The \emph{Pro Git} book has a \href{https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts}{section on handling merge conflicts}, or you may be able to ask another GM or a friend who knows Git for help.
+If one of your fellow GMs has made changes to the same place as you did, git will display "CONFLICT" and you will need to merge them (or throw away your changes). The \emph{Pro Git} book has a \href{https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts}{section on handling merge conflicts}, or you may be able to ask another GM or a friend who knows Git for help.
 
 \paragraph*{Examining changes}
 
