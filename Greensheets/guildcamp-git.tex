@@ -92,13 +92,15 @@ branches/  config  description  HEAD  hooks/  info/  objects/  refs/}
 
 \subsection{Add \gametex{} to a repo}
 
-\paragraph*{Setting up ssh keys}
+\paragraph*{Setting up ssh keys} \emph{You will only have to do this step once per GM.}
 
-\TODO{fill in}
+Typically git repos are accessed over ssh. If you're using a Github or Bitbucket repo (just about anything but Athena), you'll need an \emph{ssh key}. First, see if you already have one by running \texttt{ls \$HOME/.ssh/}. If there's a file named \texttt{id\_\emph{something}.pub}, you're probably set; if you get an error or see only \texttt{config} or \texttt{authorized\_keys}, you'll need to create a new key. To do so, run \texttt{ssh-keygen -t rsa -b 4096 -C "your\_email@example.com"}. The default location is fine, and you should use a reasonably-secure password.
 
-\paragraph*{Cloning a copy}
+Once you have your ssh key, you'll need to upload it to Github or whereever else you're hosting your repo -- in Github's case, go to \url{https://github.com/settings/keys}. You can find your public key by running \texttt{cat \$HOME/.ssh/id\_rsa.pub} (assuming you created a new key above) -- \emph{don't} upload the version without the \texttt{.pub}.
 
-\emph{You will only have to do this step once per GM.}
+If you have trouble, Github's documentation\footnote{\url{https://help.github.com/articles/connecting-to-github-with-ssh/}} covers this in more detail -- much of it is applicable even if you're using a non-Github git host, such as Bitbucket.
+
+\paragraph*{Cloning a copy} \emph{You will only have to do this step once per GM.}
 
 Each GM needs to clone a local copy of the game's repo.
 
