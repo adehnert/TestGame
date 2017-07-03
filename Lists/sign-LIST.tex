@@ -41,14 +41,14 @@
 \PRESETS{Sign}{
   \FD\MYloc	{\mylocation} %% real-space location
   \FD\MYtext	{} %% text of sign
-  }
+}
 \POSTSETS{Sign}{
   \edef\mylocation{\MYloc}
   \protected@edef\@ownerstring{%
     \MYname%
     \ifx\mylocation\empty\else\ (\mylocation)\fi%
-    }
   }
+}
 \def\mylocation{}
 
 \def\loc#1{\rs\MYloc{#1}}
@@ -72,7 +72,7 @@
 \PRESETS{EOG}{%
   \s\MYname	{End Of Game}
   \s\MYtext	{{\bf\Huge You may not pass through here.}}
-  }
+}
 
 
 %%%%%
@@ -92,38 +92,48 @@
 %% \labelcover{<name>}{<text>}
 %% \labelpage{<name>}{<text>}
 \newinstance{Sign}{\signbig[3][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}}
+  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
+}
 \newinstance{EOG}{\eog[1][\mylocation]}{\s\MYloc{#1}}
 
 \newinstance{SignMedium}{\signmedium[3][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}}
+  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
+}
 \newinstance{SignSmall}{\signsmall[3][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}}
+  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
+}
 \newinstance{SignTiny}{\signtiny[3][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}}
+  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
+}
 \newinstance{SignDot}{\signdot[2][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}}
+  \s\MYloc{#1}\s\MYname{#2}
+}
 
 \newinstance{Label}{\labelbig[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 \newinstance{LabelMedium}{\labelmedium[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 \newinstance{LabelSmall}{\labelsmall[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 
 \newinstance{SignStrip}{\signstrip[3][\mylocation]}{
-  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}}
+  \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
+}
 \newinstance{LabelCover}{\labelcover[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 \newinstance{LabelPage}{\labelpage[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 
 
 %%%%%
 %% \sEOG{}
 %% use \sEOG[\loc{<location>}]{} for EOG sign at a specific place
-\NEW{EOG}{\sEOG}{
-  }
+\NEW{EOG}{\sEOG}{}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,7 +142,7 @@
   \s\MYname	{A Room}
   \s\MYloc	{10-250}
   \s\MYtext	{A lecture hall with large, sliding blackboards.}
-  }
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

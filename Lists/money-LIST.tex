@@ -34,11 +34,11 @@
   \FS\MYlongprint	{\MYamountstring\ \MYstring}
   \FS\MYbillprint	{\MYamountstring\ \MYbillstring}
   \sd\MYlistmap		{\item\MYlongprint}
-  }
+}
 
 \POSTSETS{Money}{
   \ifnum\MYamountnum=1\s\MYstring{\MYsinglestring}\fi
-  }
+}
 
 
 %%%%%
@@ -66,7 +66,8 @@
 %% \newbill is a simple shortcut wrapper around \NEW, for specific
 %% bills.
 \def\newbill#1#2#3#4{\NEW{#1}{#2}{
-  \s\MYamountnum{#3}\s\MYamountstring{#4}}}
+  \s\MYamountnum{#3}\s\MYamountstring{#4}}
+}
 
 
 \DECLARESUBTYPE{Dollar}{Money}
@@ -76,7 +77,7 @@
   \s\MYpluralstring	{Dollars}
   \s\MYbillstring	{Dollar Bill}
   \s\MYexchangerate	{1}
-  }
+}
 \newbill{Dollar}{\OneDollar}{1}{One}
 \newbill{Dollar}{\FiveDollar}{5}{Five}
 \newbill{Dollar}{\TenDollar}{10}{Ten}
@@ -149,23 +150,26 @@
     \INSTANCE{#3}{}{\etoss{\multiply\count0by\?\MYexchangerate}}%
     \xdef\@mctotal{\the\count0}%
     \ifnum\@mctotal>0%
-      \BRANCHTYPES{Money}{\MAP{\TYPE}{%
-        \count0=\MYamountnum\relax%
-        \multiply\count0by\MYexchangerate\relax%
-        \edef\@tmp{\the\count0}%
-        \count0=\@mctotal\relax%
-        \divide\count0by\@tmp\relax%
-        #1\relax%
-        \edef\@numbills{\the\count0}%
-        \ifnum\@numbills>0\relax%
-          \multiply\count0by\@tmp\relax%
+      \BRANCHTYPES{Money}{%
+        \MAP{\TYPE}{%
+          \count0=\MYamountnum\relax%
+          \multiply\count0by\MYexchangerate\relax%
           \edef\@tmp{\the\count0}%
           \count0=\@mctotal\relax%
-          \advance\count0-\@tmp\relax%
-          \xdef\@mctotal{\the\count0}%
-          \etoss{\stoss{\multi{\?\@numbills}{\?\ME{}}}}%
-        \fi%
-        \etoss{\def\@LAST{\?\ME}}}}%
+          \divide\count0by\@tmp\relax%
+          #1\relax%
+          \edef\@numbills{\the\count0}%
+          \ifnum\@numbills>0\relax%
+            \multiply\count0by\@tmp\relax%
+            \edef\@tmp{\the\count0}%
+            \count0=\@mctotal\relax%
+            \advance\count0-\@tmp\relax%
+            \xdef\@mctotal{\the\count0}%
+            \etoss{\stoss{\multi{\?\@numbills}{\?\ME{}}}}%
+          \fi%
+          \etoss{\def\@LAST{\?\ME}}%
+        }%
+      }%
       \def\@LAST##1{\typeout{^^J! no bills for making change}}%
       \SORT{Money}{num>}{\MYamountnum}{\@billslist}{}%
       \@LAST{%
@@ -182,11 +186,15 @@
             \advance\count0-\@tmp\relax%
             \xdef\@mctotal{\the\count0}%
           \fi%
-          \typeout{^^J! #3 change off by \@mctotal\space reference units%
-            ^^J \space\@mctotal\space is not a multiple of \@tmp^^J}%
-        \fi}%
+          \typeout{%
+            ^^J! #3 change off by \@mctotal\space reference units%
+            ^^J \space\@mctotal\space is not a multiple of \@tmp^^J%
+          }%
+        \fi%
+      }%
     \fi%
-  \endgroup}
+  \endgroup%
+}
 
 
 %%%%%
@@ -199,7 +207,8 @@
     \INSTANCE{#3}{}{\etoss{\divide\count0by\?\MYexchangerate}}%
     \edef\@tmp{\the\count0}%
     \etoss{\cash{#3}{\?\@tmp}}%
-  \endgroup}
+  \endgroup%
+}
 
 
 %%%%%
@@ -216,18 +225,22 @@
     \def\moneyexchange##1##2##3{\cash{##2}{##1}}%
     \def\moneytotal##1##2{##2}%
     \gdef\@mttotal{0}%
-    \BRANCHTYPES{Money}{\MAP{\TYPE}{%
-      \count0=\MYamountnum%
-      \multiply\count0by\MYexchangerate%
-      \edef\@tmp{\the\count0}%
-      \count0=\@mttotal%
-      \advance\count0by\@tmp%
-      \xdef\@mttotal{\the\count0}}}%
+    \BRANCHTYPES{Money}{%
+      \MAP{\TYPE}{%
+        \count0=\MYamountnum%
+        \multiply\count0by\MYexchangerate%
+        \edef\@tmp{\the\count0}%
+        \count0=\@mttotal%
+        \advance\count0by\@tmp%
+        \xdef\@mttotal{\the\count0}%
+      }%
+    }%
     \setbox0=\vbox{#2}%
     \count0=\@mttotal%
     \INSTANCE{#1}{}{\etoss{\divide\count0by\?\MYexchangerate}}%
     \xdef\@mttotal{\the\count0}%
     \etoss{\cash{#1}{\?\@mttotal}}%
-  \endgroup}
+  \endgroup%
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

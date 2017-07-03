@@ -12,7 +12,7 @@
 \PRESETS{Mem}{
   %% \MYname is the trigger
   \F\MYtext	%%  text
-  }
+}
 
 
 %%%%%
@@ -44,7 +44,7 @@
 \PRESETS{MemCover}{
   \sd\MYtext	{Each page is a memory/event packet with a separate
 		trigger.}
-  }
+}
 
 \DECLARESUBTYPE{MemPage}{Mem}
 
@@ -61,13 +61,17 @@
 %% that may have better syntax for use within character sheets (inside
 %% a \starttag{mems}...\endtag block).
 \newinstance{MemFold}{\memfold[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 \newinstance{MemEnvelope}{\memenvelope[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 \newinstance{MemCover}{\memcover[2]}{
-  \s\MYname{#1}\s\MYmems{#2}}
+  \s\MYname{#1}\s\MYmems{#2}
+}
 \newinstance{MemPage}{\mempage[2]}{
-  \s\MYname{#1}\s\MYtext{#2}}
+  \s\MYname{#1}\s\MYtext{#2}
+}
 
 \long\def\startmembook#1#2\endmembook{\memcover{#1}{#2}}
 
@@ -77,12 +81,12 @@
 \NEW{MemFold}{\mTest}{
   \s\MYname	{Test Trigger}
   \s\MYtext	{This is a Test of a fold-n-staple memory packet}
-  }
+}
 
 \NEW{MemEnvelope}{\mEnvTest}{
   \s\MYname	{Test Trigger}
   \s\MYtext	{This is a Test of a stuff-n-seal memory packet}
-  }
+}
 
 \NEW{MemEnvelope}{\mAmazing}{
   \s\MYname	{if you see something amazing}
@@ -91,22 +95,22 @@
 		and ability.}
   \s\MYabils	{\aTest{}}
   \s\MYgreens	{\gTest{}}
-  }
+}
 
 \NEW{MemCover}{\mBookTest}{
   \s\MYname	{Book of Memory Packets}
   \s\MYmems	{\mPageOne{}\mPageTwo{}}
-  }
+}
 
 \NEW{MemPage}{\mPageOne}{
   \s\MYname	{Test Trigger One}
   \s\MYtext	{This is a Test of a mempacket book}
-  }
+}
 
 \NEW{MemPage}{\mPageTwo}{
   \s\MYname	{Test Trigger Two}
   \s\MYtext	{This is a Test of a mempacket book}
-  }
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

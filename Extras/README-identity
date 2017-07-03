@@ -20,7 +20,7 @@ example:
 		\rs\MYnumber	{????}
 		\badgetrue
 		}
-    }
+  }
 
 can be given to a character (in \MYids) to give them a new namebadge
 with a blank name and a new description and number.  Any other
@@ -39,7 +39,7 @@ elements to non-characters.  Thus
 		recognize you (the player), but it conceals your badge
 		number and description.  Wear the included name badge.}
     \s\MYids	{\idDisguise{}}
-    }
+  }
 
 will be a mask item card with an associated namebadge.  The badge will
 have a blank player name.  (If, instead, you want the badge to be
@@ -58,7 +58,7 @@ used to change the mods on a per-use basis.  For example:
   \newid{\spiderman}{%
     \rs\MYname	{Spider-Man}
     \rs\MYnumber{????}
-    }
+  }
 
   \NEW{PC}{\cPeterParker}{
     \s\MYname	{Peter Parker}
@@ -69,7 +69,7 @@ used to change the mods on a per-use basis.  For example:
 			  \badgetrue}%
 		}
     ...
-    }
+  }
 
 creates a Spider-Man identity, gives it to Peter Parker as a
 namebadge, and gives him a namebadge for when he is using his press
@@ -86,7 +86,7 @@ locally to the character.
     \s\MYname	{Thomas Barker}
     \nickname	{Tommy Barker}
     ...
-    }
+  }
 
 will give Thomas Barker a "Tommy" nickname.  Like other identity
 instances, <mods> can be used on a per-use basis.
@@ -96,7 +96,7 @@ instances, <mods> can be used on a per-use basis.
     \realname	{Darth \pre Sidious}
     ...
     \s\MYids	{\real[\badgetrue]{}}
-    }
+  }
 
 will give the Emperor his Sidious identity and a namebadge for when he
 wants to ditch his cover.
@@ -137,7 +137,7 @@ be unchanged from the originating character.  So
     ...
     \s\MYids	{\extrabadge{\same}{\same}{man in plain clothing}}
     ...
-    }
+  }
 
 will give the janitor a namebadge he can wear when he's out of
 uniform.  The name and badge number will not change.
@@ -149,7 +149,7 @@ uniform.  The name and badge number will not change.
     ...
     \s\MYids	{\boxlabel{Postman}}
     ...
-    }
+  }
 
 Will generate a "Postman" label for The Box for the Postman mechanic.
 
@@ -176,7 +176,7 @@ reflect what the identity owns, not the original character.
 		}
     \s\MYgreens	{\gClimbing{}}
     \listcharstuff
-    }
+  }
 
   \NEW{PC}{\cJekyl}{
     \s\MYname	{Dr.\null\pre Jekyl}
@@ -184,7 +184,7 @@ reflect what the identity owns, not the original character.
     ...
     \s\MYids	{\idHyde{}}
     ...
-    }
+  }
 
 will give Dr. Jekyl a Mr. Hyde charsheet, a Mr. Hyde badge, a set of
 abilities, and a greensheet.  The abilities and greensheet will be
@@ -215,7 +215,7 @@ character sheets, as above).  For example:
 		\skillstrue
 		\badgetrue
     		}
-    }
+  }
 
 will, when given to a character, give them a second statcard and
 skilllist that only list the identity's skills and stats (Theta 2,
@@ -243,7 +243,7 @@ stats/skills not shared with the normal ones, use \notowner:
 		\badgetrue
     		}
     \notowner
-    }
+  }
 
 Now, \idWerewolf{}'s ownership (of skills at stats) will not be
 processed, and thus won't show up on the normal statcard or skilllist.

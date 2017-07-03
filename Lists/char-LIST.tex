@@ -12,17 +12,19 @@
 %%
 %%
 %%
-%% \MYsex is set to either \male, \female, \neuter, or \ambiguous, as
-%% correct for the character.  \mfn{<masculine>}{<feminine>}{<neuter>}
-%% will produce the correct form based on the current value of \MYsex
-%% (\ambiguous will lead to <masculine>/<feminine>).  \mfn should only
-%% be used within the scope of a Char macro.  \mf{<masc>}{<fem>} works
-%% just like \mfn with the <neut> arg left blank.
+%% \MYsex is set to either \male, \female, \neutral, \neuter,
+%% or \ambiguous, as correct for the character.
+%% \mfnn{<masculine>}{<feminine>}{<neutral>}{<neuter>} will produce
+%% the correct form based on the current value of \MYsex (\ambiguous
+%% will lead to <masculine>/<feminine>).  \mfnn should only be used
+%% within the scope of a Char macro.  \mf{<masc>}{<fem>} works just
+%% like \mfnn with the <neutral> <neuter> args left blank.
 %%
-%% \pronoun{<command>}{<masc>}{<fem>}{<neut>} makes <command> a
-%% wrapper around \mfn.  It is used to create a list of
-%% gender-sensitive macros, mostly pronouns.  For example, given
-%% \pronoun{\They}{He}{She}{It}, \cJamesBond{\They} will produce He.
+%% \pronoun{<command>}{<masc>}{<fem>}{<neutral>}{<neuter>} makes
+%% <command> a wrapper around \mfnn.  It is used to create a list of
+%% gender-sensitive macros, mostly pronouns.  For example,
+%% given \pronoun{\They}{He}{She}{Ey}{It}, \cJamesBond{\They} will
+%% produce He.
 %%
 %%
 %%
@@ -76,57 +78,57 @@
 		\fi}
   \FD\MYwrapup	{}
   \badgetrue\statstrue\skillstrue\sheettrue\listtrue\labeltrue
-  }
+}
 
 \POSTSETS{Char}{
   \resolvestats
-  }
+}
 
 
 %%%%%
 %% pronouns and similar gender-based macros
 %%
-%% \male, \female, \neuter, \ambiguous
-%% \mfn{<masculine>}{<feminine>}{<neuter>}
+%% \male, \female, \neutral, \neuter, \ambiguous
+%% \mfnn{<masculine>}{<feminine>}{<neutral>}{<neuter>}
 %% \mf{<masculine>}{<feminine>}
-%% \pronoun{<command>}{<masculine>}{<feminine>}{<neuter>}
-\def\male{0}\def\female{1}\def\neuter{2}\def\ambiguous{3}
-\newcommand{\mfn}[3]{\ifcase\MYsex#1\or#2\or#3\else#1/#2\fi}
-\newcommand{\mf}[2]{\mfn{#1}{#2}{}}
-\newcommand{\pronoun}[4]{\def#1{\mfn{#2}{#3}{#4}}}
+%% \pronoun{<command>}{<masculine>}{<feminine>}{<neutral>}{<neuter>}
+\def\male{0}\def\female{1}\def\neutral{2}\def\neuter{3}\def\ambiguous{4}
+\newcommand{\mfnn}[4]{\ifcase\MYsex#1\or#2\or#3\or#4\else#1/#2\fi}
+\newcommand{\mf}[2]{\mfnn{#1}{#2}{}{}}
+\newcommand{\pronoun}[5]{\def#1{\mfnn{#2}{#3}{#4}{#5}}}
 
-\pronoun{\they}		{he}{she}{it}
-\pronoun{\They}		{He}{She}{It}
-\pronoun{\them}		{him}{her}{it}
-\pronoun{\Them}		{Him}{Her}{It}
-\pronoun{\their}	{his}{her}{its}
-\pronoun{\Their}	{His}{Her}{Its}
-\pronoun{\theirs}	{his}{hers}{its}
-\pronoun{\Theirs}	{His}{Hers}{Its}
-\pronoun{\themself}	{himself}{herself}{itself}
-\pronoun{\Themself}	{Himself}{Herself}{Itself}
-\pronoun{\spouse}	{husband}{wife}{spouse}
-\pronoun{\Spouse}	{Husband}{Wife}{Spouse}
-\pronoun{\offspring}	{son}{daughter}{offspring}
-\pronoun{\Offspring}	{Son}{Daughter}{Offspring}
-\pronoun{\kid}		{boy}{girl}{kid}
-\pronoun{\Kid}		{Boy}{Girl}{Kid}
-\pronoun{\sibling}	{brother}{sister}{sibling}
-\pronoun{\Sibling}	{Brother}{Sister}{Sibling}
-\pronoun{\parent}	{father}{mother}{parent}
-\pronoun{\Parent}	{Father}{Mother}{Parent}
-\pronoun{\uncle}	{uncle}{aunt}{uncle}
-\pronoun{\Uncle}	{Uncle}{Aunt}{Uncle}
-\pronoun{\nephew}	{nephew}{niece}{nephew}
-\pronoun{\Nephew}	{Nephew}{Niece}{Nephew}
+\pronoun{\they}		{he}{she}{ey}{it}
+\pronoun{\They}		{He}{She}{Ey}{It}
+\pronoun{\them}		{him}{her}{em}{it}
+\pronoun{\Them}		{Him}{Her}{Em}{It}
+\pronoun{\their}	{his}{her}{eir}{its}
+\pronoun{\Their}	{His}{Her}{Eir}{Its}
+\pronoun{\theirs}	{his}{hers}{eirs}{its}
+\pronoun{\Theirs}	{His}{Hers}{Eirs}{Its}
+\pronoun{\themself}	{himself}{herself}{emself}{itself}
+\pronoun{\Themself}	{Himself}{Herself}{Emself}{Itself}
+\pronoun{\spouse}	{husband}{wife}{spouse}{spouse}
+\pronoun{\Spouse}	{Husband}{Wife}{Spouse}{Spouse}
+\pronoun{\offspring}	{son}{daughter}{offspring}{offspring}
+\pronoun{\Offspring}	{Son}{Daughter}{Offspring}{Offspring}
+\pronoun{\kid}		{boy}{girl}{kid}{kid}
+\pronoun{\Kid}		{Boy}{Girl}{Kid}{Kid}
+\pronoun{\sibling}	{brother}{sister}{sibling}{sibling}
+\pronoun{\Sibling}	{Brother}{Sister}{Sibling}{Sibling}
+\pronoun{\parent}	{father}{mother}{parent}{parent}
+\pronoun{\Parent}	{Father}{Mother}{Parent}{Parent}
+\pronoun{\uncle}	{uncle}{aunt}{ommer}{uncle}
+\pronoun{\Uncle}	{Uncle}{Aunt}{Ommer}{Uncle}
+\pronoun{\nephew}	{nephew}{niece}{nibling}{nephew}
+\pronoun{\Nephew}	{Nephew}{Niece}{Nibling}{Nephew}
 \def\aunt{\uncle}
 \def\Aunt{\Uncle}
 \def\niece{\nephew}
 \def\Niece{\Nephew}
-\pronoun{\human}	{man}{woman}{human}
-\pronoun{\Human}	{Man}{Woman}{Human}
-\pronoun{\sex}		{male}{female}{neuter}
-\pronoun{\Sex}		{Male}{Female}{Neuter}
+\pronoun{\human}	{man}{woman}{human}{human}
+\pronoun{\Human}	{Man}{Woman}{Human}{Human}
+\pronoun{\sex}		{male}{female}{neutral}{neuter}
+\pronoun{\Sex}		{Male}{Female}{Neutral}{Neuter}
 
 
 %%%%%
@@ -148,7 +150,7 @@
 \PRESETS{Name}{
   \badgefalse\statsfalse\skillsfalse\sheetfalse\listfalse\labelfalse
   \sd\MYgroupstr{name}
-  }
+}
 
 
 %%%%%
@@ -176,11 +178,12 @@
     \def##1{\@skill{##2}}%
     \PRESETS{Char}{\@setval##1{-1}\def##1{\@pointstat{##1}{#2}{##2}}}%
     \POSTSETS{Char}{\def##1{\@skill{##2}}}%
-    }
   }
+}
 \def\@pointstat#1#2#3#4{%
   \append\MYstats{\stat{#3}{#3}{#4#2}}%
-  \@setval#1{#4}}
+  \@setval#1{#4}%
+}
 \def\@skill#1#2{#1\ifx\relax#2\relax\else\space #2\fi}
 \def\@setval#1#2{\expandafter\def\csname\string#1\endcsname{#2}}
 \def\@skillvalue#1{\csname\string#1\endcsname}
@@ -201,7 +204,7 @@
 %  \ifnum\@skillvalue\security>-1\relax
 %    \append\MYgreens	{\gSecurity{}}
 %  \fi
-%  }
+%}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -212,7 +215,7 @@
 %%   \NEW{PC}{\cBlah}{
 %%     \s\MYname	{}
 %%     \s\MYfile	{}
-%%     }
+%%   }
 %%
 \NEW{PC}{\cTest}{
   \s\MYname	{Test Character}
@@ -233,7 +236,7 @@
   \s\MYwhites	{\wTest{}}
   \s\MYcash	{\cash{Dollar}{261}}
   \s\MYwrapup	{MIT cruft, originally from London, who knows some people.}
-  }
+}
 
 \NEW{NPC}{\cNPC}{
   \s\MYname	{Nathan Clueless \suf III}
@@ -241,12 +244,12 @@
   \s\MYnumber	{00000}
   \s\MYdesc	{a suspicious person}
   \s\MYplayer	{GM Helper}
-  }
+}
 
 \NEW{Name}{\cSomeGuy}{
   \maptrueformal %% most call him Sir Not-Appearing
   \s\MYname	{Sir \pre Robert Not-Appearing}
-  }
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,4 +1,4 @@
-GameTeX is currently at version 1.4.1b.
+GameTeX is currently at version 1.5.
 
 
 
@@ -149,6 +149,11 @@ Some typos fixed.
 \packetspace, to ease some customization hackery.  Fixed bugs with
 transferable owners, subowners, and \unlist.  Some typos fixed in
 comments.
+
+1.5 (6/30/2017): Reformatted nearly all 'code' for slightly better
+readability.  Added gender-neutral pronouns (Spivak, 'ey' variation)
+as a gender option.  Fixed bug with landscape playerlist, accounting
+for newer versions of dvips.
 
 
 

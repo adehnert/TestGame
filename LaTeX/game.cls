@@ -89,7 +89,7 @@
 \def\defaultnamemappings{
   \titlemap{\full}
   \mapnickinformal
-  }
+}
 
 
 %%%%%
@@ -133,12 +133,12 @@
 \def\charactergrouping{
   \mark{GMs}\allgms
   \mark{Characters}\allchars
-  }
+}
 
 \def\playergrouping{
   \mark{GMs}\allgms
   \mark{Players}\allplayers
-  }
+}
 
 
 %%%%%
@@ -210,8 +210,7 @@
   \begin{tlist}{Stats}
     \MYstats
   \end{tlist}
-  %%
-  }
+}
 
 
 %%%%%

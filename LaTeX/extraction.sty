@@ -54,18 +54,32 @@
 %% extractions -> 1 per each <mark1>/<mark2> pair).
 %%
 \newtoks\!toks
+
 \def\!scantoks{%
   \expandafter\global\expandafter\!toks\expandafter{\expandafter}%
   \expandafter\scantokens\expandafter{\the\!toks}%
-  }
+}
+
 \def\!end{\!end}
-\def\!changecats{\advance\count0by1%
-  \ifnum\count0<255\let\!do\!changecats%
-    \ifnum\catcode\count0=1\catcode\count0=12\fi%
-    \ifnum\catcode\count0=2\catcode\count0=12\fi%
-    \ifnum\catcode\count0=6\catcode\count0=12\fi%
-  \else\let\!do\relax%
-  \fi\!do}
+
+\def\!changecats{%
+  \advance\count0by1%
+  \ifnum\count0<255%
+    \let\!do\!changecats%
+    \ifnum\catcode\count0=1%
+      \catcode\count0=12%
+    \fi%
+    \ifnum\catcode\count0=2%
+      \catcode\count0=12%
+    \fi%
+    \ifnum\catcode\count0=6%
+      \catcode\count0=12%
+    \fi%
+  \else%
+    \let\!do\relax%
+  \fi%
+  \!do%
+}
 
 \long\gdef\getextracts#1#2#3{\procextracts{#1}{#2}{#3}{}{}{}{}}%
 \long\gdef\procextracts#1#2#3#4#5#6#7{%
@@ -83,16 +97,22 @@
           \ifx\!tmp\!end\relax\else%
             \let\!tmp\empty%
             \global\!toks\expandafter{\the\!toks#6##2#7}%
-          \fi\def\!do{\!get##3}%
-        \fi\!do}%
-      \count0=0\!changecats%
+          \fi%
+          \def\!do{\!get##3}%
+        \fi%
+        \!do%
+      }%
+      \count0=0%
+      \!changecats%
       \global\!toks{#4}%
-      \everyeof{#1\!end#2\!end}\expandafter\!get\!input#3\relax%
+      \everyeof{#1\!end#2\!end}%
+      \expandafter\!get\!input#3\relax%
       \global\!toks\expandafter{\the\!toks#5}%
       \aftergroup\!scantoks%
     \fi%
     \closein0\relax%
-  \endgroup}%
+  \endgroup%
+}%
 
 
 %%%%%
@@ -109,8 +129,10 @@
 %%
 \def\getextractenvs#1#2{\procextractenvs{#1}{#2}{}{}{}{}}
 \begingroup
-  \catcode`[=1 \catcode`]=2
-  \catcode`{=12 \catcode`}=12
+  \catcode`[=1\relax%
+  \catcode`]=2\relax%
+  \catcode`{=12\relax%
+  \catcode`}=12\relax%
   \long\gdef\procextractenvs#1[\procextracts[\begin{#1}][\end{#1}]]
 \endgroup
 
