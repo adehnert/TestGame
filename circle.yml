@@ -7,8 +7,8 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended python3-flake8
-    - pip3 install pylint  # use apt-get pylint3 starting in 16.04
+    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+    - pip3 install pylint flake8  # use apt-get pylint3 starting in 16.04
 
 test:
   override:
