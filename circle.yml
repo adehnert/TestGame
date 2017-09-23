@@ -5,12 +5,13 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended python3-flake8 pylint3
 
 test:
   override:
     - "cd Production && make"
     - "cd Greensheets && make"
+    - "cd Extras && pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py"
   post:
     - mkdir $CIRCLE_ARTIFACTS/sheets $CIRCLE_ARTIFACTS/greensheets
     - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
