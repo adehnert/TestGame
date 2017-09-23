@@ -1,7 +1,4 @@
 machine:
-  environment:
-    testgame: "/home/ubuntu/TestGame"
-    TEXINPUTS: "/home/ubuntu/TestGame/LaTeX:"
   post:
     - pyenv global 2.7.12 3.6.2
 
@@ -12,9 +9,9 @@ dependencies:
 
 test:
   override:
-    - "cd Production && make"
-    - "cd Greensheets && make"
     - "cd Extras && python3 -mpylint vgametex.py && echo flake8 && python3 -mflake8 vgametex.py"
+    - "cd Production && ../Extras/vgametex.py -- make"
+    - "cd Greensheets && ../Extras/vgametex.py -- make"
   post:
     - mkdir $CIRCLE_ARTIFACTS/sheets $CIRCLE_ARTIFACTS/greensheets
     - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
