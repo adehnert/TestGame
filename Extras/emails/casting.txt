@@ -1,0 +1,17 @@
+Subject: TESTING: Costuming hint for Upton Manor
+CC: upton-manor-gms@mit.edu
+BCC: testing@mit.edu, officers@mit.edu
+BCC: asa-db-outgoing@mit.edu
+
+[ This is a test email. If you've received it, I apologize. ]
+
+Congratulations! You've been cast in Upton Manor.
+
+Some information about your character, if you want to costume:
+- Name: {name}
+- Badge description: {desc}
+
+Hopefully this helps!
+
+Thanks,
+Upton Manor GMs
