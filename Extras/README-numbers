@@ -3,6 +3,17 @@ Lists/NUMBERS.txt
 This file contains all the 3-digit integers (000-999 inclusive) in a
 random order.  When you use a number from here, mark it as used.
 
+You can also extract a sorted list of used item numbers and their associated
+macros using a command line like:
+    jq -r --compact-output '.[]|select(.number!="")|[.number,.macro]|@csv' < json-PRINT.json | sort
+
+Make sure you've generated generated json-PRINT.json by compiling
+Production/json-PRINT.tex.
+
+You'll need `jq`, which is available for Ubuntu in the "jq" pacakage.
+Documentation and downloads for other platforms is at
+https://stedolan.github.io/jq/.
+
 
 551
 659
