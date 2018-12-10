@@ -1,0 +1,12 @@
+build game:
+  script:
+    - apt-get update && apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended python3 make
+    - (cd Production && ../Extras/vgametex.py -- make)
+    - ls -lR; pwd
+    - mkdir artifacts artifacts/sheets artifacts/greensheets
+    - cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+
+  artifacts:
+    paths:
+      - artifacts/
+    expire_in: 1 week
