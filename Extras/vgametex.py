@@ -125,6 +125,8 @@ def handle_prefix(args):
         cmd_args = [os.environ.get("SHELL", "/bin/sh")]
     popen = subprocess.Popen(args=cmd_args, env=envvars)
     popen.wait()
+    if popen.returncode != 0:
+        sys.exit(popen.returncode)
 
 
 def run():
