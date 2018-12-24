@@ -1,0 +1,18 @@
+version: 2
+jobs:
+   build:
+     docker:
+       - image: ubuntu:16.04
+     steps:
+       - checkout
+       - run: apt-get update && apt-get install -y python3 python3-flake8 pylint3 make
+       - run: "cd Extras && pylint3 mail_merge.py && echo flake8 && python3 -mflake8 mail_merge.py"
+       - run: "cd Extras && pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py"
+       - run: apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+       - run: "cd Production && ../Extras/vgametex.py -- make"
+       - run: mkdir artifacts artifacts/sheets artifacts/greensheets
+       - run: cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+
+
+       - store_artifacts:
+           path: artifacts
