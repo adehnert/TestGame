@@ -1,0 +1,40 @@
+mail_merge.py will allow you to send personalized emails to your players.
+
+One major use case is to send out costuming hints (the most basic approach is
+just to send the name and badge description, which works; if you add a
+costuming hint and plumb it through the JSON output, that should work too).
+Another is to email out packets, for games that aren't bothering with packet
+handout.
+
+The mail merge script depends on the JSON export:
+  (cd Production && latex json-PRINT.tex)
+
+To verify behavior, you'll probably want to start by doing a dry run with a
+couple messages, and make sure the formatted text looks right:
+  Extras/mail_merge.py --limit=2 Extras/emails/casting.txt
+
+You can specify a new template or modify that one as desired. Formatting is
+done using the Python format string mechanism
+(https://docs.python.org/3/library/string.html#formatstrings), passing in the
+json-PRINT.json dict for the macro. In short, you can include a field name
+wrapped with {braces} to format that field.
+
+If you want to mail out sheets, you should probably generate them and then
+review them to make sure nothing undesirable is included:
+  Extras/mail_merge.py --generate Extras/emails/casting.txt
+
+If you want to review the email with the attachment in your email, you can
+use --force-rcpt to make the emails go to you instead of the players:
+  Extras/mail_merge.py --attach --force-rcpt=testing@mit.edu --limit=2 --send Extras/emails/casting.txt
+
+Once you're happy, send out the emails:
+  Extras/mail_merge.py --send Extras/emails/casting.txt
+
+Or to attach the sheets you generated above:
+  Extras/mail_merge.py --attach --send Extras/emails/casting.txt
+
+I'd suggest generating sheets in a separate command from actually sending them out, but if you prefer to combine the steps you can:
+  Extras/mail_merge.py --generate --attach --send Extras/emails/casting.txt
+
+Note that if you don't generate all sheets (in particular, without passing
+--limit) before or while running the script with --attach, it will error out.
