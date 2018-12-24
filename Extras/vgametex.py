@@ -38,6 +38,7 @@ def find_game_file(path, regexp):
                     return match.group('cls')
     except FileNotFoundError:
         pass  # we expect this may not exist
+    return None
 
 
 def find_game(parser, root):
@@ -50,6 +51,7 @@ def find_game(parser, root):
     if ret:
         return ret
     parser.error("Could not detect game class, and none was specified")
+    return None     # error exits, so never reached, but makes pylint happier
 
 
 desc = """
