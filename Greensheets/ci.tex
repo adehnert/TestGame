@@ -5,15 +5,17 @@
 \begin{document}
 
 \newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
+\newcommand{\GameTeX}{GameTeX}
+\newcommand{\webbase}{http://web.mit.edu/adehnert/Public/assassin/docs}
 
-\name{Continuous Integration with GameTeX, Github, and CircleCI}
+\name{Continuous Integration with GameTeX}
 
-This document assumes that you're using Git for version control and Github (or Bitbucket) for hosting. If that is not true, you will not be able to fully follow these instructions.
+This document assumes that you're using Git for version control and Github (or Bitbucket) or Gitlab for hosting. If that is not true, you will not be able to fully follow these instructions.
 
 \section{Why CI?}
 
 \begin{WrapText}
-  \paragraph*{Why CircleCI?} I went into this assuming that most GMs would have two requirements:
+  \paragraph*{Why CircleCI or Gitlab?} I went into this assuming that most GMs would have two requirements:
   \begin{desc}
   \item[Private repos] They must be able to use a private repo so that players can't happen across the game and spoil themselves.
   \item[Free] Most GMs won't be willing to pay much, if anything. \$10/month \emph{might} be reasonable, but is distinctly on the high side.
@@ -30,6 +32,8 @@ This document assumes that you're using Git for version control and Github (or B
   \end{desc}
 
   There are presumably other CI systems, but having found one that supported what I needed, I stuck with it.
+
+  I was later introduced to \emph{Gitlab CI}, which also works.
 \end{WrapText}
 
 ``Continuous integration'' (CI) is the idea, now quite popular in software development, that any time somebody commits to a software project their change should be immediately, automatically built and tested. In a context like Guild game writing, this has two chief advantages:
@@ -40,63 +44,40 @@ This document assumes that you're using Git for version control and Github (or B
 
 \section{Prerequisites}
 
-Before you get started, you will need some familiarity with Git, a Github account, and a Github repo for your game that you have admin access to. CircleCI requires \href{https://circleci.com/docs/github-permissions/}{a bunch of permissions}, so if you have a bunch of stuff in your Github account and are generally distrustful, you may want to use a separate Github account for interacting with Github. Note that you will most likely want a private Github repo, which requires somebody on your team either \href{https://github.com/pricing}{paying Github money} or \href{https://education.github.com/pack}{being a student}.
+Before you get started, you will need some familiarity with Git and a Github or GitLab repo for your game that you have admin access to\footnote{CircleCI also supports Bitbucket, so that may also work. Bitbucket private repos are \href{https://bitbucket.org/product/pricing?tab=host-in-the-cloud}{free as long as your team has at most five members}, so if you can't use Github (likely due to the private repos) and don't like GitLab for some reason, Bitbucket is another choice. I haven't tried using Bitbucket or CircleCI's support for it, but they're presumably straightforward.}. If you are using Github, you'll use CircleCI; if you are using GitLab, you'll use GitLab CI.
 
-Alternatively, CircleCI also supports Bitbucket. It seems less popular than Github, but if you're more familiar with it or don't have private repos with Github, it might make sense. Bitbucket private repos are \href{https://bitbucket.org/product/pricing?tab=host-in-the-cloud}{free as long as your team has at most five members}. I haven't tried using Bitbucket or CircleCI's support for it, but they're presumably straightforward.
+The most obvious advantage of using Github is that it is very common -- odds are decent that some of your GMs may have used it before. However, it has various disadvantages:
+\begin{desc}
+    \item[Private repos] You will almost certainly want a private Github repo, which requires somebody on your team either \href{https://github.com/pricing}{paying Github money} or \href{https://education.github.com/pack}{being a student}. Even if one applies, you can probably only have private personal repos, which ties the repo pretty closely to the owner. Notably, much of the CircleCI setup will need to be done by them.
+    \item[Permissions] CircleCI requires \href{https://circleci.com/docs/github-permissions/}{a bunch of permissions}. If you use Github for other things, using GitLab (or a second Github account) may be preferable.
+\end{desc}
+
+GitLab strikes me as a better choice than Github for many GM teams.
 
 \section{Setup}
 
 \emph{You will only have to do this step once per game.}
 
-\subsection{Makefile}
+\subsection{Build instructions: \texttt{vgametex.py} and \texttt{Makefile}}
 
-CircleCI will need to know how to build your game. Rather than configuring it with a complicated command line, it probably makes sense to create a Makefile, which you can use to build locally as well. Here's a sample Makefile to put in the Production directory:
+Your CI system will need to know how to build your game. I use two pieces for doing this:
 
-\begin{verbatim}
-SOURCES=$(wildcard *.tex)
-OUTPUTS=$(subst json-PRINT.pdf,json-PRINT.json,$(SOURCES:.tex=.pdf))
+\paragraph*{vgametex.py} This script eliminates the need to set up your \texttt{.bash\_environment} to build the game. You can use it to run commands (such as latex), and it will set up the \GameTeX{} variables automatically. Download it from \url{\webbase/vgametex.py}, and save it as \texttt{Extras/vgametex.py} (and, of course, commit and push it to your repo).
 
-GENERAL_DEPS = ../LaTeX/testgame.cls ../LaTeX/cards.sty  ../LaTeX/datatypes.sty  ../LaTeX/extraction.sty \
-    ../LaTeX/gametex.sty  ../LaTeX/parsename.sty $(wildcard ../Lists/*.tex)
-GENERAL_DEPS += $(wildcard ../Bluesheets/*.tex) $(wildcard ../Charsheets/*.tex) \
-    $(wildcard Greensheets/*.tex) $(wildcard Handouts/*.tex) $(wildcard Lists/*.tex) \
-    $(wildcard Notebooks/*.tex) $(wildcard Whitesheets/*.tex)
+\paragraph*{Makefiles} The Makefiles encode how to actually build the game. We currently have two: one to build the full printable set of sheets (which should catch most errors), and one to build greensheets (on the theory that these are what you're most likely to want to stick on a website to hand out to players). It should be simple to add more if you want. Download them from \url{\webbase/Makefile-prod} (save to \texttt{Production/Makefile}) and \url{\webbase/Makefile-greens} (save to \texttt{Greensheets/Makefile}).
 
-all : $(OUTPUTS)
+You can also use these locally to build the game -- just \texttt{cd} to the relevant directory and then run \texttt{make} to generate updated sheets. It's not perfect, but it'll usually recompile things when they need to be recompiled, and most GameTeX games won't need internal references, which can require multiple runs of \LaTeX{} to get right. Note that CircleCI will be building from scratch each time, so Make's incremental build support isn't actually needed.
 
-clean :
-        rm $(OUTPUTS) *.aux *.log
+(There are certainly other ways to set up CI -- \texttt{vgametex.py} could certainly be skipped, for example, at the cost of more per-game customization of the CI config. I think this is one of the simpler ways to do and to explain, though.)
 
-%.pdf : %.tex $(GENERAL_DEPS)
-        pdflatex $<
+\subsection{CircleCI: \texttt{.circleci/config.yml}}
 
-json-PRINT.json : json-PRINT.tex $(GENERAL_DEPS)
-        pdflatex $<
-\end{verbatim}
+\emph{You will only have to do this step if you're using CircleCI (the Github option).}
 
-It's not perfect, but it'll usually recompile things when they need to be recompiled, and most GameTeX games won't need internal references, which can require multiple runs of \LaTeX{} to get right. Note that CircleCI will be building from scratch each time, so Make's incremental build support isn't actually needed.
+CircleCI \href{https://circleci.com/docs/2.0/configuration-reference/}{will need to be told} how to prepare and build the game, which you do with a file called .circleci/config.yml. In it, you need to install the LaTeX packages needed to build the game, tell CircleCI how to actually build the game, and finally tell it what artifacts to make available after the build. To do this, create a (hidden) \texttt{.circleci} directory in the root of your repository, and then save \url{\webbase/circleci-config.yml} to \texttt{.circleci/config.yml}.
 
-\subsection{circle.yml}
+If your game has \GameTeX{} installed to the root of your repo (that is, \texttt{Production} and \texttt{.git} are in the same directory), that config file should just work. If not, everywhere \texttt{Production} or \texttt{Greensheets} appears in config.yml (CircleCI) or .gitlab-ci.yml (GitLab), prepend the path to your \GameTeX{} install. For example, if your \GameTeX{} install is at \texttt{GameTeX}, you would put \texttt{GameTeX/Production} in several locations.
 
-CircleCI \href{https://circleci.com/docs/configuration/}{will need to be told} how to prepare and build the game, which you do with a file called circle.yml. In it, you need to set up the TEXINPUTS and game name environment variable, install the LaTeX packages needed to build the game, tell CircleCI how to actually build the game, and finally tell it what artifacts to make available after the build. To do this, in the root of your repo, create a file called circle.yml containing:
-
-\begin{verbatim}
-machine:
-  environment:
-    testgame: "/home/ubuntu/TestGame"
-    TEXINPUTS: "/home/ubuntu/TestGame/LaTeX:"
-
-dependencies:
-  pre:
-    - sudo apt-get install texlive-latex-base texlive-latex-extra texlive-fonts-recommended
-
-test:
-  override:
-    - "cd Production && make"
-  post:
-    - mkdir $CIRCLE_ARTIFACTS/sheets
-    - cp Production/*.pdf Production/json-PRINT.json $CIRCLE_ARTIFACTS/sheets
-\end{verbatim}
 
 \section{Using CircleCI}
 
@@ -110,6 +91,6 @@ For debugging, one thing to know is that CircleCI does allow you to ssh into the
 
 \section{Afterword}
 
-Hopefully this is all straightforward and your game will build just fine. Feel free to contact me (adehnert) for help, though I have little experience with CircleCI. I'd also love to hear from you if you got this working and whether or not it proved useful.
+Hopefully this is all straightforward and your game will build just fine. Feel free to contact me (adehnert) for help. I'd also love to hear from you if you tried to get this working and whether or not it proved useful.
 
 \end{document}
