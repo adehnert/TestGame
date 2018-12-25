@@ -10,8 +10,10 @@ jobs:
        - run: "cd Extras && pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py"
        - run: apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
        - run: "cd Production && ../Extras/vgametex.py -- make"
+       - run: "cd Greensheets && ../Extras/vgametex.py -- make"
        - run: mkdir artifacts artifacts/sheets artifacts/greensheets
        - run: cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+       - run: cp Greensheets/*.pdf artifacts/greensheets/
 
 
        - store_artifacts:
