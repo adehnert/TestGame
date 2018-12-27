@@ -27,6 +27,7 @@ pages:
     - mkdir -p public
     - test -a public/index.html || echo "<p><a href='rules-scenario.pdf'>Rules &amp; Scenario</a></p>" > public/index.html
     - cp artifacts/sheets/rules-scenario.pdf public/
+    - Extras/gitlab-copy-docs.sh public/
 
   artifacts:
     paths:
