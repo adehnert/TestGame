@@ -60,7 +60,7 @@ GitLab strikes me as a better choice than Github for many GM teams.
 
 \subsection{Build instructions: \texttt{vgametex.py} and \texttt{Makefile}}
 
-Your CI system will need to know how to build your game. I use two pieces for doing this:
+Your CI system will need to know how to build your game. I use two common prereqs for doing this:
 
 \paragraph*{vgametex.py} This script eliminates the need to set up your \texttt{.bash\_environment} to build the game. You can use it to run commands (such as latex), and it will set up the \GameTeX{} variables automatically. Download it from \url{\webbase/vgametex.py}, and save it as \texttt{Extras/vgametex.py} (and, of course, commit and push it to your repo).
 
@@ -70,16 +70,20 @@ You can also use these locally to build the game -- just \texttt{cd} to the rele
 
 (There are certainly other ways to set up CI -- \texttt{vgametex.py} could certainly be skipped, for example, at the cost of more per-game customization of the CI config. I think this is one of the simpler ways to do and to explain, though.)
 
-\subsection{CircleCI: \texttt{.circleci/config.yml}}
+\subsection{Add CI build instructions}
 
-\emph{You will only have to do this step if you're using CircleCI (the Github option).}
+Whether you're using CircleCI or GitLab CI, you'll need to write a config file that installs the LaTeX packages needed to build the game, builds the game, and saves the artifacts (anything you'll want after -- printable PDFs by type, publishable individual greensheet PDFs, etc.).
 
-CircleCI \href{https://circleci.com/docs/2.0/configuration-reference/}{will need to be told} how to prepare and build the game, which you do with a file called .circleci/config.yml. In it, you need to install the LaTeX packages needed to build the game, tell CircleCI how to actually build the game, and finally tell it what artifacts to make available after the build. To do this, create a (hidden) \texttt{.circleci} directory in the root of your repository, and then save \url{\webbase/circleci-config.yml} to \texttt{.circleci/config.yml}.
+\emph{If you're using CircleCI}, create a (hidden) \texttt{.circleci} directory in the root of your repository, and then save \url{\webbase/circleci-config.yml} to \texttt{.circleci/config.yml}. If you need to do further customization, more documentation is \href{https://circleci.com/docs/2.0/configuration-reference/}{online}.
 
-If your game has \GameTeX{} installed to the root of your repo (that is, \texttt{Production} and \texttt{.git} are in the same directory), that config file should just work. If not, everywhere \texttt{Production} or \texttt{Greensheets} appears in config.yml (CircleCI) or .gitlab-ci.yml (GitLab), prepend the path to your \GameTeX{} install. For example, if your \GameTeX{} install is at \texttt{GameTeX}, you would put \texttt{GameTeX/Production} in several locations.
+\emph{If you're using GitLab CI}, save \url{\webbase/gitlab-ci.yml} to \texttt{.gitlab-ci.yml} in the root of your repo. If you need to do more customization, more documentation is \href{https://docs.gitlab.com/ee/ci/quick_start/README.html}{online}.
+
+If your game has \GameTeX{} installed to the root of your repo (that is, \texttt{Production} and \texttt{.git} are in the same directory), the CircleCI and GitLab CI config files should just work. If not, everywhere \texttt{Production} or \texttt{Greensheets} appears in config.yml (CircleCI) or .gitlab-ci.yml (GitLab), prepend the path to your \GameTeX{} install. For example, if your \GameTeX{} install is at \texttt{GameTeX}, you would put \texttt{GameTeX/Production} in several locations.
 
 
-\section{Using CircleCI}
+\section{Using your CI setup}
+
+\subsection{CircleCI}
 
 \emph{Each GM}, starting with the private repo's owner, will need to visit the \href{https://circleci.com/}{CircleCI website} (\url{https://circleci.com/}) and choose to log in. After authorizing CircleCI with Github, you can choose ``Add Projects'' to set up the project. (If you've already signed up, you can pick the ``Projects'' tab in the left side bar, and then ``Add Projects'' will be in the top right.) Pick your game's repo. The repo owner should see an option to ``build project'', after which other GMs should see an option to ``follow project''.
 
@@ -87,7 +91,15 @@ To view built files (that is, your compiled sheets), choose ``Builds'' in the le
 
 You can sign up for build emails under ``User settings'' (in the left side bar), followed by ``notification settings''. After that, the options should be fairly intuitive -- I'd generally lean towards ``Send me a personalized email every time a build on a branch I've pushed to fails; also once they're fixed.'', but of course it's up to you.
 
-For debugging, one thing to know is that CircleCI does allow you to ssh into the build VMs, which can be very useful. If the build doesn't just work out of the box (but is working locally), I recommend sshing in, installing missing packages and whatnot interactively, and only once you've gotten it to build that way updating circle.yml with the corrected build recipe.
+For debugging, one thing to know is that CircleCI does allow you to ssh into the build VMs, which can be very useful. If the build doesn't just work out of the box (but is working locally), I recommend sshing in, installing missing packages and whatnot interactively, and only once you've gotten it to build that way updating config.yml with the corrected build recipe.
+
+\subsection{GitLab}
+
+Gitlab seems to be easier to configure. By virtue of adding your GMs to the repo, they have access to the build results, and it appears that by default they will receive emails when a build fails. (That said, with a small GM team, changing the notification setting (\url{https://gitlab.com/profile/notifications}) to ``Watch'' rather than ``Participate'' (the default shows up as ``Global'', and the default global value is ``Participate'') may make sense -- GMs are reasonably likely interested in what other GMs are changing. This or a custom setup may also be required to get notified of other GM's failed builds.)
+
+To view built files (that is, your compiled sheets), choose ``CI/CD'' in the left sidebar, pick ``Pipelines'', and then in the ``Stages'' column click on the checkmark or X and then ``build game'' from the dropdown. The bulk of the page will show you output from the build process, and on the right side you can ``Browse'' the ``Job artifacts''. Most files can be viewed inline, and after viewing you can also click the cloud icon in the top right to download the file.
+
+Unlike CircleCI, GitLab CI does not appear to allow ssh'ing in to build images -- see \href{https://gitlab.com/gitlab-org/gitlab-ce/issues/22319}{this issue}.
 
 \section{Afterword}
 
