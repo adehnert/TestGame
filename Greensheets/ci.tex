@@ -6,11 +6,11 @@
 
 \newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
 \newcommand{\GameTeX}{GameTeX}
-\newcommand{\webbase}{http://web.mit.edu/adehnert/Public/assassin/docs}
+\newcommand{\webbase}{https://adehnert.gitlab.io/TestGame}
 
 \name{Continuous Integration with GameTeX}
 
-This document assumes that you're using Git for version control and Github (or Bitbucket) or Gitlab for hosting. If that is not true, you will not be able to fully follow these instructions.
+This document assumes that you're using Git for version control\footnote{Instructions on using Git for version control are at \url{\webbase/guildcamp-git.pdf}} and Github (or Bitbucket) or Gitlab for hosting. If that is not true, you will not be able to fully follow these instructions.
 
 \section{Why CI?}
 
@@ -64,7 +64,7 @@ Your CI system will need to know how to build your game. I use two common prereq
 
 \paragraph*{vgametex.py} This script eliminates the need to set up your \texttt{.bash\_environment} to build the game. You can use it to run commands (such as latex), and it will set up the \GameTeX{} variables automatically. Download it from \url{\webbase/vgametex.py}, and save it as \texttt{Extras/vgametex.py} (and, of course, commit and push it to your repo).
 
-\paragraph*{Makefiles} The Makefiles encode how to actually build the game. We currently have two: one to build the full printable set of sheets (which should catch most errors), and one to build greensheets (on the theory that these are what you're most likely to want to stick on a website to hand out to players). It should be simple to add more if you want. Download them from \url{\webbase/Makefile-prod} (save to \texttt{Production/Makefile}) and \url{\webbase/Makefile-greens} (save to \texttt{Greensheets/Makefile}).
+\paragraph*{Makefiles} The Makefiles encode how to actually build the game. We currently have two: one to build the full printable set of sheets (which should catch most errors), and one to build greensheets (on the theory that these are what you're most likely to want to stick on a website to hand out to players). It should be simple to add more if you want. Download them from \url{\webbase/Makefile-prod} (save to \texttt{Production/Makefile}) and \url{\webbase/Makefile-green} (save to \texttt{Greensheets/Makefile}).
 
 You can also use these locally to build the game -- just \texttt{cd} to the relevant directory and then run \texttt{make} to generate updated sheets. It's not perfect, but it'll usually recompile things when they need to be recompiled, and most GameTeX games won't need internal references, which can require multiple runs of \LaTeX{} to get right. Note that CircleCI will be building from scratch each time, so Make's incremental build support isn't actually needed.
 
@@ -98,6 +98,8 @@ For debugging, one thing to know is that CircleCI does allow you to ssh into the
 Gitlab seems to be easier to configure. By virtue of adding your GMs to the repo, they have access to the build results, and it appears that by default they will receive emails when a build fails. (That said, with a small GM team, changing the notification setting (\url{https://gitlab.com/profile/notifications}) to ``Watch'' rather than ``Participate'' (the default shows up as ``Global'', and the default global value is ``Participate'') may make sense -- GMs are reasonably likely interested in what other GMs are changing. This or a custom setup may also be required to get notified of other GM's failed builds.)
 
 To view built files (that is, your compiled sheets), choose ``CI/CD'' in the left sidebar, pick ``Pipelines'', and then in the ``Stages'' column click on the checkmark or X and then ``build game'' from the dropdown. The bulk of the page will show you output from the build process, and on the right side you can ``Browse'' the ``Job artifacts''. Most files can be viewed inline, and after viewing you can also click the cloud icon in the top right to download the file.
+
+The sample GitLab CI configuration sets up ``GitLab Pages'' to publish the scenario and rules document -- if you set up your game in a GitLab group named ``groupname'' and your project is ``projectname'', you (and anybody else you give the link to) should be able to view it at \url{https://groupname.gitlab.io/projectname/}. To publish public greensheets or other content, you can modify the \texttt{.gitlab-ci.yml} to copy additional files into place. If you want the index page to link to those additional files, create \texttt{public/index.html} as an HTML file with appropriate links.
 
 Unlike CircleCI, GitLab CI does not appear to allow ssh'ing in to build images -- see \href{https://gitlab.com/gitlab-org/gitlab-ce/issues/22319}{this issue}.
 
