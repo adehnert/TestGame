@@ -4,6 +4,8 @@
 
 \begin{document}
 
+\newcommand{\webbase}{https://adehnert.gitlab.io/TestGame}
+
 % I wanted to use fancyvrb for this, but it doesn't seem to work in (at least)
 % GameTeX compendia.
 \newcommand{\ter}[1]{\fbox{\parbox{6.5in}{{\tt #1}}}}
@@ -11,7 +13,7 @@
 \name{Crash Intro to Git}
 
 This is a short document on how to use the Git version control
-system.\footnote{last modified December 24, 2018; based on ``Crash Intro to SVN''} It will teach you the
+system.\footnote{last modified December 2018; based on ``Crash Intro to SVN''} It will teach you the
 bare minimum you need to know to use it with game development.
 
 \paragraph*{What is Git?}
@@ -27,7 +29,7 @@ Although Git is a ``distributed VCS'', you will most likely want to use it in a 
 
 \begin{itemz}[]
 
-\item You will maintain one central repository with the latest version of your sheets. Most likely, this will be on \href{https://github.com}{Github} or \href{https://gitlab.com}{Gitlab} (two hosting services), but it could also be in an Athena locker or various other locations.
+\item You will maintain one central repository with the latest version of your sheets. Most likely, this will be on \href{https://github.com}{GitHub} or \href{https://gitlab.com}{GitLab} (two hosting services), but it could also be in an Athena locker or various other locations.
 
 \item Each user will have their own ``clone'' of the repository, which will also have all the sheets. You will write the game by modifying this local copy and ``pushing'' those changes back to the repository.
 
@@ -43,21 +45,21 @@ We will talk about how to set it up and how to use it. First, make sure you have
 
 \subsection{Choosing a repo host}
 
-You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves. For teams with several members who already use Github and with the ability to create private Github repos, I suggest using Github; otherwise, I suggest Gitlab.
+You have several options for where to host your repository, with different advantages and disadvantages for each. You will most likely want a host that supports ``private'' repositories (ones only viewable by your GM team), so that your players don't accidentally spoil themselves. For teams with several members who already use GitHub and with the ability to create private GitHub repos, I suggest using GitHub; otherwise, I suggest GitLab.
 
-\paragraph*{Github} Github is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student} (at MIT or elsewhere), they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays Github for private repos, they can also create another one for free.
+\paragraph*{GitHub} GitHub is probably the biggest commercial Git host, and provides free public repositories to everyone. Unfortunately, private repositories generally require paying money, but if one of your GMs is a \emph{student} (at MIT or elsewhere), they can get free private repositories through the ``Student Developer Pack'' (\url{https://education.github.com/pack}). If one of your GMs already pays GitHub for private repos, they can also create another one for free.
 
-Github comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than it's worth. See ``\gCI{}'' (\url{http://web.mit.edu/adehnert/Public/assassin/docs/ci.pdf}) for details.}.
+GitHub comes with a nice web interface, web-based collaboration tools (of somewhat dubious value for game-writing), and can be integrated with CircleCI\footnote{CircleCI is a ``continuous integration'' tool, which can help you discover mistakes you made in your \gametex{} before another GM runs into it. However, if nobody on your team is confident with the terminal and git, it's probably more complicated than it's worth. See ``\gCI{}'' (\url{\webbase/ci.pdf}) for details.}.
 
-If you choose to use Github, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings$\,\to\,$Collaborators and add all your co-GMs to the list of collaborators.
+If you choose to use GitHub, the GM with private repos available should go to \url{https://github.com/new}, name the repo after your game, mark it as private, and not create a README. After the repo has been created, go to Settings$\,\to\,$Collaborators and add all your co-GMs to the list of collaborators.
 
-\paragraph*{Gitlab} Gitlab is another commercial Git host with similar features, which provides \href{free public and private repos to everyone}{https://about.gitlab.com/pricing/}. This is my current recommendation for people not already in the Github ecosystem or who can't create free private Github repos. CircleCI does not appear to work with Gitlab, but Gitlab has its own built-in CI solution, and ``\gCI{}'' describes how to use it as well.
+\paragraph*{GitLab} GitLab is another commercial Git host with similar features, which provides \href{free public and private repos to everyone}{https://about.gitlab.com/pricing/}. This is my current recommendation for people not already in the GitHub ecosystem or who can't create free private GitHub repos. CircleCI does not appear to work with GitLab, but GitLab has its own built-in CI solution, and ``\gCI{}'' describes how to use it as well.
 
-If you choose to use Gitlab, create an account at \url{https://gitlab.com/users/sign_in#register-pane}. You can authenticate with a variety of mechanisms (Google, Twitter, Github, Bitbucket) -- it appears that it'll use the same username as whatever you log in with, appending a number to make it unique. (Note that it won't prompt you to confirm that you want the username, and will just create it, potentially leaving behind stub accounts if you don't accept the terms of service.) Once you've created an account, you can ``Create a group'', and then create a ``New project''. Mark it private and do not initialize the project with a README. Grant all members of your GM team ``Owner'' access in the ``Members'' sidebar of the group. (If you're setting permissions at the project level, ``Owner'' doesn't appear to exist, but you can use ``Maintainer'' instead.)
+If you choose to use GitLab, create an account at \url{https://gitlab.com/users/sign_in#register-pane}. You can authenticate with a variety of mechanisms (Google, Twitter, GitHub, Bitbucket) -- it appears that it'll use the same username as whatever you log in with, appending a number to make it unique. (Note that it won't prompt you to confirm that you want the username, and will just create it, potentially leaving behind stub accounts if you don't accept the terms of service.) Once you've created an account, you can ``Create a group'', and then create a ``New project''. Mark it private and do not initialize the project with a README. Grant all members of your GM team ``Owner'' access in the ``Members'' sidebar of the group. (If you're setting permissions at the project level, ``Owner'' doesn't appear to exist, but you can use ``Maintainer'' instead.)
 
-\paragraph*{Bitbucket} Bitbucket is another large commercial Git host, which provides free public repos and \href{https://bitbucket.org/product/pricing/}{free private repos with up to five collaborators each}. Bitbucket has many of the same features as Github, including CircleCI support, but it's less widely used.
+\paragraph*{Bitbucket} Bitbucket is another large commercial Git host, which provides free public repos and \href{https://bitbucket.org/product/pricing/}{free private repos with up to five collaborators each}. Bitbucket has many of the same features as GitHub, including CircleCI support, but it's less widely used.
 
-\paragraph*{\href{https://github.mit.edu}{github.mit.edu}} Github also has an ``enterprise'' version that MIT has purchased. This has much the same web interface as the normal Github, has unlimited free private repos, and uses Touchstone for authentication (which is convenient for people with Athena account and usable for those without), but doesn't support CircleCI. If you choose to use github.mit.edu, any GM can go to \url{https://github.mit.edu/new}, after which the procedure should be similar to the normal Github procedure.
+\paragraph*{\href{https://github.mit.edu}{github.mit.edu}} GitHub also has an ``enterprise'' version that MIT has purchased. This has much the same web interface as the normal GitHub, has unlimited free private repos, and uses Touchstone for authentication (which is convenient for people with Athena account and usable for those without), but doesn't support CircleCI. If you choose to use github.mit.edu, any GM can go to \url{https://github.mit.edu/new}, after which the procedure should be similar to the normal GitHub procedure.
 
 \paragraph*{Athena} You can also host your git repo out of a GM's Athena locker. This loses the web interface of the other systems and requires an Athena account for any collaborators.
 
@@ -98,11 +100,11 @@ branches/  config  description  HEAD  hooks/  info/  objects/  refs/}
 
 \paragraph*{Setting up ssh keys} \emph{You will only have to do this step once per GM.}
 
-Typically git repos are accessed over ssh. If you're using a Github, Gitlab, or Bitbucket repo (just about anything but Athena), you'll need an \emph{ssh key}. First, see if you already have one by running \texttt{ls \$HOME/.ssh/}. If there's a file named \texttt{id\_\emph{something}.pub}, you're probably set; if you get an error or see only \texttt{config} or \texttt{authorized\_keys}, you'll need to create a new key. To do so, run \texttt{ssh-keygen -t rsa -b 4096 -C "your\_email@example.com"}. The default location is fine, and you should use a reasonably-secure password.
+Typically git repos are accessed over ssh. If you're using a GitHub, GitLab, or Bitbucket repo (just about anything but Athena), you'll need an \emph{ssh key}. First, see if you already have one by running \texttt{ls \$HOME/.ssh/}. If there's a file named \texttt{id\_\emph{something}.pub}, you're probably set; if you get an error or see only \texttt{config} or \texttt{authorized\_keys}, you'll need to create a new key. To do so, run \texttt{ssh-keygen -t rsa -b 4096 -C "your\_email@example.com"}. The default location is fine, and you should use a reasonably-secure password.
 
-Once you have your ssh key, you'll need to upload it to Github or whereever else you're hosting your repo -- in Github's case, go to \url{https://github.com/settings/keys}; for Gitlab, \url{https://gitlab.com/profile/keys}. You can find your public key by running \texttt{cat \$HOME/.ssh/id\_rsa.pub} (assuming you created a new key above) -- \emph{don't} upload the version without the \texttt{.pub}.
+Once you have your ssh key, you'll need to upload it to GitHub or whereever else you're hosting your repo -- in GitHub's case, go to \url{https://github.com/settings/keys}; for GitLab, \url{https://gitlab.com/profile/keys}. You can find your public key by running \texttt{cat \$HOME/.ssh/id\_rsa.pub} (assuming you created a new key above) -- \emph{don't} upload the version without the \texttt{.pub}.
 
-If you have trouble, Github's documentation\footnote{\url{https://help.github.com/articles/connecting-to-github-with-ssh/}} covers this in more detail -- much of it is applicable even if you're using a non-Github git host, such as Bitbucket.
+If you have trouble, GitHub's documentation\footnote{\url{https://help.github.com/articles/connecting-to-github-with-ssh/}} covers this in more detail -- much of it is applicable even if you're using a non-GitHub git host, such as Bitbucket.
 
 \paragraph*{Cloning a copy} \emph{You will only have to do this step once per GM.}
 
@@ -114,7 +116,7 @@ somewhere like\\ {\tt /mit/yourusername/Private/GameName/}, but consult the
 change into the parent directory, and then clone the repository. You can do
 this with the following commands, making sure to replace
 \texttt{\emph{path-to-repo}} with the actual location of the repository
-(something like \path{ssh://git@github.com/joeuser/GameName} for Github or
+(something like \path{ssh://git@github.com/joeuser/GameName} for GitHub or
 \path{/mit/joeuser/Private/gitgamename/gitgamename.git} for Athena).
 
 \ter{%
@@ -255,6 +257,6 @@ Once you've stored your changes locally with \texttt{git commit}, you can run \t
 
 \paragraph*{Additional resources}
 
-Github links to a variety of Git (and Github) resources at \url{https://help.github.com/articles/git-and-github-learning-resources/}, including an interactive git course. The whole \emph{Pro Git} book is available free online at \url{https://git-scm.com/book/en/v2}. The Git project also has a range of other documentation at \url{https://git-scm.com/documentation}, including videos and a collection of external links.
+GitHub links to a variety of Git (and GitHub) resources at \url{https://help.github.com/articles/git-and-github-learning-resources/}, including an interactive git course. The whole \emph{Pro Git} book is available free online at \url{https://git-scm.com/book/en/v2}. The Git project also has a range of other documentation at \url{https://git-scm.com/documentation}, including videos and a collection of external links.
 
 \end{document}
