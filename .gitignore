@@ -1,6 +1,7 @@
 *.aux
 *.log
 *.tex~
+rules-scenario.toc
 Production/json-PRINT.json
 Production/*.pdf
 Production/*.out
