@@ -1,7 +1,7 @@
 SOURCES=$(wildcard *.tex)
 OUTPUTS=$(subst json-PRINT.pdf,json-PRINT.json,$(SOURCES:.tex=.pdf)) rules-scenario.pdf
 
-GENERAL_DEPS = ../LaTeX/testgame.cls ../LaTeX/cards.sty  ../LaTeX/datatypes.sty  ../LaTeX/extraction.sty  ../LaTeX/gametex.sty  ../LaTeX/parsename.sty $(wildcard ../Lists/*.tex)
+GENERAL_DEPS = $(wildcard ../LaTeX/*.cls) ../LaTeX/cards.sty  ../LaTeX/datatypes.sty  ../LaTeX/extraction.sty  ../LaTeX/gametex.sty  ../LaTeX/parsename.sty $(wildcard ../Lists/*.tex)
 dirs = Bluesheets Charsheets Greensheets Handouts Lists Notebooks Whitesheets
 GENERAL_DEPS += $(foreach dir,$(dirs),$(wildcard ../$(dir)/*.tex))
 

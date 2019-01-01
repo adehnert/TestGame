@@ -1,7 +1,7 @@
 SOURCES=$(wildcard *.tex)
 OUTPUTS=$(SOURCES:.tex=.pdf)
 
-GENERAL_DEPS = ../LaTeX/testgame.cls ../LaTeX/cards.sty  ../LaTeX/datatypes.sty  ../LaTeX/extraction.sty  ../LaTeX/gametex.sty  ../LaTeX/parsename.sty $(wildcard ../Lists/*.tex)
+GENERAL_DEPS = $(wildcard ../LaTeX/*.cls) ../LaTeX/cards.sty  ../LaTeX/datatypes.sty  ../LaTeX/extraction.sty  ../LaTeX/gametex.sty  ../LaTeX/parsename.sty $(wildcard ../Lists/*.tex)
 
 INSTALL_DIR = /mit/adehnert/Public/assassin/docs/
 
