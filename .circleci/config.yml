@@ -9,10 +9,12 @@ jobs:
        - run: "cd Extras && pylint3 mail_merge.py && echo flake8 && python3 -mflake8 mail_merge.py"
        - run: "cd Extras && pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py"
        - run: apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+       - run: apt-get install -y tex4ht calibre
        - run: "cd Production && ../Extras/vgametex.py -- make"
        - run: "cd Greensheets && ../Extras/vgametex.py -- make"
        - run: mkdir artifacts artifacts/sheets artifacts/greensheets
        - run: cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+       - run: test -a Production/listchar-PRINT.epub && cp Production/*.epub Production/*.mobi artifacts/sheets/ || echo "epub sheets not generated"
        - run: cp Greensheets/*.pdf artifacts/greensheets/
 
 

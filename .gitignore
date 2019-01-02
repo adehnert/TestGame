@@ -9,3 +9,24 @@ Charsheets/*.pdf
 Bluesheets/*.pdf
 Greensheets/*.pdf
 Greensheets/*.out
+
+# epub sheets
+*.4ct
+*.4tc
+*.idv
+*.lg
+*.xref
+Production/*-COMP/
+Production/*-PRINT/
+Production/*-COMP.css
+Production/*-PRINT.css
+Production/*-COMP.dvi
+Production/*-PRINT.dvi
+Production/*-COMP.epub
+Production/*-PRINT.epub
+Production/*-COMP*.html
+Production/*-PRINT*.html
+Production/*-COMP.mobi
+Production/*-PRINT.mobi
+Production/*-COMP.tmp
+Production/*-PRINT.tmp

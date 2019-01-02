@@ -7,11 +7,13 @@ build game:
   stage: build
   script:
     - apt-get update && apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended python3 make
+    - apt-get install -y tex4ht calibre
     - (cd Production && ../Extras/vgametex.py -- make)
     - (cd Greensheets && ../Extras/vgametex.py -- make)
     - ls -lR; pwd
     - mkdir artifacts artifacts/sheets artifacts/greensheets
     - cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+    - test -a Production/listchar-PRINT.epub && cp Production/*.epub Production/*.mobi artifacts/sheets/ || echo "epub sheets not generated"
     - cp Greensheets/*.pdf artifacts/greensheets/
 
   artifacts:
