@@ -6,6 +6,7 @@
 if ((!$ARGV[1]) || ($ARGV[3])) {
     print "usage: ./gametex.pl option    command \n";
     print "   or: ./gametex.pl pdfsheets command \n";
+    print "   or: ./gametex.pl ebooksheets command \n";
     print "   or: ./gametex.pl option    command gameclass\n";
     print "   or: ./gametex.pl pdfsheets command gameclass\n";
     exit;
@@ -31,6 +32,21 @@ sub latex {
     print LTX $intext;
     close LTX;
     system "latex $outfile.tex";
+    unlink("$outfile.tex");
+}
+
+sub htlatex {
+    my($outfile) = shift;
+    my($intext) = shift;
+    print "\n";
+    if (-e "$outfile.tex") {
+	print "$outfile.tex already exists\n";
+	exit;
+    }
+    open LTX, ">", "$outfile.tex";
+    print LTX $intext;
+    close LTX;
+    system "htlatex $outfile.tex gametex";
     unlink("$outfile.tex");
 }
 
@@ -69,6 +85,19 @@ if ($ARGV[0] eq "pdfsheets") {
     &latex("$name-listgreen", &gametex("listgreen", $name, "\\PDFPart"));
     &dvipdf("$name-sheets.pdf",
 	    "$name-listchar.dvi $name-listblue.dvi $name-listgreen.dvi");
+    unlink("$name-listchar.dvi");
+    unlink("$name-listblue.dvi");
+    unlink("$name-listgreen.dvi");
+} elsif ($ARGV[0] eq "ebooksheets") {
+    $name = $ARGV[1];
+    &htlatex("$name-listchar",  &gametex("listchar", $name, "\\PDFPart"));
+    &htlatex("$name-listblue",  &gametex("listblue", $name, "\\PDFPart"));
+    &htlatex("$name-listgreen", &gametex("listgreen", $name, "\\PDFPart"));
+    # Okay, this is sketchy, but apparently calibre is happy just
+    # concatenating some HTML files, so go with it
+    system("cat $name-listchar.html $name-listblue.html $name-listgreen.html > $name.html");
+    system("./ebook-convert.sh $name");
+
     unlink("$name-listchar.dvi");
     unlink("$name-listblue.dvi");
     unlink("$name-listgreen.dvi");
