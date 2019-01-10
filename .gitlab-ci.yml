@@ -38,3 +38,5 @@ pages:
 
   only:
     - master
+    - ebook
+    - pages-test
