@@ -60,6 +60,9 @@ class F:  # pylint: disable=invalid-name
         Add file to installer tarfile
         """
         if self.install:
+            # TODO: filter contents if needed
+            # copy_to_site for GitLab needs to go, CircleCI's mail_merge
+            # shouldn't
             tar.add(self.repo)
 
     def copy_to_site(self, site_dir):
