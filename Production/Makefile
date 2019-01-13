@@ -4,13 +4,32 @@ OUTPUTS=$(subst json-PRINT.pdf,json-PRINT.json,$(SOURCES:.tex=.pdf)) rules-scena
 EPUB_SOURCES=$(filter-out json-PRINT.tex skilllist-PRINT.tex cheatsheet-PRINT.tex,$(SOURCES))
 EPUBS=$(EPUB_SOURCES:.tex=.epub)
 
+# Check if a command is available, and if not print a warning
+# $1: command name
+# $2: phrase about why the command is wanted (eg, "build ebook sheets")
+# $3: Ubuntu package it lives in
+define check-command-inner
+  CHECK-COMMAND-SAVE := $$(shell command -v $1 ;)
+  ifeq "$$(CHECK-COMMAND-SAVE)" ""
+    $$(info cannot $2 because "$1" is missing -- on Ubuntu, install "$3" package "$$(CHECK-COMMAND-SAVE)")
+  CHECK_COMMAND_RESULT=missing
+  else
+    CHECK_COMMAND_RESULT=present
+  endif
+endef
+check-command = $(eval $(check-command-inner))$(CHECK_COMMAND_RESULT)
+
 # LaTeX/gametex.cfg and Production/ebook-convert.sh are both needed to build
 # epub files. Gate building an epub for charsheets on them being present.
 # Also need the "htlatex" and "ebook-convert" binaries (from the "tex4ht" and
 # "calibre" Ubuntu packages, respectively)
 ifneq ("$(wildcard ../LaTeX/gametex.cfg)","")
-    $(warning adding to epub ($(EPUBS)) and mobi entries to OUTPUTS)
+  htlatex := $(call check-command,htlatex,build ebook sheets,tex4ht)
+  ebook := $(call check-command,ebook-convert,build ebook sheets,calibre)
+  ifeq ("$(htlatex) $(ebook)","present present")
+    $(info Enabling ebook sheets -- epub ($(EPUBS)) and mobi output will be produced by default)
     OUTPUTS+=$(EPUBS) $(EPUBS:.epub=.mobi)
+  endif
 else
 endif
 
