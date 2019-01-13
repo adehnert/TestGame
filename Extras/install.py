@@ -95,6 +95,10 @@ FILES = [
     # Mail merge
     F("Extras/mail_merge.py"),
     F("Extras/README-mail-merge"),
+
+    # Ebooks
+    F("Production/ebook-convert.sh"),
+    F("LaTeX/gametex.cfg"),
 ]
 
 TARFILE_NAME = 'addons.tar'
