@@ -7,7 +7,7 @@ image: registry.gitlab.com/adehnert/gametex-deps-docker:latest
 build game:
   stage: build
   script:
-    - apt-get update && apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended python3 make
+    - apt-get update && apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-pstricks python3 make
     - apt-get install -y tex4ht calibre
     - (cd Production && ../Extras/vgametex.py -- make)
     - (cd Greensheets && ../Extras/vgametex.py -- make)
