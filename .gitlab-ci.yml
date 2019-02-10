@@ -2,6 +2,7 @@ stages:
   - build
   - publish
 
+image: registry.gitlab.com/adehnert/gametex-deps-docker:latest
 
 build game:
   stage: build
