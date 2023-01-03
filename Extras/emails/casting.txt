@@ -1,7 +1,6 @@
 Subject: TESTING: Costuming hint for Upton Manor
 CC: upton-manor-gms@mit.edu
-BCC: testing@mit.edu, officers@mit.edu
-BCC: asa-db-outgoing@mit.edu
+BCC: testing@mit.edu
 
 [ This is a test email. If you've received it, I apologize. ]
 

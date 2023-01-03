@@ -38,3 +38,9 @@ I'd suggest generating sheets in a separate command from actually sending them o
 
 Note that if you don't generate all sheets (in particular, without passing
 --limit) before or while running the script with --attach, it will error out.
+
+
+Mail sending infrastructure
+---------------------------
+
+Currently, `mail_merge.py` only supports `/usr/sbin/sendmail` for sending email. On an Athena machine, this should work fine. It should also be straightforward to convert it to support SMTP directly, for use with an email service like SendGrid (free for at the email scale of a Guild game). If that would be useful to you, let me know and I'll try to add support and docs (or patches are welcome). 

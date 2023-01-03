@@ -2,7 +2,7 @@
 
 # pylint: disable=locally-disabled,invalid-name,missing-docstring,fixme
 #
-# Passes: pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py
+# Passes: pylint3 mail_merge.py && echo flake8 && python3 -mflake8 mail_merge.py
 
 import argparse
 from email.parser import Parser
