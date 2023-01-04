@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 """
 Install script for GameTeX addons
@@ -9,9 +9,9 @@ installed.
 
 from __future__ import print_function, unicode_literals
 
-# pylint: disable=locally-disabled
+# pylint: disable=locally-disabled,fixme
 #
-# Passes: pylint3 vgametex.py && echo flake8 && python3 -mflake8 vgametex.py
+# Passes: pylint3 install.py && echo flake8 && python3 -mflake8 install.py
 
 import argparse
 import os.path
