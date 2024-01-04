@@ -1,4 +1,7 @@
-mail_merge.py will allow you to send personalized emails to your players.
+Mail Merge
+==========
+
+`mail_merge.py` will allow you to send personalized emails to your players.
 
 One major use case is to send out costuming hints (the most basic approach is
 just to send the name and badge description, which works; if you add a

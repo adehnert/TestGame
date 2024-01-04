@@ -97,7 +97,7 @@ FILES = [
 
     # Mail merge
     F("Extras/mail_merge.py"),
-    F("Extras/README-mail-merge"),
+    F("Extras/README-mail-merge.md"),
 
     # Ebooks
     F("Production/ebook-convert.sh"),
