@@ -12,12 +12,16 @@ import email.utils
 import json
 import logging
 import os.path
+import smtplib
 import subprocess
 
 import vgametex
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# SMTP connection object
+smtp = None
 
 
 def parse_args():
@@ -37,6 +41,8 @@ def parse_args():
                         help="Attach character packet to emails")
     parser.add_argument('--force-rcpt', type=str,
                         help="Send only to designated address")
+    parser.add_argument('--sendgrid-api', type=str,
+                        help="SendGrid API key filename")
     parser.add_argument('--send', dest='dry_run', action='store_false')
     parser.add_argument('--limit', default=1000, type=int,
                         help="Stop after LIMIT players")
@@ -74,8 +80,23 @@ def send_mail_sendmail(rcpts, msg):
     p.communicate(msg.as_bytes())
 
 
-def send_mail(rcpts, msg):
-    send_mail_sendmail(rcpts, msg)
+def setup_sendgrid(api_key_filename):
+    with open(api_key_filename, 'r', encoding='utf-8') as fp:
+        api_key = fp.read().strip()
+    global smtp
+    smtp = smtplib.SMTP_SSL(host='smtp.sendgrid.net')
+    smtp.login('apikey', api_key)
+
+
+def send_mail_smtp(rcpts, msg):
+    global smtp
+    if not smtp:
+        smtp = smtplib.SMTP()
+        smtp.connect()
+    smtp.send_message(msg, to_addrs=rcpts)
+
+send_mail = send_mail_sendmail
+send_mail = send_mail_smtp
 
 
 class Character:
@@ -170,6 +191,8 @@ def merge_all(args):
 
 def run():
     args = parse_args()
+    if args.sendgrid_api:
+        setup_sendgrid(args.sendgrid_api)
     merge_all(args)
 
 
