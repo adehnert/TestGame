@@ -1,3 +1,11 @@
+This is a game based on GameTeX, that serves as a test bed and distribution
+mechanism for some GameTeX add-ons that may be of interest.
+
+Additional documentation for these addons appears at
+https://adehnert.gitlab.io/TestGame/ and throughout the source tree.
+
+The original GameTeX README appears below.
+
 GameTeX/README
 
 This is GameTeX 1.7.  The copyright notice for any and all of GameTeX
