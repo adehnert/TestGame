@@ -38,6 +38,11 @@ sub change_pl_file($$$) {
 		       ".*\\\$gameclass = \"","\".*");
 }
 
+sub change_latexmkrc_file($$$) {
+    return change_file($_[0], $_[1], $_[2],
+		       ".*\\\$ENV\\\{\'","\'.*");
+}
+
 sub change_file_by_extension($$$) {
     if ($_[0] =~ /\.pl$/) {
 	change_pl_file($_[0], $_[1], $_[2]);
@@ -45,6 +50,8 @@ sub change_file_by_extension($$$) {
 	change_cls_file($_[0], $_[1], $_[2]);
     } elsif ($_[0] =~/\.tex$/) {
 	change_tex_file($_[0], $_[1], $_[2]);
+    } elsif ($_[0] =~"latexmkrc") {
+	change_latexmkrc_file($_[0], $_[1], $_[2]);
     }
 }
 
@@ -57,6 +64,7 @@ change_file_by_extension("$ARGV[0]/LaTeX/$ARGV[1].cls", $ARGV[1], $ARGV[2]);
 system("mv $ARGV[0]/LaTeX/$ARGV[1].cls $ARGV[0]/LaTeX/$ARGV[2].cls");
 change_file_by_extension("$ARGV[0]/Extras/gametex.pl", $ARGV[1], $ARGV[2]);
 system("chmod 700 $ARGV[0]/Extras/gametex.pl");
+change_file_by_extension("$ARGV[0]/latexmkrc", $ARGV[1], $ARGV[2]);
 open (FILES, "find \"$ARGV[0]\" -name '*.tex' |");
 while (defined( $_ = <FILES>)) {
     chomp $_;

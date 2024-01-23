@@ -31,7 +31,7 @@ character:
   \def\defaultnamemappings{
     \titlemap{\full}
     \mapnickinformal
-    }
+  }
 
 will set every character to print their full name as their charsheet
 title and every character to generally be referred to by the informal
@@ -48,7 +48,7 @@ non-default namemapping:
     \s\MYname	{Dr.\null\pre Robert Smith}
     \maptrueformal
     ...
-    }
+  }
 
 specifies that \cBobSmith will be generally known as "Dr. Smith," the
 formal form of his name.
@@ -60,11 +60,11 @@ after \begin{document}:
   \updatemacro{\cBobSmith}{
     \mapnickinformal
     \unknownplayer
-    }
+  }
 
-would mean that the character whose sheet this is refers to \cBobSmith
-as "Robert" (or perhaps "Bob") and doesn't know who is playing
-them.
+would mean that the character whose sheet this is in refers to
+\cBobSmith as "Robert" (or perhaps "Bob") and doesn't know who is
+playing them.
 
 
 
@@ -234,7 +234,7 @@ scope of the sheet.  For example:
 
   \updatemacro{\cBobSmith}{
     \unknownplayer
-    }
+  }
 
 means that the given sheet does not know who is playing \cBobSmith{}.
 
@@ -244,7 +244,7 @@ settings for the namemappings for all characters.  For example:
   \def\defaultnamemappings{
     \titlemap{\full}
     \mapnickinformal
-    }
+  }
 
 Will make \titlemap{\full} and \mapnickinformal default for all
 characters.

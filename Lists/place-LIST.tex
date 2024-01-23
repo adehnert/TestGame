@@ -22,15 +22,15 @@
 \PRESETS{Place}{
   \FD\MYwhere	{} %% if a Place is a single identifiable location
   \FD\MYwhen	{} %% if a Place is time-based
-  }
+}
 \POSTSETS{Place}{
   \edef\mylocation{\MYwhere}
   \protected@edef\@ownerstring{%
     \MYname%
     \ifx\mylocation\empty\else\ (\mylocation)\fi%
     \ifx\MYwhen\empty\else\ (\MYwhen)\fi%
-    }
   }
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,7 +39,7 @@
   \s\MYname	{Test Place}
   \s\MYsigns	{\sTest{}}
   \s\MYitems	{\iTest{}\iWhatzit{}}
-  }
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

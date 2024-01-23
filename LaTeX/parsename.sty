@@ -177,8 +177,11 @@
       \def\informal{\parseword{1}}%
     \fi
     \protected@edef\alphabetical{%
-      \parseword{-1}\divider\parseleftof{-1}\divider%
-      \parseprefix\divider\parsesuffix}%
+      \parseword{-1}\divider%
+      \parseleftof{-1}\divider%
+      \parseprefix\divider%
+      \parsesuffix%
+    }%
   \or%
     \ifnum\parsetotal<1\relax%
       \def\fullplain{}%
@@ -203,8 +206,11 @@
       \def\informal{\parseword{2}}%
     \fi
     \protected@edef\alphabetical{%
-      \parseword{1}\divider\parserightof{1}\divider%
-      \parsesuffix\divider\parseprefix}%
+      \parseword{1}\divider%
+      \parserightof{1}\divider%
+      \parsesuffix\divider%
+      \parseprefix%
+    }%
   \else%
     %% for \custom, force user to define \fullplain, \formal, and
     %% \informal to use them
@@ -214,8 +220,9 @@
     %% something trivial for \alphabetical
     \protected@edef\alphabetical{\parseword{1}}%
   \fi%
-  \*makeallchars\alphabetical%
-  }
+  \*makeallchars%
+  \alphabetical%
+}
 
 
 %%%%%
@@ -234,21 +241,27 @@
   \def\suf{\noexpand\suf}%
   \def\*space{ }%
   \protected@edef\*pvalrest{#1}%  %%% LaTeX's \protect mechanism
-  \ifx\*pvalrest\empty\relax\else%
-    \ifx\*pvalrest\*pre\def\*pvalrest{}%
-    \else\ifx\*pvalrest\*space\def\*pvalrest{}%
-    \else\expandafter\*parsepre\*pvalrest\*pmmark\pre\*pmark\*endparse%
-    \fi\fi%
+  \unless\ifx\*pvalrest\empty%
+    \ifx\*pvalrest\*pre%
+      \def\*pvalrest{}%
+    \else%
+      \ifx\*pvalrest\*space%
+        \def\*pvalrest{}%
+      \else%
+        \expandafter\*parsepre\*pvalrest\*pmmark\pre\*pmark\*endparse%
+      \fi%
+    \fi%
   \fi%
-  \ifx\*pvalrest\empty\relax\else%
-    \ifx\*pvalrest\*suff\def\*pvalrest{}%
+  \unless\ifx\*pvalrest\empty%
+    \ifx\*pvalrest\*suff%
+      \def\*pvalrest{}%
     \else%
       \expandafter\*parsesuff\expandafter\empty\expandafter\empty%
         \*pvalrest\*pmark\suf\*pmark\*endparse%
       \ifx\*pvalsuffix\*pmark%
         \expandafter\*parsecomma\expandafter\empty\expandafter\empty%
-        \*pvalrest\*pmark,\*pmark\*endparse%
-        \ifx\*pvalsuffix\empty\relax\else%
+          \*pvalrest\*pmark,\*pmark\*endparse%
+        \unless\ifx\*pvalsuffix\empty%
           \def\parsecomma{,}%
         \fi%
       \fi%
@@ -270,7 +283,7 @@
   \def\pre{\unskip\space\ignorespaces}%
   \def\suf{\unskip\space\ignorespaces}%
   \*parsebyregion%
-  }
+}
 
 
 %%%%%
@@ -295,29 +308,62 @@
 \def\*makeallchars#1{%
   \let\*str\empty%
   \expandafter\*cloop#1\*pmark%
-  \let#1\*str\let\*str\empty}
+  \let#1\*str%
+  \let\*str\empty%
+}
+
 \def\*cloop{\futurelet\*nxt\**cloop}
+
 \def\**cloop{%
-  \ifx\*nxt\*sptok\def\*nxt{\*dospc}%
-  \else\ifx\*nxt\**sptok\def\*nxt{\**dospc}%
-  \else\ifx\*nxt\bgroup\def\*nxt{\*dogrp}%
-  \else\ifx\*nxt\*pmark\def\*nxt{\*doend}%
-  \else\def\*nxt{\*dotok}%
-  \fi\fi\fi\fi\*nxt}
+  \ifx\*nxt\*sptok%
+    \def\*nxt{\*dospc}%
+  \else%
+    \ifx\*nxt\**sptok%
+      \def\*nxt{\**dospc}%
+    \else%
+      \ifx\*nxt\bgroup%
+        \def\*nxt{\*dogrp}%
+      \else%
+        \ifx\*nxt\*pmark%
+          \def\*nxt{\*doend}%
+        \else%
+          \def\*nxt{\*dotok}%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+  \*nxt%
+}
+
 \def\*dospc#1 {\edef\*str{\*str\*sp}\*cloop}
+
 \def\*dogrp#1{%
   \def\*tmp{#1}%
-  \ifx\*tmp\empty\else\*dogrptst#1\*pmark\fi%
-  \ifx\*tmp\empty\let\*tmp#1\else\let\*tmp\empty\fi%
-  \ifx\*tmp\bgroup\relax%
-  \else\*cloop#1\*pmark%
-  \fi\let\*tmp\relax\*cloop}
+  \unless\ifx\*tmp\empty%
+    \*dogrptst#1\*pmark%
+  \fi%
+  \ifx\*tmp\empty%
+    \let\*tmp#1%
+  \else%
+    \let\*tmp\empty%
+  \fi%
+  \unless\ifx\*tmp\bgroup%
+    \*cloop#1\*pmark%
+  \fi%
+  \let\*tmp\relax%
+  \*cloop%
+}
+
 \def\*dogrptst#1#2\*pmark{\def\*tmp{#2}}
 \def\*doend#1{}
+
 \def\*dotok#1{%
   \expandafter\*dogrptst\string#1\*pmark%
-  \ifx\*tmp\empty\edef\*str{\*str\string#1}\fi%
-  \*cloop}
+  \ifx\*tmp\empty%
+    \edef\*str{\*str\string#1}%
+  \fi%
+  \*cloop%
+}
 
 \def\*pre{\pre}
 \def\*suff{\suf}
@@ -331,21 +377,26 @@
   \ifx\*tmp\*pmark%
    \let\*tmp\*psuck%
     \let\*pvalprefix\empty%
-  \else\ifx\*tmp\*pmmark%
-    \def\*pvalprefix{}%
-    \*zotprespace#1 \*pmark\*endparse%
-    \def\*pvalrest{}%
-    \let\*tmp\*psuck%
   \else%
-    \def\*pvalprefix{}%
-    \*zotprespace#1 \*pmark\*endparse%
-    \*pcheck#2 \*endparse%
-    \ifx\*tmp\empty%
-      \def\*tmp{\*cleanpre#2}%
+    \ifx\*tmp\*pmmark%
+      \def\*pvalprefix{}%
+      \*zotprespace#1 \*pmark\*endparse%
+      \def\*pvalrest{}%
+      \let\*tmp\*psuck%
     \else%
-      \def\*tmp{\*cleanpre{{#2}}}%
+      \def\*pvalprefix{}%
+      \*zotprespace#1 \*pmark\*endparse%
+      \*pcheck#2 \*endparse%
+      \ifx\*tmp\empty%
+        \def\*tmp{\*cleanpre#2}%
+      \else%
+        \def\*tmp{\*cleanpre{{#2}}}%
+      \fi%
     \fi%
-  \fi\fi\*tmp}
+  \fi%
+  \*tmp%
+}
+
 \def\*zotprespace#1 #2{%
   \def\*tmp{#2}%
   \ifx\*tmp\*pmark%
@@ -354,9 +405,13 @@
   \else%
     \expandafter\def\expandafter\*pvalprefix\expandafter{\*pvalprefix#1 }%
     \def\*tmp{\*zotprespace#2}%
-  \fi\*tmp}%
+  \fi%
+  \*tmp%
+}
+
 \def\*cleanpre#1#2\*pmmark#3\*endparse{%
-  \def\*pvalrest{#1#2}}
+  \def\*pvalrest{#1#2}%
+}
 
 \def\*parsesuff#1#2\suf#3{%
   \def\*tmp{#3}%
@@ -371,9 +426,13 @@
       \def\*pvalrest{ {#1}#2}%
     \fi%
     \def\*tmp{\*cleansuff#3}%
-  \fi\*tmp}
+  \fi%
+  \*tmp%
+}
+
 \def\*cleansuff#1\*pmark#2\*endparse{%
-  \def\*pvalsuffix{#1}}
+  \def\*pvalsuffix{#1}%
+}
 
 \def\*parsecomma#1#2,#3{%
   \def\*tmp{#3}%
@@ -388,9 +447,13 @@
       \def\*pvalrest{{#1}#2}%
     \fi%
     \def\*tmp{\*cleancomma#3}%
-  \fi\*tmp}
+  \fi%
+  \*tmp%
+}
+
 \def\*cleancomma#1\*pmark#2\*endparse{%
-  \def\*pvalsuffix{#1}}
+  \def\*pvalsuffix{#1}%
+}
 
 \def\*addlastspace#1#2\*endparse{%
   \*pcheck#1 \*endparse%
@@ -398,11 +461,13 @@
     \def\*pvalrest{#1#2 }%
   \else%
     \def\*pvalrest{{#1}#2 }%
-  \fi}
+  \fi%
+}
 
 \newcount\*count
 \def\*namecnt{0}
 \def\*imark{\0}
+
 \def\*parseiteration#1 {%
   \def\*tmp{#1}%
   \ifx\*tmp\*imark%
@@ -415,23 +480,32 @@
       \advance\*count1\relax%
       \ifnum\*namecnt=0\relax%
         \expandafter\def\csname pl*1\endcsname{}%
-      \else\ifnum\*namecnt=1\relax%
-        \expandafter\expandafter\expandafter\let\expandafter\expandafter%
-          \csname pl*\the\*count\endcsname%
-          \csname p*\*namecnt\endcsname%
       \else%
-        \expandafter\edef\csname pl*\the\*count\endcsname{%
-          \expandafter\unexpanded\expandafter{\csname pl*\*namecnt\endcsname}%
-          \space%
-          \expandafter\unexpanded\expandafter{\csname p*\*namecnt\endcsname}}%
-      \fi\fi%
+        \ifnum\*namecnt=1\relax%
+          \expandafter\expandafter\expandafter\let\expandafter\expandafter%
+            \csname pl*\the\*count\endcsname%
+            \csname p*\*namecnt\endcsname%
+        \else%
+          \expandafter\edef\csname pl*\the\*count\endcsname{%
+            \expandafter\unexpanded\expandafter{%
+              \csname pl*\*namecnt\endcsname%
+            }%
+            \space%
+            \expandafter\unexpanded\expandafter{%
+              \csname p*\*namecnt\endcsname%
+            }%
+          }%
+        \fi%
+      \fi%
       \edef\*namecnt{\the\*count}%
       \expandafter\def\csname p*\*namecnt\endcsname{#1}%
       %\typeout{\*namecnt\space\csname p*\*namecnt\endcsname}%
       %\typeout{\*namecnt\space\csname pl*\*namecnt\endcsname\space L #1}%
     \fi%
     \def\*tmp{\*parseiteration}%
-  \fi\*tmp}
+  \fi%
+  \*tmp%
+}
 
 \def\*reverseiteration{%
   \ifnum\*namecnt=-\parsetotal\relax%
@@ -448,16 +522,23 @@
     \advance\*count1\relax%
     \ifnum\*reverse=\parsetotal\relax%
       \expandafter\def\csname pr*\*reverse\endcsname{}%
-    \else\ifnum\*count=\parsetotal\relax%
-      \expandafter\expandafter\expandafter\let\expandafter\expandafter%
-        \csname pr*\*reverse\endcsname%
-        \csname p*\the\*count\endcsname%
     \else%
-      \expandafter\edef\csname pr*\*reverse\endcsname{%
-        \expandafter\unexpanded\expandafter{\csname p*\the\*count\endcsname}%
-        \space%
-        \expandafter\unexpanded\expandafter{\csname pr*\the\*count\endcsname}}%
-    \fi\fi%
+      \ifnum\*count=\parsetotal\relax%
+        \expandafter\expandafter\expandafter\let\expandafter\expandafter%
+          \csname pr*\*reverse\endcsname%
+          \csname p*\the\*count\endcsname%
+      \else%
+        \expandafter\edef\csname pr*\*reverse\endcsname{%
+          \expandafter\unexpanded\expandafter{%
+            \csname p*\the\*count\endcsname%
+          }%
+          \space%
+          \expandafter\unexpanded\expandafter{%
+            \csname pr*\the\*count\endcsname%
+          }%
+        }%
+      \fi%
+    \fi%
     %\typeout{\*namecnt\space \csname p*\*reverse\endcsname\space R
     %  \csname pr*\*reverse\endcsname}%
     \ifnum\*reverse<2\relax%
@@ -470,7 +551,9 @@
       \edef\*innercnt{\the\*count}%
       \let\*tmp\*innerloop%
     \fi%
-  \fi\*tmp}
+  \fi%
+  \*tmp%
+}
 
 \def\*innerloop{%
   \ifnum\*innercnt<1\relax%
@@ -486,10 +569,14 @@
         \csname p*\the\*count\endcsname%
     \else%
       \expandafter\edef\csname pb*\*innercnt *\*reverse\endcsname{%
-        \expandafter\unexpanded\expandafter{\csname p*\the\*count\endcsname}%
+        \expandafter\unexpanded\expandafter{%
+          \csname p*\the\*count\endcsname%
+        }%
         \space%
         \expandafter\unexpanded\expandafter{%
-          \csname pb*\the\*count *\*reverse\endcsname}}%
+          \csname pb*\the\*count *\*reverse\endcsname%
+        }%
+      }%
     \fi%
     %\typeout{b \*innercnt\space\*reverse\space%
     %  \csname pb*\*innercnt *\*reverse\endcsname}%
@@ -497,7 +584,9 @@
     \advance\*count-1\relax%
     \edef\*innercnt{\the\*count}%
     \let\*tmp\*innerloop%
-  \fi\*tmp}
+  \fi%
+  \*tmp%
+}
 
 
 %%%%%
@@ -505,13 +594,16 @@
 %% \parseleftof{<n>}
 %% \parserightof{<n>}
 \def\parseword#1{%
-  \*logic{#1}\parseword{\csname p*#1\endcsname}}
+  \*logic{#1}\parseword{\csname p*#1\endcsname}%
+}
 
 \def\parseleftof#1{%
-  \*logic{#1}\parseleftof{\csname pl*#1\endcsname}}
+  \*logic{#1}\parseleftof{\csname pl*#1\endcsname}%
+}
 
 \def\parserightof#1{%
-  \*logic{#1}\parserightof{\csname pr*#1\endcsname}}
+  \*logic{#1}\parserightof{\csname pr*#1\endcsname}%
+}
 
 %% shared helper macro
 \def\*logic#1#2#3{%
@@ -525,7 +617,8 @@
         #3%
       \fi%
     \fi%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -537,27 +630,36 @@
         \unless\ifnum#2=0
           \ifnum#1<0
             \unless\ifnum-\parsetotal>#1
-              \expandafter\parsebetween\expandafter%
-                {\csname pn*#1\endcsname}{#2}%
+              \expandafter\parsebetween\expandafter{%
+                \csname pn*#1\endcsname%
+              }{%
+                #2%
+              }%
             \fi%
           \else%
             \ifnum#2<0
               \unless\ifnum-\parsetotal>#2
-                \expandafter\*parsebetweenswitch\expandafter%
-                  {\csname pn*#2\endcsname}{#1}%
+                \expandafter\*parsebetweenswitch\expandafter{%
+                  \csname pn*#2\endcsname%
+                }{%
+                  #1%
+                }%
               \fi%
             \else%
               \ifnum#2>#1
                 \csname pb*#1*#2\endcsname%
-              \else\ifnum#1>#2
-                \csname pb*#2*#1\endcsname%
-              \fi\fi%
+              \else%
+                \ifnum#1>#2
+                  \csname pb*#2*#1\endcsname%
+                \fi%
+              \fi%
             \fi%
           \fi%
         \fi%
       \fi%
     \fi%
-  \fi}
+  \fi%
+}
 
 %% helper macro
 \def\*parsebetweenswitch#1#2{\parsebetween{#2}{#1}}

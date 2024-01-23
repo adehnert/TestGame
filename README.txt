@@ -1,7 +1,7 @@
 GameTeX/README
 
-This is GameTeX 1.4.1b.  The copyright notice for any and all of
-GameTeX as distributed is at the end of this file.
+This is GameTeX 1.7.  The copyright notice for any and all of GameTeX
+as distributed is at the end of this file.
 
 
 
@@ -128,7 +128,8 @@ high-level customizations.
 
 
 Your Environment File: In short, to be able to use GameTeX, add the
-following lines to your .bash_environment file:
+following lines to your .bash_environment file (these lines should
+also work in a Mac's .zshrc file):
 
   export <gameclassname>=<pathtoyourgame>
   export TEXINPUTS=.:$<gameclassname>/LaTeX/:

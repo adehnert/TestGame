@@ -13,7 +13,8 @@
 %%
 %% \combat is a wrapper around \INSTANCE, useful for 1-shot cards.
 \newinstance{Combat}{\combat[5]}{
-  \s\MYname{#1}\s\MYtext{#2}\s\MYeffect{#3}\s\MYoffense{#4}\s\MYdefense{#5}}
+  \s\MYname{#1}\s\MYtext{#2}\s\MYeffect{#3}\s\MYoffense{#4}\s\MYdefense{#5}
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -24,7 +25,7 @@
   \s\MYeffect	{This is a Test.}
   \s\MYoffense	{\hit\none\none\hit\none}
   \s\MYdefense	{\block\none\block[2]\none\none}
-  }
+}
 
 \NEW{Combat}{\aBatWham}{
   \s\MYname	{Patented Bat-Wham}
@@ -33,7 +34,7 @@
 		``Oof'' and stagger back a step.}
   \s\MYoffense	{\hit\hit\hit\none\none}
   \s\MYdefense	{\none\block\none\block\none}
-  }
+}
 
 \NEW{Combat}{\aPokeEyeSharp}{
   \s\MYname	{Poke in the Eye with a Sharp Stick}
@@ -43,4 +44,4 @@
 		your hand over your eye and exclaim ``Ouch!''}
   \s\MYoffense	{\hit[3]\none\none\none\none}
   \s\MYdefense	{\block\none\none\block\block}
-  }
+}

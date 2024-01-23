@@ -106,18 +106,26 @@
 %% defines \:tmp to be the first value
 \def\:rf#1{%
   \long\def\:tmp\:i##1##2\:delim{\def\:tmp{##1}}%
-  \ifx#1\empty\else\expandafter\:tmp#1\:delim\fi}
+  \unless\ifx#1\empty%
+    \expandafter\:tmp#1\:delim%
+  \fi%
+}
 
 %% removes first value
 \def\:df#1{%
   \long\def\:tmp\:i##1##2\:delim{\def#1{##2}}%
-  \ifx#1\empty\else\expandafter\:tmp#1\:delim\fi%
-  \def\:tmp{}}
+  \unless\ifx#1\empty%
+    \expandafter\:tmp#1\:delim%
+  \fi%
+  \def\:tmp{}%
+}
 
 %% generic append
 \long\def\:ap#1#2{%
   \expandafter\edef\expandafter#1\expandafter{%
-    \expandafter\unexpanded\expandafter{#1#2}}}
+    \expandafter\unexpanded\expandafter{#1#2}%
+  }%
+}
 
 %% appends #2 to #1 using command #3 (\global or \relax)
 \long\def\::al#1#2#3{%
@@ -131,19 +139,26 @@
     #3\:ap#1{\:i#2}%
   \else%
     #3\:ap#1{\:i{#2}}%
-  \fi}
+  \fi%
+}
 
 %%%%%
 %% \:typetest{string}{definition}
 \long\def\:typetest#1#2{%
-  \edef\:tmp{#1}\ifx\:tmp\empty\er:tblank\let\:tmp\empty\else%
-  \ifcsname#1:t\endcsname%
-    \edef\:ti{\csname#1:t\endcsname}%
-    \edef\:pi{\csname\csname\:ti :p\endcsname :t\endcsname}%
-    #2%
+  \edef\:tmp{#1}%
+  \ifx\:tmp\empty%
+    \er:tblank%
+    \let\:tmp\empty%
   \else%
-    \er:tunknown{#1}\let\:tmp\empty%
-  \fi\fi}
+    \ifcsname#1:t\endcsname%
+      \edef\:ti{\csname#1:t\endcsname}%
+      \edef\:pi{\csname\csname\:ti :p\endcsname :t\endcsname}%
+      #2%
+    \else%
+      \er:tunknown{#1}\let\:tmp\empty%
+    \fi%
+  \fi%
+}
 
 
 %%%%%
@@ -153,20 +168,33 @@
 %% \preprocess{stuff}
 \def\toss{\futurelet\:nxt\:toss}
 \def\:toss{%
-  \ifx\:nxt[\def\:nxt{\::toss}%
-  \else\def\:nxt{\::toss[1]}%
-  \fi\:nxt}
-\long\def\::toss[#1]#2{%
-  \ifnum#1<0\relax%
-  \else\ifnum#1=0\relax%
-    \def\:nxt{#2}%
-  \else\ifnum#1=1\relax%
-    \def\:nxt{\etoss{#2}}%
+  \ifx\:nxt[%
+    \def\:nxt{\::toss}%
   \else%
-    \:count=#1\advance\:count by-1\relax%
-    \expandafter\def\expandafter\:nxt\expandafter{\expandafter\stoss%
-      \expandafter{\expandafter\::toss\expandafter[\the\:count]{#2}}}%
-  \fi\fi\fi\:nxt}
+    \def\:nxt{\::toss[1]}%
+  \fi%
+  \:nxt%
+}
+\long\def\::toss[#1]#2{%
+  \unless\ifnum#1<0\relax%
+    \ifnum#1=0\relax%
+      \def\:nxt{#2}%
+    \else%
+      \ifnum#1=1\relax%
+        \def\:nxt{\etoss{#2}}%
+      \else%
+        \:count=#1%
+        \advance\:count by-1\relax%
+        \expandafter\def\expandafter\:nxt\expandafter{%
+          \expandafter\stoss\expandafter{%
+            \expandafter\::toss\expandafter[\the\:count]{#2}%
+          }%
+        }%
+      \fi%
+    \fi%
+  \fi%
+  \:nxt%
+}
 
 \def\stoss{\:eqaf}
 \long\def\etoss#1{\:toks{}\start:aft#1\end:aft}
@@ -177,58 +205,107 @@
 \def\:cb{\iffalse{\fi}}
 
 \def\:clear{%
-  \ifx\:nxt?\let\:nxt\:suckQ\else\let\:nxt\relax\fi\:nxt}
+  \ifx\:nxt?%
+    \let\:nxt\:suckQ%
+  \else%
+    \let\:nxt\relax%
+  \fi%
+  \:nxt%
+}
 \def\:suckQ#1{\?}
 
 \def\:norm:aft{%
   \def\?{\futurelet\:nxt\:clear}%
   \long\def\X##1{##1}%
-  }
+}
 \def\:in:aft{%
   \def\?{\?}%
   \long\def\X{\X}%
-  }
+}
 \:norm:aft
 
 \def\end:aft{\end:aft}%
 \def\end::aft{\end::aft}%
 \def\start:aft{\:in:aft\futurelet\:nxt\:aft}
-\def\:aft{\let\:tmp\relax%
-  \ifx\:nxt\:sptoken\def\:tmp{\:dospace}%
-  \else\ifx\:nxt\bgroup\def\:tmp{\:dogrp}%
-  \else\ifx\:nxt\end:aft\def\:tmp{\:doend}%
-  \else\ifx\:nxt\end::aft\def\:tmp{\::doend}%
-  \else\ifx\:nxt\?\def\:tmp{\:doquery}%
-  \else\ifx\:nxt\X\def\:tmp{\:doprotect}%
-  \else\def\:tmp{\:dotok}%
-  \fi\fi\fi\fi\fi\fi\:tmp}
-\def\:dospace#1 {\:toks\expandafter{\the\:toks\space}\start:aft}
+\def\:aft{%
+  \let\:tmp\relax%
+  \ifx\:nxt\:sptoken%
+    \def\:tmp{\:dospace}%
+  \else%
+    \ifx\:nxt\bgroup%
+      \def\:tmp{\:dogrp}%
+    \else%
+      \ifx\:nxt\end:aft%
+        \def\:tmp{\:doend}%
+      \else%
+        \ifx\:nxt\end::aft%
+          \def\:tmp{\::doend}%
+        \else%
+          \ifx\:nxt\?%
+            \def\:tmp{\:doquery}%
+          \else%
+            \ifx\:nxt\X%
+              \def\:tmp{\:doprotect}%
+            \else%
+              \def\:tmp{\:dotok}%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+  \:tmp%
+}
+\def\:dospace#1 {%
+  \:toks\expandafter{\the\:toks\space}%
+  \start:aft%
+}
 \long\def\:dogrp#1{%
   \def\:tmp{#1}%
-  \ifx\:tmp\empty\else\:singletst#1\:delim\fi%
-  \ifx\:tmp\empty\let\:tmp#1\else\let\:tmp\empty\fi%
-  \ifx\:tmp\bgroup\:toks\expandafter{\the\:toks\noexpand#1}%
+  \unless\ifx\:tmp\empty%
+    \:singletst#1\:delim%
+  \fi%
+  \ifx\:tmp\empty%
+    \let\:tmp#1%
+  \else%
+    \let\:tmp\empty%
+  \fi%
+  \ifx\:tmp\bgroup%
+    \:toks\expandafter{\the\:toks\noexpand#1}%
   \else%
     \:toks\expandafter{\the\:toks\:ob}%
     \start:aft#1\end::aft%
     \:toks\expandafter{\the\:toks\:cb}%
-  \fi\let\:tmp\relax\start:aft}
+  \fi%
+  \let\:tmp\relax\start:aft%
+}
 \def\:doend#1{%
   \edef\:tmp{\the\:toks}%
   \:toks{}%
   \edef\:tmp{\:tmp}%
   \expandafter\:eqaf\expandafter{\:tmp}%
-  \def\:tmp{}}
+  \def\:tmp{}%
+}
 \def\::doend#1{\:norm:aft}%
 \def\:doquery#1{\futurelet\:nxt\::doquery}
 \def\::doquery{%
-  \ifx\:nxt?\def\:nxt##1{\:toks\expandafter{\the\:toks\noexpand\?}\start:aft}%
-  \else\long\def\:nxt##1{%
-    \expandafter\start:aft\expandafter\X\expandafter{##1}}%
-  \fi\:nxt}
+  \ifx\:nxt?%
+    \def\:nxt##1{\:toks\expandafter{\the\:toks\noexpand\?}\start:aft}%
+  \else%
+    \long\def\:nxt##1{%
+      \expandafter\start:aft\expandafter\X\expandafter{##1}%
+    }%
+  \fi%
+  \:nxt%
+}
 \long\def\:doprotect#1#2{%
-  \:toks\expandafter{\the\:toks\unexpanded{#2}}\start:aft}
-\long\def\:dotok#1{\:toks\expandafter{\the\:toks\noexpand#1}\start:aft}
+  \:toks\expandafter{\the\:toks\unexpanded{#2}}%
+  \start:aft%
+}
+\long\def\:dotok#1{%
+  \:toks\expandafter{\the\:toks\noexpand#1}%
+  \start:aft%
+}
 
 %% \:eqaf
 %% \:dqaf
@@ -248,12 +325,15 @@
     \global\let\:qlst\:qlst%
   \fi%
   \expandafter\xdef\:nxt{\unexpanded{#1}}%
-  \aftergroup\:dqaf\expandafter\aftergroup\:nxt}
+  \aftergroup\:dqaf%
+  \expandafter\aftergroup\:nxt%
+}
 
 \def\:dqaf#1{%
   \def\:tmp##1{%
     \expandafter\def\expandafter\:tmp\string\:q####1\:delim{\def\:tmp{####1}}%
-    \expandafter\:tmp\string##1\:delim}%
+    \expandafter\:tmp\string##1\:delim%
+  }%
   \:tmp#1%
   \:count=\:qnum%
   \advance\:count-1%
@@ -264,7 +344,8 @@
   \fi%
   \let\:tmp#1%
   \global\let#1\relax%
-  \:tmp}
+  \:tmp%
+}
 
 
 %%%%%
@@ -281,92 +362,105 @@
 %% are initially mapped to an equivalent of \PARENTMAP.
 \def\:tc{0}
 \def\DECLARESUBTYPE#1#2{%
-  \def\:tmp{#1}\ifx\:tmp\empty\er:tblank%
-  \else\ifcsname#2:t\endcsname%
-    \ifcsname#1:t\endcsname%
-      \:typgenwarn{Datatype "#1" is already defined.\:mb Command ignored.}%
-    \else%
-      \expandafter\edef\csname#1:t\endcsname{\:tc}%
-      \:count\:tc%
-      \advance\:count1%
-      \edef\:tc{\the\:count}%
-      \expandafter\let\expandafter\:ti\csname#1:t\endcsname%
-      \expandafter\let\expandafter\:pi\csname#2:t\endcsname%
-      \expandafter\ifx\csname\:ti :p\endcsname\empty%
-        \expandafter\def\csname\:ti :pdo\endcsname{%
-          \:typwarn{\string\PARENT: "#1" has no parent.}}%
-        \expandafter\def\csname\:ti :phd\endcsname{%
-          \:typwarn{\string\PARENTMAP: "#1" has no parent.}}%
-        \expandafter\def\csname\:ti :phh\endcsname{%
-          \:typwarn{\string\PARENTSURFACEMAP: "#1" has no parent.}}%
-      \else%
-        \csname\:pi :ca\endcsname{#1}%
-        \begingroup%
-          \aftergroup\def\expandafter\aftergroup\csname\:ti :pdo\endcsname%
-          \aftergroup{\aftergroup\let\aftergroup\PARENT%
-            \expandafter\aftergroup\csname\:pi :pdo\endcsname%
-            \expandafter\aftergroup\csname\:pi :rdo\endcsname%
-            \aftergroup\let\aftergroup\PARENT%
-            \expandafter\aftergroup\csname\:ti :pdo\endcsname\aftergroup}%
-        \endgroup%
-        \begingroup%
-          \aftergroup\def\expandafter\aftergroup\csname\:ti :phd\endcsname%
-          \aftergroup{\aftergroup\let\aftergroup\PARENTMAP%
-            \expandafter\aftergroup\csname\:pi :phd\endcsname%
-            \expandafter\aftergroup\csname\:pi :rhd\endcsname%
-            \aftergroup\let\aftergroup\PARENTMAP%
-            \expandafter\aftergroup\csname\:ti :phd\endcsname\aftergroup}%
-        \endgroup%
-        \begingroup%
-          \aftergroup\def\expandafter\aftergroup\csname\:ti :phh\endcsname%
-          \aftergroup{\aftergroup\let\aftergroup\PARENTSURFACEMAP%
-            \expandafter\aftergroup\csname\:pi :phh\endcsname%
-            \expandafter\aftergroup\csname\:pi :rhh\endcsname%
-            \aftergroup\let\aftergroup\PARENTSURFACEMAP%
-            \expandafter\aftergroup\csname\:ti :phh\endcsname\aftergroup}%
-        \endgroup%
-      \fi%
-      \expandafter\def\csname\:ti :p\endcsname{#2}%
-      \expandafter\ifx\csname\:ti :p\endcsname\empty%
-        \expandafter\def\csname\:ti :pt\endcsname{}%
-      \else%
-        \expandafter\def\csname\:ti :pt\endcsname{\:i{#2}}%
-      \fi%
-      \begingroup%
-        \aftergroup\:ap\expandafter\aftergroup\csname\:ti :pt\endcsname%
-        \aftergroup{%
-          \expandafter\aftergroup\csname\:pi :pt\endcsname%
-          \aftergroup}%
-      \endgroup%
-      \expandafter\def\csname\:ti :ct\endcsname{}%
-      \begingroup%
-        \aftergroup\def\expandafter\aftergroup\csname\:ti :ca\endcsname%
-        \aftergroup##\aftergroup1\aftergroup{%
-          \aftergroup\::al\expandafter\aftergroup\csname\:ti :ct\endcsname%
-          \aftergroup{\aftergroup##\aftergroup1\aftergroup}\aftergroup\relax%
-          \expandafter\aftergroup\csname\:pi :ca\endcsname%
-          \aftergroup{\aftergroup##\aftergroup1\aftergroup}\aftergroup}%
-      \endgroup%
-      \expandafter\def\csname\:ti :lst\endcsname{}%
-      \begingroup%
-        \aftergroup\def\expandafter\aftergroup\csname\:ti :add\endcsname%
-        \aftergroup##\aftergroup1\aftergroup{%
-          \aftergroup\::al\expandafter\aftergroup\csname\:ti :lst\endcsname%
-          \aftergroup##\aftergroup1\aftergroup\relax%
-          \expandafter\aftergroup\csname\:pi :add\endcsname%
-          \aftergroup##\aftergroup1\aftergroup}%
-      \endgroup%
-      \expandafter\expandafter\expandafter\def\expandafter\expandafter%
-      \csname\:ti :pre\endcsname\expandafter{\csname\:pi :pre\endcsname}%
-      \expandafter\expandafter\expandafter\def\expandafter\expandafter%
-      \csname\:ti :pst\endcsname\expandafter{\csname\:pi :pst\endcsname}%
-      \MAP{#1}{\PARENT}%
-    \fi%
+  \def\:tmp{#1}%
+  \ifx\:tmp\empty%
+    \er:tblank%
   \else%
-    \:typgenerr{Datatype "#2" isn't defined; hence it can't\:mb be
-      used as a parent for datatype "#1."}{Declare "#2" before
-      declaring any children.}%
-  \fi\fi}
+    \ifcsname#2:t\endcsname%
+      \ifcsname#1:t\endcsname%
+        \:typgenwarn{Datatype "#1" is already defined.\:mb Command ignored.}%
+      \else%
+        \expandafter\edef\csname#1:t\endcsname{\:tc}%
+        \:count\:tc%
+        \advance\:count1%
+        \edef\:tc{\the\:count}%
+        \expandafter\let\expandafter\:ti\csname#1:t\endcsname%
+        \expandafter\let\expandafter\:pi\csname#2:t\endcsname%
+        \expandafter\ifx\csname\:ti :p\endcsname\empty%
+          \expandafter\def\csname\:ti :pdo\endcsname{%
+            \:typwarn{\string\PARENT: "#1" has no parent.}%
+          }%
+          \expandafter\def\csname\:ti :phd\endcsname{%
+            \:typwarn{\string\PARENTMAP: "#1" has no parent.}%
+          }%
+          \expandafter\def\csname\:ti :phh\endcsname{%
+            \:typwarn{\string\PARENTSURFACEMAP: "#1" has no parent.}%
+          }%
+        \else%
+          \csname\:pi :ca\endcsname{#1}%
+          \begingroup%
+            \aftergroup\def\expandafter\aftergroup\csname\:ti :pdo\endcsname%
+            \aftergroup{\aftergroup\let\aftergroup\PARENT%
+              \expandafter\aftergroup\csname\:pi :pdo\endcsname%
+              \expandafter\aftergroup\csname\:pi :rdo\endcsname%
+              \aftergroup\let\aftergroup\PARENT%
+              \expandafter\aftergroup\csname\:ti :pdo\endcsname%
+            \aftergroup}%
+          \endgroup%
+          \begingroup%
+            \aftergroup\def\expandafter\aftergroup\csname\:ti :phd\endcsname%
+            \aftergroup{\aftergroup\let\aftergroup\PARENTMAP%
+              \expandafter\aftergroup\csname\:pi :phd\endcsname%
+              \expandafter\aftergroup\csname\:pi :rhd\endcsname%
+              \aftergroup\let\aftergroup\PARENTMAP%
+              \expandafter\aftergroup\csname\:ti :phd\endcsname%
+            \aftergroup}%
+          \endgroup%
+          \begingroup%
+            \aftergroup\def\expandafter\aftergroup\csname\:ti :phh\endcsname%
+            \aftergroup{\aftergroup\let\aftergroup\PARENTSURFACEMAP%
+              \expandafter\aftergroup\csname\:pi :phh\endcsname%
+              \expandafter\aftergroup\csname\:pi :rhh\endcsname%
+              \aftergroup\let\aftergroup\PARENTSURFACEMAP%
+              \expandafter\aftergroup\csname\:ti :phh\endcsname%
+            \aftergroup}%
+          \endgroup%
+        \fi%
+        \expandafter\def\csname\:ti :p\endcsname{#2}%
+        \expandafter\ifx\csname\:ti :p\endcsname\empty%
+          \expandafter\def\csname\:ti :pt\endcsname{}%
+        \else%
+          \expandafter\def\csname\:ti :pt\endcsname{\:i{#2}}%
+        \fi%
+        \begingroup%
+          \aftergroup\:ap\expandafter\aftergroup\csname\:ti :pt\endcsname%
+          \aftergroup{%
+            \expandafter\aftergroup\csname\:pi :pt\endcsname%
+          \aftergroup}%
+        \endgroup%
+        \expandafter\def\csname\:ti :ct\endcsname{}%
+        \begingroup%
+          \aftergroup\def\expandafter\aftergroup\csname\:ti :ca\endcsname%
+          \aftergroup##\aftergroup1\aftergroup{%
+            \aftergroup\::al\expandafter\aftergroup\csname\:ti :ct\endcsname%
+            \aftergroup{\aftergroup##\aftergroup1\aftergroup}\aftergroup\relax%
+            \expandafter\aftergroup\csname\:pi :ca\endcsname%
+            \aftergroup{\aftergroup##\aftergroup1\aftergroup}%
+          \aftergroup}%
+        \endgroup%
+        \expandafter\def\csname\:ti :lst\endcsname{}%
+        \begingroup%
+          \aftergroup\def\expandafter\aftergroup\csname\:ti :add\endcsname%
+          \aftergroup##\aftergroup1\aftergroup{%
+            \aftergroup\::al\expandafter\aftergroup\csname\:ti :lst\endcsname%
+            \aftergroup##\aftergroup1\aftergroup\relax%
+            \expandafter\aftergroup\csname\:pi :add\endcsname%
+            \aftergroup##\aftergroup1%
+          \aftergroup}%
+        \endgroup%
+        \expandafter\expandafter\expandafter\def\expandafter\expandafter%
+        \csname\:ti :pre\endcsname\expandafter{\csname\:pi :pre\endcsname}%
+        \expandafter\expandafter\expandafter\def\expandafter\expandafter%
+        \csname\:ti :pst\endcsname\expandafter{\csname\:pi :pst\endcsname}%
+        \MAP{#1}{\PARENT}%
+      \fi%
+    \else%
+      \:typgenerr{Datatype "#2" isn't defined; hence it can't\:mb be
+        used as a parent for datatype "#1."}{Declare "#2" before
+        declaring any children.}%
+    \fi%
+  \fi%
+}
 
 
 %%%%%
@@ -393,17 +487,21 @@
 %%%%%
 %% \PRESETS{Foobar}{STUFF}
 %% Sets \PRESETS "STUFF" for Datatype Foobar 
-\long\def\PRESETS#1#2{\:typetest{#1}{%
-  \expandafter\:ap\csname\:ti :pre\endcsname{#2}%
-  }}
+\long\def\PRESETS#1#2{%
+  \:typetest{#1}{%
+    \expandafter\:ap\csname\:ti :pre\endcsname{#2}%
+  }%
+}
 
 
 %%%%%
 %% \POSTSETS{Foobar}{STUFF}
 %% Sets \POSTSETS "STUFF" for Datatype Foobar 
-\long\def\POSTSETS#1#2{\:typetest{#1}{%
-  \expandafter\:ap\csname\:ti :pst\endcsname{#2}%
-  }}
+\long\def\POSTSETS#1#2{%
+  \:typetest{#1}{%
+    \expandafter\:ap\csname\:ti :pst\endcsname{#2}%
+  }%
+}
 
 
 %%%%%
@@ -435,30 +533,35 @@
   \edef\:dotypes{\unexpanded{#2}}%
   \def\:i##1{\def\TYPE{##1}\:dotypes}%
   \expandafter\csname\csname#1:t\endcsname :ct\endcsname%
-  \let\TYPE\empty}
+  \let\TYPE\empty%
+}
 
 \long\def\BRANCHTYPES#1#2{%
   \edef\:dotypes{\unexpanded{#2}}%
   \def\:i##1{\def\TYPE{##1}\:dotypes}%
   \:i{#1}%
   \expandafter\csname\csname#1:t\endcsname :ct\endcsname%
-  \let\TYPE\empty}
+  \let\TYPE\empty%
+}
 
 \long\def\PARENTTYPES#1#2{%
   \edef\:dotypes{\unexpanded{#2}}%
   \def\:i##1{\def\TYPE{##1}\:dotypes}%
   \expandafter\csname\csname#1:t\endcsname :pt\endcsname%
-  \let\TYPE\empty}
+  \let\TYPE\empty%
+}
 
 
 %%%%%
 %% \MAP{Foobar}{OPTION}
 %% Sets the mapping of Foobar Datatypes to "OPTION"
-\long\def\MAP#1#2{\:typetest{#1}{%
-  \CHANGEMAP{#1}{#2}%
-  \CHANGESURFACEMAP{#1}{#2}%
-  \REMAP{#1}%
-  }}
+\long\def\MAP#1#2{%
+  \:typetest{#1}{%
+    \CHANGEMAP{#1}{#2}%
+    \CHANGESURFACEMAP{#1}{#2}%
+    \REMAP{#1}%
+  }%
+}
 
 
 %%%%%
@@ -472,42 +575,52 @@
 %% Repeated uses of \SURFACEMAP only change the \FISTMAP mapping, not the
 %% stored mapping.  \MAP changes both the current mapping and the stored
 %% mapping and "turns off" the effects of \SURFACEMAP.
-\long\def\SURFACEMAP#1#2{\:typetest{#1}{%
-  \CHANGESURFACEMAP{#1}{#2}%
-  \RESURFACEMAP{#1}%
-  }}
+\long\def\SURFACEMAP#1#2{%
+  \:typetest{#1}{%
+    \CHANGESURFACEMAP{#1}{#2}%
+    \RESURFACEMAP{#1}%
+  }%
+}
 
 
 %%%%%
 %% \REMAP{Foobar}
 %% "Turns off" the effect of \SURFACEMAP, i.e. restores the current
 %% mapping to the stored mapping.
-\long\def\REMAP#1{\:typetest{#1}{%
-  \expandafter\expandafter\expandafter\def\expandafter\expandafter%
-  \csname\:ti :do\endcsname\expandafter{\csname\:ti :rhd\endcsname}%
-  }}
+\long\def\REMAP#1{%
+  \:typetest{#1}{%
+    \expandafter\expandafter\expandafter\def\expandafter\expandafter%
+    \csname\:ti :do\endcsname\expandafter{\csname\:ti :rhd\endcsname}%
+  }%
+}
 
 
 %%%%%
 %% \RESURFACEMAP{Foobar}
-\long\def\RESURFACEMAP#1{\:typetest{#1}{%
-  \expandafter\expandafter\expandafter\def\expandafter\expandafter%
-  \csname\:ti :do\endcsname\expandafter{\csname\:ti :rhh\endcsname}%
-  }}
+\long\def\RESURFACEMAP#1{%
+  \:typetest{#1}{%
+    \expandafter\expandafter\expandafter\def\expandafter\expandafter%
+    \csname\:ti :do\endcsname\expandafter{\csname\:ti :rhh\endcsname}%
+  }%
+}
 
 
 %%%%%
 %% \CHANGEMAP{Foobar}
-\long\def\CHANGEMAP#1#2{\:typetest{#1}{%
-  \expandafter\edef\csname\:ti :hd\endcsname{\unexpanded{#2}}%
-  }}
+\long\def\CHANGEMAP#1#2{%
+  \:typetest{#1}{%
+    \expandafter\edef\csname\:ti :hd\endcsname{\unexpanded{#2}}%
+  }%
+}
 
 
 %%%%%
 %% \CHANGESURFACEMAP{Foobar}
-\long\def\CHANGESURFACEMAP#1#2{\:typetest{#1}{%
-  \expandafter\edef\csname\:ti :hh\endcsname{\unexpanded{#2}}%
-  }}
+\long\def\CHANGESURFACEMAP#1#2{%
+  \:typetest{#1}{%
+    \expandafter\edef\csname\:ti :hh\endcsname{\unexpanded{#2}}%
+  }%
+}
 
 
 %%%%%
@@ -535,50 +648,81 @@
 %% \NEW{Foobar}{\command}{STUFF}
 %% Creates \command{} as a Foobar macro, with "STUFF"
 \def\:ic{0}
-\long\def\NEW#1#2#3{\:typetest{#1}{%
-  \ifdefined#2%
-    \:typgenerr{"\string#2" is already defined.}{"\string#2" is
-      already defined (by \string\def, \string\newcommand, etc).\:mb
-      Or it may be a default (La)TeX macro.  Or it may already be a
-      \:mb datatype macro.  A datatype macroname must be unique.}%
-  \else%
-    \csname\:ti :add\endcsname#2%
-    \expandafter\let\csname\string#2:ic\endcsname\:ic%
-    \expandafter\def\csname\:ic :l\endcsname{}%
-    \expandafter\edef\csname\:ic :pr\endcsname{%
-      \noexpand\:prep{\:ic}{#1}\noexpand#2{\unexpanded{#3}}}%
-    \expandafter\edef\csname\:ic :o\endcsname{%
-      \unexpanded{\let\:opt\empty}\csname\:ic :op\endcsname}%
-    \expandafter\edef\csname\:ic :op\endcsname{%
-      \noexpand\futurelet\noexpand\:nxt\csname\:ic :opt\endcsname}%
-    \expandafter\edef\csname\:ic :opt\endcsname{%
-      \unexpanded{\ifx\:nxt[\let#2}\csname\:ic :opti\endcsname%
-      \unexpanded{\else\let#2}\csname\:ic :optio\endcsname%
-      \noexpand\fi\noexpand#2}%
-    \expandafter\edef\csname\:ic :opti\endcsname[##1]{%
-      \noexpand\def\noexpand#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
-      \noexpand\:ap\noexpand\:opt{##1}%
-      \expandafter\noexpand\csname\:ic :op\endcsname}%
-    \expandafter\edef\csname\:ic :optio\endcsname##{%
-      \noexpand\def\noexpand#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
-      \csname\:ic :c\endcsname}%
-    \edef#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
-    \long\expandafter\edef\csname\:ic :c\endcsname##1{%
-      \noexpand\begingroup\expandafter\noexpand\csname\:ic :pr\endcsname%
-      \noexpand\:doarg{#1}{##1}\noexpand\endgroup}%
-    \:count\:ic%
-    \advance\:count1%
-    \edef\:ic{\the\:count}%
-  \fi%
-  }}
+\long\def\NEW#1#2#3{%
+  \:typetest{#1}{%
+    \ifdefined#2%
+      \:typgenerr{"\string#2" is already defined.}{"\string#2" is
+        already defined (by \string\def, \string\newcommand, etc).\:mb
+        Or it may be a default (La)TeX macro.  Or it may already be a
+        \:mb datatype macro.  A datatype macroname must be unique.}%
+    \else%
+      \csname\:ti :add\endcsname#2%
+      \expandafter\let\csname\string#2:ic\endcsname\:ic%
+      \expandafter\def\csname\:ic :l\endcsname{}%
+      \expandafter\edef\csname\:ic :pr\endcsname{%
+        \noexpand\:prep{\:ic}{#1}%
+        \noexpand#2{\unexpanded{#3}}%
+      }%
+      \expandafter\edef\csname\:ic :o\endcsname{%
+        \unexpanded{\let\:opt\empty}%
+        \csname\:ic :op\endcsname%
+      }%
+      \expandafter\edef\csname\:ic :op\endcsname{%
+        \noexpand\futurelet\noexpand\:nxt\csname\:ic :opt\endcsname%
+      }%
+      \expandafter\edef\csname\:ic :opt\endcsname{%
+        \unexpanded{%
+          \ifx\:nxt[%
+            \let#2%
+        }%
+            \csname\:ic :opti\endcsname%
+        \unexpanded{%
+          \else%
+            \let#2%
+        }%
+            \csname\:ic :optio\endcsname%
+        \unexpanded{%
+          \fi%
+        }%
+        \noexpand#2%
+      }%
+      \expandafter\edef\csname\:ic :opti\endcsname[##1]{%
+        \noexpand\def\noexpand#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
+        \noexpand\:ap\noexpand\:opt{##1}%
+        \expandafter\noexpand\csname\:ic :op\endcsname%
+      }%
+      \expandafter\edef\csname\:ic :optio\endcsname##{%
+        \noexpand\def\noexpand#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
+        \csname\:ic :c\endcsname%
+      }%
+      \edef#2{\expandafter\noexpand\csname\:ic :o\endcsname}%
+      \long\expandafter\edef\csname\:ic :c\endcsname##1{%
+        \noexpand\begingroup%
+          \expandafter\noexpand\csname\:ic :pr\endcsname%
+          \noexpand\:doarg{#1}{##1}%
+        \noexpand\endgroup%
+      }%
+      \:count\:ic%
+      \advance\:count1%
+      \edef\:ic{\the\:count}%
+    \fi%
+  }%
+}
 
 
-\long\def\:EXTEND#1{\:typgenerr{Don't use \string\EXTEND on non Datatypes.}%
-  {It has no context.}}
+\long\def\:EXTEND#1{%
+  \:typgenerr{%
+    Don't use \string\EXTEND on non Datatypes.%
+  }{%
+    It has no context.%
+  }%
+}
 
 \long\def\::EXTEND#1{%
-  \endgroup\expandafter\:ap\csname\:id :l\endcsname{#1}%
-  \begingroup}
+  \endgroup%
+  \expandafter\:ap\csname\:id :l\endcsname{#1}%
+  \begingroup%
+}
 
 \def\DEFAULTOPTIONHOOK{\long\def\OPTIONHOOK##1{##1}}
 \long\def\EXTEND#1#2{#1[\DEFAULTOPTIONHOOK]{\:EXTEND{#2}}}
@@ -598,7 +742,8 @@
     \let\ME\MYCOMMAND%
   \else%
     \expandafter\def\expandafter\ME\expandafter{%
-      \expandafter#3\expandafter[\::opt]}%
+      \expandafter#3\expandafter[\::opt]%
+    }%
   \fi%
   \def\MYMAP{\:mydo}%
   \stoss{\def\:id{#1}}%
@@ -613,7 +758,8 @@
   \let\sd\:sd%
   \let\append\:append%
   \let\prepend\:prepend%
-  \edef\:presentfont{\the\font}\nullfont%
+  \edef\:presentfont{\the\font}%
+  \nullfont%
   \let\::par\par\let\par\relax%
   \csname\:ti :pre\endcsname%
   #4%
@@ -624,7 +770,7 @@
   \let\ADD\:ADD%
   %\def\RESET{\:reset}%
   \let\:EXTEND\::EXTEND%
-  }
+}
 
 \long\def\:remap#1{%
   \expandafter\expandafter\expandafter\let\expandafter\expandafter%
@@ -639,7 +785,8 @@
     \edef\:tmp{\csname\:ti :p\endcsname}%
     \edef\:ti{\csname\:tmp :t\endcsname}%
     \expandafter\:remap\expandafter{\:tmp}%
-  \fi}
+  \fi%
+}
 
 \long\def\:doarg#1#2{%
   \edef\:tmp{\unexpanded{#2}}%
@@ -648,7 +795,9 @@
     \edef\:ti{\csname#1:t\endcsname}%
     \expandafter\let\expandafter\:mydo\csname\:ti :rdo\endcsname%
     \def\:tmp{\MYMAP}%
-  \fi\expandafter\OPTIONHOOK\expandafter{\:tmp}}
+  \fi%
+  \expandafter\OPTIONHOOK\expandafter{\:tmp}%
+}
 
 
 %%%%%
@@ -661,53 +810,67 @@
 %%
 %% Like macros created by \NEW, braces for "OPTION" are required, even
 %% if "OPTION" is blank (TeX gives an error if there are no braces).
-\long\def\INSTANCE#1#2{\:typetest{#1}{%
-  \expandafter\def\csname :\:lvl\endcsname##1{%
-    \:count\:lvl%
-    \advance\:count1%
-    \edef\:lvl{\the\:count}%
-    \edef\:ti{\csname#1:t\endcsname}%
-    \long\def\OPTIONHOOK####1{####1}%
-    \def\MYTYPESTRING{#1}%
-    \edef\MYPARENTSTRING{\csname\:ti :p\endcsname}%
-    \def\MYCOMMAND{\INSTANCE{#1}}%
-    \let\::opt\:opt
-    \ifx\::opt\empty%
-      \def\ME{\INSTANCE{#1}{#2}}%
-    \else%
-      \edef\ME{\unexpanded{\INSTANCE{#1}{#2}}%
-        [\expandafter\unexpanded\expandafter{\::opt}]}%
-    \fi%
-    \def\MYMAP{\:mydo}%
-    \expandafter\let\expandafter\PARENT\csname\:ti :pdo\endcsname%
-    \expandafter\let\expandafter\PARENTMAP\csname\:ti :phd\endcsname%
-    \expandafter\let\expandafter\PARENTSURFACEMAP\csname\:ti :phh\endcsname%
-    \let\F\:F%
-    \let\FD\:FD%
-    \let\FS\:FS%
-    \let\s\:s%
-    \let\rs\:rs%
-    \let\sd\:sd%
-    \let\append\:append%
-    \let\prepend\:prepend%
-    \edef\:presentfont{\the\font}\nullfont%
-    \let\:par\par\let\par\relax%
-    \csname\:ti :pre\endcsname%
-    #2##1\::opt%
-    \csname\:ti :pst\endcsname%
-    \let\par\:par\:presentfont%
-    %\long\def\ADD####1{\endgroup\begingroup\csname :\:lvl\endcsname{####1}}%
-    \long\def\ADD####1{####1}%
-    %\def\RESET{\endgroup\begingroup\csname :\:lvl\endcsname{}}%
-    \long\def\:EXTEND####1{}%
+\long\def\INSTANCE#1#2{%
+  \:typetest{#1}{%
+    \expandafter\def\csname :\:lvl\endcsname##1{%
+      \:count\:lvl%
+      \advance\:count1%
+      \edef\:lvl{\the\:count}%
+      \edef\:ti{\csname#1:t\endcsname}%
+      \long\def\OPTIONHOOK####1{####1}%
+      \def\MYTYPESTRING{#1}%
+      \edef\MYPARENTSTRING{\csname\:ti :p\endcsname}%
+      \def\MYCOMMAND{\INSTANCE{#1}}%
+      \let\::opt\:opt%
+      \ifx\::opt\empty%
+        \def\ME{\INSTANCE{#1}{#2}}%
+      \else%
+        \edef\ME{\unexpanded{\INSTANCE{#1}{#2}}%
+          [\expandafter\unexpanded\expandafter{\::opt}]%
+        }%
+      \fi%
+      \def\MYMAP{\:mydo}%
+      \expandafter\let\expandafter\PARENT\csname\:ti :pdo\endcsname%
+      \expandafter\let\expandafter\PARENTMAP\csname\:ti :phd\endcsname%
+      \expandafter\let\expandafter\PARENTSURFACEMAP\csname\:ti :phh\endcsname%
+      \let\F\:F%
+      \let\FD\:FD%
+      \let\FS\:FS%
+      \let\s\:s%
+      \let\rs\:rs%
+      \let\sd\:sd%
+      \let\append\:append%
+      \let\prepend\:prepend%
+      \edef\:presentfont{\the\font}%
+      \nullfont%
+      \let\:par\par\let\par\relax%
+      \csname\:ti :pre\endcsname%
+      #2##1\::opt%
+      \csname\:ti :pst\endcsname%
+      \let\par\:par\:presentfont%
+      %\long\def\ADD####1{\endgroup\begingroup\csname :\:lvl\endcsname{####1}}%
+      \long\def\ADD####1{####1}%
+      %\def\RESET{\endgroup\begingroup\csname :\:lvl\endcsname{}}%
+      \long\def\:EXTEND####1{}%
     }%
-  \long\def\:tmp##1{%
-    \begingroup\csname :\:lvl\endcsname{}\:doarg{#1}{##1}\endgroup}%
-  }\INSTANCE:}
+    \long\def\:tmp##1{%
+      \begingroup%
+        \csname :\:lvl\endcsname{}\:doarg{#1}{##1}%
+      \endgroup%
+    }%
+  }%
+  \INSTANCE:%
+}
 \def\INSTANCE:{\let\:opt\empty\INSTANCE::}%
 \def\INSTANCE::{\futurelet\:nxt\INSTANCE:::}
-\def\INSTANCE:::{\ifx\:nxt[\def\:nxt{\INSTANCE::::}%
-  \else\def\:nxt{\INSTANCE:::::}\fi\:nxt}%
+\def\INSTANCE:::{%
+  \ifx\:nxt[%
+    \def\:nxt{\INSTANCE::::}%
+  \else%
+    \def\:nxt{\INSTANCE:::::}%
+  \fi%
+  \:nxt%
+}%
 \def\INSTANCE::::[#1]{\:ap\:opt{#1}\INSTANCE::}%
 \def\INSTANCE:::::#{\:tmp}%
 
@@ -724,13 +887,17 @@
   \else\def\:nxt{\EVERY:::[]}\fi\:nxt}
 \long\def\EVERY:::[#1]{\def\:opt{#1}\EVERY::::}
 \def\EVERY::::#{\expandafter\EVERY:::::\expandafter{\:opt}}
-\long\def\EVERY:::::#1#2{\:typetest{\:tmp}{%
-  \ifx\:opt\empty%
-    \def\:i##1{\:ap\:tmp{##1{#2}}}%
-  \else%
-    \def\:i##1{\:ap\:tmp{##1[#1]{#2}}}%
-  \fi%
-  \def\:tmp{\let\:tmp\empty}\csname\:ti :lst\endcsname}\:tmp}
+\long\def\EVERY:::::#1#2{%
+  \:typetest{\:tmp}{%
+    \ifx\:opt\empty%
+      \def\:i##1{\:ap\:tmp{##1{#2}}}%
+    \else%
+      \def\:i##1{\:ap\:tmp{##1[#1]{#2}}}%
+    \fi%
+    \def\:tmp{\let\:tmp\empty}\csname\:ti :lst\endcsname%
+  }%
+  \:tmp%
+}
 
 
 %%%%%
@@ -779,27 +946,36 @@
 
 
 %%
-\def\:deferr#1#2{
-  \:typerr%
-    {\string#1 in "\string#2\string#1" in
-    \expandafter\noexpand\MYCOMMAND\:mb is already defined.}%
-    {\string#1 is already defined (by \string\def, \string\newcommand,
+\def\:deferr#1#2{%
+  \:typerr{%
+    \string#1 in "\string#2\string#1" in
+    \expandafter\noexpand\MYCOMMAND\:mb is already defined.%
+  }{%
+    \string#1 is already defined (by \string\def, \string\newcommand,
     etc).  \:mb Or it may be a default (La)TeX macro.  Fields must be
-    unique.}}%
-\def\:fielderr#1#2{
-  \:typerr%
-    {\string#1 in "\string#2\string#1" in
-    \expandafter\noexpand\MYCOMMAND is already a field.}%
-    {\string#1 is already declared by \string\F, \string\FD, or
-    \string\FS.  Fields must be unique.}}%
-\def\:noferr#1#2{
-  \:typerr%
-    {\string#1 in \expandafter\noexpand\MYCOMMAND has not been
-    declared a field.}%
-    {"\string#2\string#1" may just be a typo in
+    unique.%
+  }%
+}%
+\def\:fielderr#1#2{%
+  \:typerr{%
+    \string#1 in "\string#2\string#1" in
+    \expandafter\noexpand\MYCOMMAND is already a field.%
+  }{%
+    \string#1 is already declared by \string\F, \string\FD, or
+    \string\FS.  Fields must be unique.%
+  }%
+}%
+\def\:noferr#1#2{%
+  \:typerr{%
+    \string#1 in \expandafter\noexpand\MYCOMMAND has not been
+    declared a field.%
+  }{%
+    "\string#2\string#1" may just be a typo in
     \expandafter\string\MYCOMMAND. Otherwise, \string#1 needs to be
     \:mb declared by "\string\F\string#1" (or \string\FD, or
-    \string\FS).}}%
+    \string\FS).%
+  }%
+}%
 
 
 %%%%%
@@ -826,7 +1002,8 @@
     \expandafter\def\csname\:ti\string#1\:lvl\endcsname{y}%
     \expandafter\let\csname\string#1.w\endcsname\empty%
     \def#1{\er:funset{#1}}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -852,7 +1029,8 @@
     \expandafter\def\csname\:ti\string#1\:lvl\endcsname{y}%
     \expandafter\let\csname\string#1.w\endcsname\empty%
     \def#1{#2}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -877,7 +1055,8 @@
     \expandafter\def\csname\:ti\string#1\:lvl\endcsname{y}%
     \expandafter\def\csname\string#1.w\endcsname{y}%
     \def#1{#2}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -898,7 +1077,8 @@
     \fi%
   \else%
     \:noferr{#1}{\s}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -914,7 +1094,8 @@
     \fi%
   \else%
     \:noferr{#1}{\rs}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -931,7 +1112,8 @@
     \fi%
   \else%
     \:noferr{#1}{\sd}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -953,7 +1135,8 @@
     \fi%
   \else%
     \:noferr{#1}{\append}%
-  \fi}
+  \fi%
+}
 
 
 %%%%%
@@ -978,7 +1161,8 @@
     \fi%
   \else%
     \:noferr{#1}{\prepend}%
-  \fi}
+  \fi%
+}
 
 
 
@@ -1002,7 +1186,8 @@
 %% "STUFF" also takes effect immediately.
 \long\def\:ADD#1{%
   #1\expandafter\EXTEND\expandafter{\ME}{#1}%
-  \expandafter\stoss\expandafter{\expandafter\EXTEND\expandafter{\ME}{#1}}}
+  \expandafter\stoss\expandafter{\expandafter\EXTEND\expandafter{\ME}{#1}}%
+}
 %  \endgroup%
 %  \expandafter\:ap\csname\:id :l\endcsname{#1}%
 %  \begingroup%
@@ -1026,33 +1211,38 @@
 %%%%%
 %% \SORT{Foobar}{sort}{field}{Datatype macros}{OPTION}
 %%
-\long\def\SORT#1#2#3#4#5{\:typetest{#1}{%
-  \:checksortarg{#2}%
-  \let\:tmp\relax%
-  \if:go%
-    \:dosort{#1}{#2}{#3}{#4}%
-    \def\:i##1{\:ap\:tmp{##1{#5}}}%
-    \def\:tmp{\let\:tmp\empty}%
-    \:sorted%
-    \global\let\:sorted\relax%
-  \fi%
-  }\:tmp}
+\long\def\SORT#1#2#3#4#5{%
+  \:typetest{#1}{%
+    \:checksortarg{#2}%
+    \let\:tmp\relax%
+    \if:go%
+      \:dosort{#1}{#2}{#3}{#4}%
+      \def\:i##1{\:ap\:tmp{##1{#5}}}%
+      \def\:tmp{\let\:tmp\empty}%
+      \:sorted%
+      \global\let\:sorted\relax%
+    \fi%
+  }%
+  \:tmp%
+}
 
 
 %%%%%
 %% \MAKESORT{Foobar}{sort}{field}{Datatype macros}{NAME}
 %%
-\long\def\MAKESORT#1#2#3#4#5{\:typetest{#1}{%
-  \:checksortarg{#2}%
-  \if:go%
-    \ifcsname#5:SORT\endcsname%
-      \:typgenwarn{"#5" reused as sorted list name.}%
+\long\def\MAKESORT#1#2#3#4#5{%
+  \:typetest{#1}{%
+    \:checksortarg{#2}%
+    \if:go%
+      \ifcsname#5:SORT\endcsname%
+        \:typgenwarn{"#5" reused as sorted list name.}%
+      \fi%
+      \:dosort{#1}{#2}{#3}{#4}%
+      \expandafter\let\csname#5:SORT\endcsname\:sorted%
+      \global\let\:sorted\relax%
     \fi%
-    \:dosort{#1}{#2}{#3}{#4}%
-    \expandafter\let\csname#5:SORT\endcsname\:sorted%
-    \global\let\:sorted\relax%
-  \fi%
-  }}
+  }%
+}
 
 
 %%%%%
@@ -1066,7 +1256,9 @@
     \global\let\:sorted\relax%
   \else%
     \def\:tmp{\:typgenwarn{sorted list "#1" does not exist. (ignored)}}%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 
 \long\def\:dosort#1#2#3#4{%
   \begingroup%
@@ -1075,70 +1267,94 @@
       \let\:comp\:compnum%
       \let\:dogreat\:doswitch%
       \let\:doless\:donone%
-    \else\ifx\:tmp\:numgreat%
-      \let\:comp\:compnum%
-      \let\:dogreat\:donone%
-      \let\:doless\:doswitch%
-    \else\ifx\:tmp\:alphless%
-      \let\:comp\:compalpha%
-      \let\:dogreat\:doswitch%
-      \let\:doless\:donone%
-    \else\ifx\:tmp\:alphgreat%
-      \let\:comp\:compalpha%
-      \let\:dogreat\:donone%
-      \let\:doless\:doswitch%
-    \else\ifx\:tmp\:asciiless%
-      \let\:comp\:compascii%
-      \let\:dogreat\:doswitch%
-      \let\:doless\:donone%
-    \else\ifx\:tmp\:alphless%
-      \let\:comp\:compascii%
-      \let\:dogreat\:donone%
-      \let\:doless\:doswitch%
-    \fi\fi\fi\fi\fi\fi%
-    \BRANCHTYPES{#1}{\MAP{\TYPE}{%
-      \expandafter\gdef\expandafter\::tmp\expandafter{\expandafter{\ME}}%
-      \protected@edef\:tmp{#3}%  %%% LaTeX's \protect mechanism
-      \global\expandafter\:ap\expandafter\::tmp\expandafter{\:tmp}%
-      \aftergroup\:makenode}}%
+    \else%
+      \ifx\:tmp\:numgreat%
+        \let\:comp\:compnum%
+        \let\:dogreat\:donone%
+        \let\:doless\:doswitch%
+      \else%
+        \ifx\:tmp\:alphless%
+          \let\:comp\:compalpha%
+          \let\:dogreat\:doswitch%
+          \let\:doless\:donone%
+        \else%
+          \ifx\:tmp\:alphgreat%
+            \let\:comp\:compalpha%
+            \let\:dogreat\:donone%
+            \let\:doless\:doswitch%
+          \else%
+            \ifx\:tmp\:asciiless%
+              \let\:comp\:compascii%
+              \let\:dogreat\:doswitch%
+              \let\:doless\:donone%
+            \else%
+              \ifx\:tmp\:alphless%
+                \let\:comp\:compascii%
+                \let\:dogreat\:donone%
+                \let\:doless\:doswitch%
+              \fi%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+    \BRANCHTYPES{#1}{%
+      \MAP{\TYPE}{%
+        \expandafter\gdef\expandafter\::tmp\expandafter{\expandafter{\ME}}%
+        \protected@edef\:tmp{#3}%  %%% LaTeX's \protect mechanism
+        \global\expandafter\:ap\expandafter\::tmp\expandafter{\:tmp}%
+        \aftergroup\:makenode%
+      }%
+    }%
     \setbox0=\vbox{%
       \gdef\:scnt{0}#4%
       \let\:bcnt\:scnt%
       \:bubblesort%
       \gdef\:sorted{}%
       \def\:bcnt{1}%
-      \:buildsorted}%
-      \gdef\:scnt{0}%
-  \endgroup}
+      \:buildsorted%
+    }%
+    \gdef\:scnt{0}%
+  \endgroup%
+}
 \def\:makenode{%
   \:count\:scnt%
   \advance\:count1%
   \xdef\:scnt{\the\:count}%
   \global\expandafter\let\csname\:scnt :ar\endcsname\::tmp%
-  \gdef\::tmp{}}
+  \gdef\::tmp{}%
+}
 
 \def\:doswitch{%
   \expandafter\let\expandafter\:tmp\csname\:fcnt :ar\endcsname%
   \global\expandafter\expandafter\expandafter\let\expandafter\expandafter%
     \csname\:fcnt :ar\endcsname\csname\:lcnt :ar\endcsname%
-  \global\expandafter\let\csname\:lcnt :ar\endcsname\:tmp}
+  \global\expandafter\let\csname\:lcnt :ar\endcsname\:tmp%
+}
 \let\:donone\relax
 
 \long\def\:checksortarg#1{%
   \:gotrue%
   \def\:tmp{#1}%
-  \ifx\:tmp\:numless%
-  \else\ifx\:tmp\:numgreat%
-  \else\ifx\:tmp\:alphless%
-  \else\ifx\:tmp\:alphgreat%
-  \else\ifx\:tmp\:asciiless%
-  \else\ifx\:tmp\:alphless%
-  \else%
-    \:gofalse%
-    \:typgenwarn{"#1" is not a valid sort option (ignored). Use one
-      of: \:mb \:numless, \:numgreat, \:alphless, \:alphgreat,
-      \:asciiless, \:asciigreat}%
-  \fi\fi\fi\fi\fi\fi}
+  \unless\ifx\:tmp\:numless%
+    \unless\ifx\:tmp\:numgreat%
+      \unless\ifx\:tmp\:alphless%
+        \unless\ifx\:tmp\:alphgreat%
+          \unless\ifx\:tmp\:asciiless%
+            \unless\ifx\:tmp\:alphless%
+              \:gofalse%
+              \:typgenwarn{%
+                "#1" is not a valid sort option (ignored). Use one
+                of: \:mb \:numless, \:numgreat, \:alphless, \:alphgreat,
+                \:asciiless, \:asciigreat%
+              }%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+}
 \def\:numless{num<}
 \def\:numgreat{num>}
 \def\:alphless{alpha<}
@@ -1149,11 +1365,14 @@
 \def\:compnum{%
   \ifnum\:first>\:second%
     \let\:doresult\:dogreat%
-  \else\ifnum\:first<\:second%
-    \let\:doresult\:doless%
   \else%
-    \let\:doresult\:donone%
-  \fi\fi}
+    \ifnum\:first<\:second%
+      \let\:doresult\:doless%
+    \else%
+      \let\:doresult\:donone%
+    \fi%
+  \fi%
+}
 
 \def\:compalpha{%
   \def\:comptemp{%
@@ -1161,31 +1380,40 @@
     \edef\:secondlett{\lccode\:secondlet}%
     \ifnum\:firstlett>\:secondlett%
       \let\:doresult\:dogreat%
-    \else\ifnum\:firstlett<\:secondlett%
-      \let\:doresult\:doless%
     \else%
-      \ifnum\:firstlet>\:secondlet%
-        \let\:doresult\:dogreat%
-      \else\ifnum\:firstlet<\:secondlet%
+      \ifnum\:firstlett<\:secondlett%
         \let\:doresult\:doless%
       \else%
-        \let\:doresult\:donone%
-        \let\:tmp\:compstring%
-      \fi\fi%
-    \fi\fi}%
-  \:compstring}
+        \ifnum\:firstlet>\:secondlet%
+          \let\:doresult\:dogreat%
+        \else%
+          \ifnum\:firstlet<\:secondlet%
+            \let\:doresult\:doless%
+          \else%
+            \let\:doresult\:donone%
+            \let\:tmp\:compstring%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  }%
+  \:compstring%
+}
 
 \def\:compascii{%
   \def\:comptemp{%
     \ifnum\:firstlet>\:secondlet%
       \let\:doresult\:dogreat%
-    \else\ifnum\:firstlet<\:secondlet%
-      \let\:doresult\:doless%
     \else%
-      \let\:doresult\:donone%
-      \let\:tmp\:compstring%
-    \fi\fi}%
-  \:compstring}
+      \ifnum\:firstlet<\:secondlet%
+        \let\:doresult\:doless%
+      \else%
+        \let\:doresult\:donone%
+        \let\:tmp\:compstring%
+      \fi%
+    \fi}%
+  \:compstring%
+}
 
 \def\:compstring{%
   \expandafter\:suckfirst\:first\:endsuck%
@@ -1205,26 +1433,42 @@
       \edef\:secondlet{\expandafter`\:secondlet}%
       \:comptemp%
     \fi%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 
 \def\:endsuck{\:endsuck}
 
 \def\:suckfirst{\futurelet\:tmp\::suckfirst}
 \def\::suckfirst{%
-  \ifx\:tmp\:endsuck\let\:tmp\:finishfirst%
-  \else\ifx\:tmp\:sptoken\let\:tmp\:getfirstsp%
-  \else\let\:tmp\:getfirstlet%
-  \fi\fi\:tmp}
+  \ifx\:tmp\:endsuck%
+    \let\:tmp\:finishfirst%
+  \else%
+    \ifx\:tmp\:sptoken%
+      \let\:tmp\:getfirstsp%
+    \else%
+      \let\:tmp\:getfirstlet%
+    \fi%
+  \fi%
+  \:tmp%
+}
 \def\:finishfirst#1\:endsuck{\def\:first{#1}}
 \def\:getfirstsp#1 {\def\:firstlet{ }\:finishfirst}
 \def\:getfirstlet#1{\def\:firstlet{#1}\:finishfirst}
 
 \def\:sucksecond{\futurelet\:tmp\::sucksecond}
 \def\::sucksecond{%
-  \ifx\:tmp\:endsuck\let\:tmp\:finishsecond%
-  \else\ifx\:tmp\:sptoken\let\:tmp\:getsecondsp%
-  \else\let\:tmp\:getsecondlet%
-  \fi\fi\:tmp}
+  \ifx\:tmp\:endsuck%
+    \let\:tmp\:finishsecond%
+  \else%
+    \ifx\:tmp\:sptoken%
+      \let\:tmp\:getsecondsp%
+    \else%
+      \let\:tmp\:getsecondlet%
+    \fi%
+  \fi%
+  \:tmp%
+}
 \def\:finishsecond#1\:endsuck{\def\:second{#1}}
 \def\:getsecondsp#1 {\def\:secondlet{ }\:finishsecond}
 \def\:getsecondlet#1{\def\:secondlet{#1}\:finishsecond}
@@ -1240,7 +1484,9 @@
     \let\:tmp\:bubblesort%
   \else%
     \let\:tmp\relax%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 
 \long\def\:getsecond#1#2\:delim{\def\:tmp{#2}}
 
@@ -1261,7 +1507,9 @@
     \let\:tmp\:bubbleloop%
   \else%
     \let\:tmp\relax%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 
 \def\:buildsorted{%
   \ifnum\:bcnt>\:scnt%
@@ -1272,42 +1520,49 @@
     \advance\:count1%
     \edef\:bcnt{\the\:count}%
     \let\:tmp\:buildsorted%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 \def\:build#1{\expandafter\:buildsuck#1\:endsuck\gdef#1{}}
 \def\:buildsuck#1#2\:endsuck{%
   \expandafter\gdef\expandafter\:sorted\expandafter{\:sorted\:i{#1}}%
-  }
+}
 
 
 %%%%%
 %% \SIFT{Foobar}{sift}{field}{value}{Datatype macros}{OPTION}
 %%
-\long\def\SIFT#1#2#3#4#5#6{\:typetest{#1}{%
-  \:checksiftarg{#2}%
-  \if:go%
-    \:dosift{#1}{#3}{#4}{#5}%
-    \def\:i##1{\:ap\:tmp{##1{#6}}}%
-    \def\:tmp{\let\:tmp\empty}%
-    \:sifted%
-    \global\let\:sifted\relax%
-  \fi%
-  }\:tmp}
+\long\def\SIFT#1#2#3#4#5#6{%
+  \:typetest{#1}{%
+    \:checksiftarg{#2}%
+    \if:go%
+      \:dosift{#1}{#3}{#4}{#5}%
+      \def\:i##1{\:ap\:tmp{##1{#6}}}%
+      \def\:tmp{\let\:tmp\empty}%
+      \:sifted%
+      \global\let\:sifted\relax%
+    \fi%
+  }%
+  \:tmp%
+}
 
 
 %%%%%
 %% \MAKESIFT{Foobar}{sift}{field}{value}{Datatype macros}{NAME}
 %%
-\long\def\MAKESIFT#1#2#3#4#5#6{\:typetest{#1}{%
-  \:checksiftarg{#2}%
-  \if:go%
-    \ifcsname#6:SIFT\endcsname%
-      \:typgenwarn{"#6" reused as sifted list name.}%
+\long\def\MAKESIFT#1#2#3#4#5#6{%
+  \:typetest{#1}{%
+    \:checksiftarg{#2}%
+    \if:go%
+      \ifcsname#6:SIFT\endcsname%
+        \:typgenwarn{"#6" reused as sifted list name.}%
+      \fi%
+      \:dosift{#1}{#3}{#4}{#5}%
+      \expandafter\let\csname#6:SIFT\endcsname\:sifted%
+      \global\let\:sifted\relax%
     \fi%
-    \:dosift{#1}{#3}{#4}{#5}%
-    \expandafter\let\csname#6:SIFT\endcsname\:sifted%
-    \global\let\:sifted\relax%
-  \fi%
-  }}
+  }%
+}
 
 
 %%%%%
@@ -1321,47 +1576,143 @@
     \global\let\:sorted\relax%
   \else%
     \def\:tmp{\:typgenwarn{sifted list "#1" does not exist. (ignored)}}%
-  \fi\:tmp}
+  \fi%
+  \:tmp%
+}
 
 \long\def\:checksiftarg#1{%
   \:gotrue%
   \def\:tmp{#1}%
   \ifx\:tmp\:equal%
-    \def\:sift{\ifx\:first\:second\:gotrue\fi}%
-  \else\ifx\:tmp\:notequal%
-    \def\:sift{\ifx\:first\:second\else\:gotrue\fi}%
-  \else\ifx\:tmp\:numless%
-    \def\:sift{\let\:doless\:gotrue\:compnum\:doresult}%
-  \else\ifx\:tmp\:notnumless%
-    \def\:sift{\let\:donone\:gotrue\let\:dogreat\:gotrue\:compnum\:doresult}%
-  \else\ifx\:tmp\:numgreat%
-    \def\:sift{\let\:dogreat\:gotrue\:compnum\:doresult}%
-  \else\ifx\:tmp\:notnumgreat%
-    \def\:sift{\let\:donone\:gotrue\let\:doless\:gotrue\:compnum\:doresult}%
-  \else\ifx\:tmp\:alphless%
-    \def\:sift{\let\:doless\:gotrue\:compalpha\:doresult}%
-  \else\ifx\:tmp\:notalphless%
-    \def\:sift{\let\:donone\:gotrue\let\:dogreat\:gotrue\:compalpha\:doresult}%
-  \else\ifx\:tmp\:alphgreat%
-    \def\:sift{\let\:dogreat\:gotrue\:compalpha\:doresult}%
-  \else\ifx\:tmp\:notalphgreat%
-    \def\:sift{\let\:donone\:gotrue\let\:doless\:gotrue\:compalpha\:doresult}%
-  \else\ifx\:tmp\:asciiless%
-    \def\:sift{\let\:doless\:gotrue\:compascii\:doresult}%
-  \else\ifx\:tmp\:notasciiless%
-    \def\:sift{\let\:donone\:gotrue\let\:dogreat\:gotrue\:compascii\:doresult}%
-  \else\ifx\:tmp\:asciigreat%
-    \def\:sift{\let\:dogreat\:gotrue\:compascii\:doresult}%
-  \else\ifx\:tmp\:notasciigreat%
-    \def\:sift{\let\:donone\:gotrue\let\:doless\:gotrue\:compascii\:doresult}%
+    \def\:sift{%
+      \ifx\:first\:second%
+        \:gotrue%
+      \fi%
+    }%
   \else%
-    \:gofalse%
-    \:typgenwarn{"#1" is not a valid sift option (ignored). Use one
-      of: \:mb \:equal, \:notequal, \:numless, \:notnumless,
-      \:numgreat, \:notnumgreat, \:alphless, \:notalphless,
-      \:alphgreat, \:notalphgreat, \:mb \:asciiless, \:notasciiless,
-      \:asciigreat, \:notasciigreat}%
-  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi}
+    \ifx\:tmp\:notequal%
+      \def\:sift{%
+        \unless\ifx\:first\:second%
+          \:gotrue%
+        \fi%
+      }%
+    \else%
+      \ifx\:tmp\:numless%
+        \def\:sift{%
+          \let\:doless\:gotrue%
+          \:compnum%
+          \:doresult%
+        }%
+      \else%
+        \ifx\:tmp\:notnumless%
+          \def\:sift{%
+            \let\:donone\:gotrue%
+            \let\:dogreat\:gotrue%
+            \:compnum%
+            \:doresult%
+          }%
+        \else%
+          \ifx\:tmp\:numgreat%
+            \def\:sift{%
+              \let\:dogreat\:gotrue%
+              \:compnum%
+              \:doresult%
+            }%
+          \else%
+            \ifx\:tmp\:notnumgreat%
+              \def\:sift{%
+                \let\:donone\:gotrue%
+                \let\:doless\:gotrue%
+                \:compnum%
+                \:doresult%
+              }%
+            \else%
+              \ifx\:tmp\:alphless%
+                \def\:sift{%
+                  \let\:doless\:gotrue%
+                  \:compalpha%
+                  \:doresult%
+                }%
+              \else%
+                \ifx\:tmp\:notalphless%
+                  \def\:sift{%
+                    \let\:donone\:gotrue%
+                    \let\:dogreat\:gotrue%
+                    \:compalpha%
+                    \:doresult%
+                  }%
+                \else%
+                  \ifx\:tmp\:alphgreat%
+                    \def\:sift{%
+                      \let\:dogreat\:gotrue%
+                      \:compalpha%
+                      \:doresult%
+                    }%
+                  \else%
+                    \ifx\:tmp\:notalphgreat%
+                      \def\:sift{%
+                        \let\:donone\:gotrue%
+                        \let\:doless\:gotrue%
+                        \:compalpha%
+                        \:doresult%
+                      }%
+                    \else%
+                      \ifx\:tmp\:asciiless%
+                        \def\:sift{%
+                          \let\:doless\:gotrue%
+                          \:compascii%
+                          \:doresult%
+                        }%
+                      \else%
+                        \ifx\:tmp\:notasciiless%
+                          \def\:sift{%
+                            \let\:donone\:gotrue%
+                            \let\:dogreat\:gotrue%
+                            \:compascii%
+                            \:doresult%
+                          }%
+                        \else%
+                          \ifx\:tmp\:asciigreat%
+                            \def\:sift{%
+                              \let\:dogreat\:gotrue%
+                              \:compascii%
+                              \:doresult%
+                            }%
+                          \else%
+                            \ifx\:tmp\:notasciigreat%
+                              \def\:sift{%
+                                \let\:donone\:gotrue%
+                                \let\:doless\:gotrue%
+                                \:compascii%
+                                \:doresult%
+                              }%
+                            \else%
+                              \:gofalse%
+                              \:typgenwarn{%
+                                "#1" is not a valid sift option
+                                (ignored). Use one of: \:mb \:equal,
+                                \:notequal, \:numless, \:notnumless,
+                                \:numgreat, \:notnumgreat, \:alphless,
+                                \:notalphless, \:alphgreat,
+                                \:notalphgreat, \:mb \:asciiless,
+                                \:notasciiless, \:asciigreat,
+                                \:notasciigreat%
+                              }%
+                            \fi%
+                          \fi%
+                        \fi%
+                      \fi%
+                    \fi%
+                  \fi%
+                \fi%
+              \fi%
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \fi%
+}
 \def\:equal{=}
 \def\:notequal{!=}
 \def\:notnumless{num<=}
@@ -1386,14 +1737,16 @@
       \fi}}%
     \gdef\:sifted{}%
     \setbox0=\vbox{#4}%
-  \endgroup}
+  \endgroup%
+}
 \long\def\:addsift#1\:endsuck{%
   \:singletst#1\:delim%
   \ifx\:tmp\empty%
     \expandafter\gdef\expandafter\:sifted\expandafter{\:sifted\:i#1}%
   \else%
     \expandafter\gdef\expandafter\:sifted\expandafter{\:sifted\:i{#1}}%
-  \fi}
+  \fi%
+}
 
 %%%%%
 %% reserving TeX registers
@@ -1404,37 +1757,65 @@
 %% formatting of error and warning messages
 \def\:mb{^^J\space\space}  %% linebreak in error/warning text
 \def\:err{\errmessage{datatype error}}
-\def\:typerr#1#2{\immediate\write16{%
-  ^^J! datatype \MYTYPESTRING\space error: #1%
-  ^^J? #2%
-  ^^J!punting LaTeX!}%
-  \batchmode\@@end}
-\def\:typgenerr#1#2{\scrollmode\:err\immediate\write16{%
-  ^^J! datatype error: #1%
-  ^^J? #2%
-  ^^J!punting LaTeX!}%
-  \batchmode\@@end}
-\def\:typwarn#1{\immediate\write16{%
-  ^^J! datatype \MYTYPESTRING\space warning: #1%
-  ^^J}}
-\def\:typgenwarn#1{\immediate\write16{%
-  ^^J! datatype warning: #1%
-  ^^J}}
+\def\:typerr#1#2{%
+  \immediate\write16{%
+    ^^J! datatype \MYTYPESTRING\space error: #1%
+    ^^J? #2%
+    ^^J!punting LaTeX!%
+  }%
+  \batchmode\@@end%
+}
+\def\:typgenerr#1#2{%
+  \scrollmode\:err%
+  \immediate\write16{%
+    ^^J! datatype error: #1%
+    ^^J? #2%
+    ^^J!punting LaTeX!%
+  }%
+  \batchmode\@@end%
+}
+\def\:typwarn#1{%
+  \immediate\write16{%
+    ^^J! datatype \MYTYPESTRING\space warning: #1%
+    ^^J%
+  }%
+}
+\def\:typgenwarn#1{%
+  \immediate\write16{%
+    ^^J! datatype warning: #1%
+    ^^J%
+  }%
+}
 
 %%%%%
 %% some "standard" errors
-\def\er:tblank{\:typgenerr{There is no "" (empty string) datatype.}
-  {A string of some sort is expected.  Don't leave the typestring
-  for\:mb a datatype blank.}}
+\def\er:tblank{%
+  \:typgenerr{%
+    There is no "" (empty string) datatype.%
+  }{%
+    A string of some sort is expected.  Don't leave the typestring
+    for\:mb a datatype blank.%
+  }%
+}
 
-\def\er:tunknown#1{\:typgenerr{Datatype #1 isn't declared.}
-  {There is no datatype #1 declared.  Use \string\DECLARETYPE{#1}
-  \:mb(or \string\DECLARESUBTYPE) to declare it.}}
+\def\er:tunknown#1{%
+  \:typgenerr{%
+    Datatype #1 isn't declared.%
+  }{%
+    There is no datatype #1 declared.  Use \string\DECLARETYPE{#1}
+    \:mb(or \string\DECLARESUBTYPE) to declare it.%
+  }%
+}
 
-\def\er:funset#1{\:typerr{\string#1 used but not \noexpand\s in
-  \expandafter\string\MYCOMMAND.}{\string#1 must either be set by
-  \noexpand\s or have a default declared by \:mb "\noexpand\FD
-  {\string#1} { default }" before it is used.}}
+\def\er:funset#1{%
+  \:typerr{%
+    \string#1 used but not \noexpand\s in \expandafter\string\MYCOMMAND.%
+  }{%
+    \string#1 must either be set by \noexpand\s or have a default
+    declared by \:mb "\noexpand\FD{\string#1} { default }" before
+    it is used.%
+  }%
+}
 
 %%%%%
 %% handling of null cases, "reserved" commmand names, etc.
@@ -1462,8 +1843,15 @@
 \gdef\:lst{}
 \gdef\:add#1{}
 
-\def\:nocontext#1{\def#1{\:typgenerr{Don't use \string#1 outside the
-  scope of a DataType.}{It has no context.}}}
+\def\:nocontext#1{%
+  \def#1{%
+    \:typgenerr{%
+      Don't use \string#1 outside the scope of a DataType.%
+    }{%
+      It has no context.%
+    }%
+  }%
+}
 
 \:nocontext\MYCOMMAND
 \:nocontext\ME
