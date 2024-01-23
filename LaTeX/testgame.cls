@@ -20,7 +20,7 @@
 %%
 %% When you change this, make sure the name of this file and the name
 %% of the game's environment variable both match it.  See ../README.
-\def\gameclassname{game}
+\def\gameclassname{testgame}
 
 
 %%%%%
