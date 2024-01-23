@@ -49,7 +49,7 @@ element.  For example, you create an ability card in abil-LIST.tex:
     \s\MYtext	{You can cast spells.  You must be standing still to
 		cast.}
     \s\MYeffect	{I cast a spell.}
-    }
+  }
 
 For an element representing a sheet, you do the same, in addition to
 creating the sheet itself.  The element contains a reference to the
@@ -58,7 +58,7 @@ sheet's filename.  In blue-LIST.tex, you might write
   \NEW{Blue}{\bArmy}{
     \s\MYname	{Army Base Personnel}
     \s\MYfile	{army.tex}
-    }
+  }
 
 You assign elements to an owner in the -LIST.tex for the owner type
 (generally either char-LIST.tex or place-LIST.tex).  For example, you
@@ -74,7 +74,7 @@ assign elements to a PC in char-LIST.tex with something like
 		\iRifle[\num{22222}]{}\note{starts loaded}%
 		\multi{3}{\iRifleAmmoClip{}}%
 		}
-    }
+  }
 
 You can also assign one-shot macros to owners directly, as in
 
@@ -92,7 +92,7 @@ You can also assign one-shot macros to owners directly, as in
 		\signbig{Stained Glass Windows}{These windows depict a
 		variety of Christian Saints performing miracles.}%
 		}
-    }
+  }
 
 Such use of one-shot macros can be useful in dynamic systems and other
 automated tricks; however, they may obfuscate the game's organization
@@ -118,7 +118,7 @@ that a character gains when they open the packet:
 		and ability.}
     \s\MYabils	{\aTest{}}
     \s\MYgreens	{\gTest{}}
-    }
+  }
 
 Items, Money, Whitesheets, and other transferable items are
 transferable elements.  When such a one owns elements, the elements
@@ -140,7 +140,7 @@ devices:
 		you can make babies stop crying.}{I make the baby stop
 		crying.}
 		}
-    }
+  }
 
 subowner-LIST.tex is a file for subowners that are not elements
 themselves.  It contains the SubOwner and TransSubOwner datatypes.
@@ -162,7 +162,7 @@ the \suite command added.  For example, giving a character the
     \s\MYeffect	{I have special powers!}
     \s\MYgreens	{\gTest{}}
     \suite
-    }
+  }
 
 The type of macro used to create a suite is flexible.  Use whichever
 type is most fitting to your design.
@@ -174,7 +174,7 @@ type is most fitting to your design.
     \s\MYabils	{\aRunner{}}
     \s\MYitems	{\iRunningShoes{}}
     \suite
-    }
+  }
 
 Giving a character the \bRunners{} bluesheet will also give them the
 \gRunning{} greensheet, the \aRunner{} ability, and the
@@ -323,7 +323,7 @@ nine arguments.  You can use them inside <contents>, for example:
   \newinstance{Foobar}{\somecommand[3]}{
     \s\somefield  {#1 blah #2 blah}
     \s\otherfield {#3 blah blah}
-    }
+  }
 
 \somecommand{...}{...}{...} will be a wrapper around
 \INSTANCE{Foobar}, so it won't be added to any \EVERY list.  It will
@@ -543,17 +543,20 @@ example:
     ...
     \s\MYtext{You may vanish into thin air #1 times during the game.}
     ...
-    }
+  }
 
 Note that, given \ability{...}{...}{...} defined in abils-LIST.tex,
 this would effectively be the same as
 
   \newcommand{\avanish}[1]{%
-    \ability%
-      {...}%
-      {You may vanish into thin air #1 times during the game.}%
-      {...}%
-      }
+    \ability{%
+      ...%
+    }{%
+      You may vanish into thin air #1 times during the game.%
+    }{%
+      ...%
+    }%
+  }
 
 Also note that commands created by \newinstance (or similar) use only
 lowercase letters in their command name, just like the one-shot

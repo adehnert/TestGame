@@ -1,4 +1,4 @@
-GameTeX is currently at version 1.4.1b.
+GameTeX is currently at version 1.7.
 
 
 
@@ -8,7 +8,8 @@ version of GameTeX.
 gametex.tar.bz2 is a compressed tarball of GameTeX/.  You can
 uncompress it with "bunzip2 gametex.tar.bz2" and untar the result with
 "tar xf gametex.tar" (or, on linux systems, do both with "tar xfj
-gametex.tar.bz2").
+gametex.tar.bz2").  gametex.zip is a zipfile of GameTeX/.  You can
+open it with "unzip gametex.zip".
 
 
 
@@ -149,6 +150,33 @@ Some typos fixed.
 \packetspace, to ease some customization hackery.  Fixed bugs with
 transferable owners, subowners, and \unlist.  Some typos fixed in
 comments.
+
+1.5 (6/30/2017): Reformatted nearly all 'code' for slightly better
+readability.  Added gender-neutral pronouns (Spivak, 'ey' variation)
+as a gender option.  Fixed bug with landscape playerlist, accounting
+for newer versions of dvips.
+
+1.6 (11/28/2023): All instances of \MYsex replaced with \MYgender.
+\updatePEG (player, email, gender) added alongside \updateplayer,
+\updateplayeremail, etc.  \mfn (shortcut for creating a pronoun
+without a neuter option) added.  \Gender and \gender added as pronouns
+(like \Sex and \sex).  \badgedagger added to .cls file, to control
+optional easter-egg of using the dagger image as a badge background.
+
+1.6.1 (12/1/2023): Various internal changes to increase compatibility
+with pdflatex.  bigdagger.pdf and smalldagger.pdf added.  Skill cards
+and box labels now implemented as double-sided (skill cards have a
+death report, box labels have blank backs), so every document type is
+intended to be duplexed.  Various copy/paste errors in comments fixed.
+
+1.7 (12/16/2023): Added latexmkrc file for Overleaf projects.  Added
+.txt extension to all plain-text README files (so Overleaf will
+display them).  Distribution includes gametex.zip file.  Fixed
+incorrect type for \eog macro.  Added \sEOG{} and \sMediumEOG{} as
+verbose alternatives to \eog and \eogmedium.  JSON sanitation no
+longer escapes single quotes or back quotes.  Fixed missing first fold
+label for fold-and-staple packets.  Fixed typo in
+Charsheets/README.tex.
 
 
 

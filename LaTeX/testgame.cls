@@ -89,7 +89,7 @@
 \def\defaultnamemappings{
   \titlemap{\full}
   \mapnickinformal
-  }
+}
 
 
 %%%%%
@@ -105,6 +105,18 @@
 %%
 %%   \def\badgemap{{\MYname}{\MYnumber}{\MYplayer}{\unskip}}
 \def\badgemap{{\MYname}{\MYnumber}{\MYplayer}{\MYdesc}}
+
+
+%%%%%
+%% \badgedagger
+%%
+%% For an "old-school" feel, \badgedagger can be used to put a dagger
+%% image as the background to PC namebadges.  It can have 1 of 3 values:
+%%
+%%   \def\badgedagger{\nobadgedagger} %% no daggers on badges
+%%   \def\badgedagger{\bigbadgedagger} %% 'classic' big daggers on badges
+%%   \def\badgedagger{\smallbadgedagger} %% 'smooth' small  daggers on badges
+\def\badgedagger{\nobadgedagger}
 
 
 %%%%%
@@ -133,12 +145,12 @@
 \def\charactergrouping{
   \mark{GMs}\allgms
   \mark{Characters}\allchars
-  }
+}
 
 \def\playergrouping{
   \mark{GMs}\allgms
   \mark{Players}\allplayers
-  }
+}
 
 
 %%%%%
@@ -210,8 +222,7 @@
   \begin{tlist}{Stats}
     \MYstats
   \end{tlist}
-  %%
-  }
+}
 
 
 %%%%%
