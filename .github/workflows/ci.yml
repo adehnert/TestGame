@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  - push
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-pstricks python3 make
+          sudo apt-get install -y tex4ht calibre
+      - name: Build prod files
+        run: |
+          (cd Production && python3 ../Extras/vgametex.py -- make)
+      - name: Build greensheets
+        run: |
+          (cd Greensheets && python3 ../Extras/vgametex.py -- make)
+      - name: Prep artifacts
+        run: |
+          ls -lR; pwd
+          mkdir artifacts artifacts/sheets artifacts/greensheets
+          cp Production/*.pdf Production/json-PRINT.json artifacts/sheets/
+          test -a Production/listchar-PRINT.epub && cp Production/*.epub Production/*.mobi artifacts/sheets/ || echo "epub sheets not generated"
+          cp Greensheets/*.pdf artifacts/greensheets/
+      - name: Save artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts/
