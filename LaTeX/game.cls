@@ -108,6 +108,18 @@
 
 
 %%%%%
+%% \badgedagger
+%%
+%% For an "old-school" feel, \badgedagger can be used to put a dagger
+%% image as the background to PC namebadges.  It can have 1 of 3 values:
+%%
+%%   \def\badgedagger{\nobadgedagger} %% no daggers on badges
+%%   \def\badgedagger{\bigbadgedagger} %% 'classic' big daggers on badges
+%%   \def\badgedagger{\smallbadgedagger} %% 'smooth' small  daggers on badges
+\def\badgedagger{\nobadgedagger}
+
+
+%%%%%
 %% \playerlistproduction
 %% \playerlistcompendium
 %% \charactergrouping

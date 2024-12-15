@@ -12,13 +12,16 @@
 %%
 %%
 %%
-%% \MYsex is set to either \male, \female, \neutral, \neuter,
-%% or \ambiguous, as correct for the character.
-%% \mfnn{<masculine>}{<feminine>}{<neutral>}{<neuter>} will produce
-%% the correct form based on the current value of \MYsex (\ambiguous
-%% will lead to <masculine>/<feminine>).  \mfnn should only be used
-%% within the scope of a Char macro.  \mf{<masc>}{<fem>} works just
-%% like \mfnn with the <neutral> <neuter> args left blank.
+%% \MYgender is set to either \male, \female, \neutral, \neuter,
+%% or \ambiguous, as correct for the
+%% character.  \mfnn{<masculine>}{<feminine>}{<neutral>}{<neuter>}
+%% will produce the correct form based on the current value
+%% of \MYgender (\ambiguous will lead to
+%% <masculine>/<feminine>/<neutral>).  \mfnn should only be used
+%% within the scope of a Char macro.  \mfn{<masc>}{<fem>}{<neutral>}
+%% works just like like \mfnn with the <neuter> arg left blank,
+%% and \mf{<masc>}{<fem>} works just like \mfnn with the <neutral> and
+%% <neuter> args left blank.
 %%
 %% \pronoun{<command>}{<masc>}{<fem>}{<neutral>}{<neuter>} makes
 %% <command> a wrapper around \mfnn.  It is used to create a list of
@@ -69,7 +72,7 @@
 
   \newstat\MYcr	{Combat Rating}{CR}{2} %% for DarkWater-style combat
 
-  \FD\MYsex	{\male} %% \male, \female, \neuter, \ambiguous
+  \FD\MYgender	{\male} %% \male, \female, \neutral, \neuter, \ambiguous
   \FD\MYrole	{} %% playerlist role
   \FD\MYgroupstr{} %% playerlist groupstring
   \FD\MYfile	{} %% character sheet filename (including .tex)
@@ -90,10 +93,12 @@
 %%
 %% \male, \female, \neutral, \neuter, \ambiguous
 %% \mfnn{<masculine>}{<feminine>}{<neutral>}{<neuter>}
+%% \mfn{<masculine>}{<feminine>}{<neutral>}
 %% \mf{<masculine>}{<feminine>}
 %% \pronoun{<command>}{<masculine>}{<feminine>}{<neutral>}{<neuter>}
 \def\male{0}\def\female{1}\def\neutral{2}\def\neuter{3}\def\ambiguous{4}
-\newcommand{\mfnn}[4]{\ifcase\MYsex#1\or#2\or#3\or#4\else#1/#2\fi}
+\newcommand{\mfnn}[4]{\ifcase\MYgender#1\or#2\or#3\or#4\else#1/#2/#3\fi}
+\newcommand{\mfn}[3]{\mfnn{#1}{#2}{#3}{}}
 \newcommand{\mf}[2]{\mfnn{#1}{#2}{}{}}
 \newcommand{\pronoun}[5]{\def#1{\mfnn{#2}{#3}{#4}{#5}}}
 
@@ -127,6 +132,8 @@
 \def\Niece{\Nephew}
 \pronoun{\human}	{man}{woman}{human}{human}
 \pronoun{\Human}	{Man}{Woman}{Human}{Human}
+\pronoun{\gender}	{male}{female}{neutral}{neuter}
+\pronoun{\Gender}	{Male}{Female}{Neutral}{Neuter}
 \pronoun{\sex}		{male}{female}{neutral}{neuter}
 \pronoun{\Sex}		{Male}{Female}{Neutral}{Neuter}
 

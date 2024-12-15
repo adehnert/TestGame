@@ -98,6 +98,7 @@
 %%   \updatemacro{<datatype macro>}{<new updates>}
 %%   \updateplayer{<Char macro>}{<new player>}
 %%   \updateplayeremail{<Char macro>}{<new player>}{<new email>}
+%%   \updatePEG{<Char macro>}{<new player>}{<new email>}{<new gender>}
 %%
 %%   \charsbycharacter
 %%   \charsbyplayer
@@ -267,6 +268,7 @@
   \mapnickinformal
 }
 \@makedefault\badgemap{{\MYname}{\MYnumber}{\MYplayer}{\MYdesc}}
+\@makedefault\badgedagger{\nobadgedagger}
 \@makedefault\playerlistproduction{\longgameplayers}
 \@makedefault\playerlistcompendium{\longgamechars}
 \@makedefault\playergrouping{
@@ -1040,9 +1042,22 @@
 %% \updatemacro{<datatype macro>}{<new updates>}
 %% \updateplayer{<Char macro>}{<new player>}
 %% \updateplayeremail{<Char macro>}{<new player>}{<new email>}
+%% \updatePEG{<Char macro>}{<new player>}{<new email>}{<new gender>}
 \def\updatemacro{\EXTEND}
 \def\updateplayer#1#2{\updatemacro{#1}{\rs\MYplayer{#2}}}
-\def\updateplayeremail#1#2#3{\updatemacro{#1}{\rs\MYplayer{#2}\rs\MYemail{#3}}}
+\def\updateplayeremail#1#2#3{%
+  \updatemacro{#1}{\rs\MYplayer{#2}\rs\MYemail{#3}}%
+}
+\def\updatePEG#1#2#3#4{%
+  \updatemacro{#1}{%
+    \rs\MYplayer{#2}%
+    \rs\MYemail{#3}%
+    \def\@test{#4}%
+    \unless\ifx\@test\empty%
+      \rs\MYgender{#4}%
+    \fi%
+  }
+}
 
 
 %%%%%
@@ -1298,6 +1313,10 @@
   \textheight=\dimen0\relax%
   \AtBeginDvi{\special{papersize=11in,8.5in}}%
   \AtBeginDvi{\special{! /landplus90 true store}}%
+  \pdfpageheight=8.5in
+  \pdfpagewidth=11in
+  \paperheight=\pdfpageheight
+  \paperwidth=\pdfpagewidth
 }
 \@onlypreamble\@LandscapeMode
 
@@ -1988,35 +2007,21 @@
 \def\@appendbackslash{\expandafter\@global@append\expandafter\@sanitizedjson%
   \expandafter{\string\\}%
 }
-\def\@appendbackquote{\expandafter\@global@append\expandafter\@sanitizedjson%
-  \expandafter{\string\`}%
-}
-\def\@appendfrontquote{\expandafter\@global@append\expandafter\@sanitizedjson%
-  \expandafter{\string\'}%
-}
 \def\@appenddoublequote{\expandafter\@global@append\expandafter\@sanitizedjson%
   \expandafter{\string\"}%
 }
 \long\def\@sanitizeforjson#1{%
   \def\@@next{\@sanitizeforjson}%
-  \ifx#1'%
-    \@appendfrontquote%
+  \ifx#1"%
+    \@appenddoublequote%
   \else%
-    \ifx#1`%
-      \@appendbackquote%
+    \expandafter\ifx\expandafter#1\@backslashchar%
+      \@appendbackslash%
     \else%
-      \ifx#1"%
-        \@appenddoublequote%
+      \ifx#1\@endsanitize%
+        \def\@@next{}%
       \else%
-        \expandafter\ifx\expandafter#1\@backslashchar%
-          \@appendbackslash%
-        \else%
-          \ifx#1\@endsanitize%
-            \def\@@next{}%
-          \else%
-            \@global@append\@sanitizedjson{#1}%
-          \fi%
-        \fi%
+        \@global@append\@sanitizedjson{#1}%
       \fi%
     \fi%
   \fi%
@@ -2647,7 +2652,7 @@
   \fi%
 }
 
-\useicon{\postscript/icon.eps}
+\useicon{\postscript/icon}
 
 \def\line@across{\mbox{}\leaders\hrule height.6ex depth-.55ex\hfill\null}
 \long\def\template@title@display#1{
@@ -3198,7 +3203,7 @@
           angle=-90,
           origin=c%
         ]{%
-          \postscript/bigdagger.epsi%
+          \postscript/bigdagger%
         }%
       }%
     }%
@@ -3209,7 +3214,7 @@
         angle=-77,
         origin=c%
       ]{%
-        \postscript/bigdagger.epsi%
+        \postscript/bigdagger%
       }%
     }%
   \fi%
@@ -4201,18 +4206,27 @@
 \newdimen\trig@ht
 \newdimen\tot@ht
 \newdimen\par@wd
-\def\vdotfill{\vbox to\vsize{\leaders\vbox to2pt{\tiny\smash.\vfil}\vfil}}
-\def\hdotfill{\hbox to\hsize{\leaders\hbox to2pt{\tiny\smash.\hfil}\hfil}}
+\def\vdotfill{%
+  \vbox to\vsize{%
+    \hsize0pt%
+    \leaders\vbox to2pt{\vfil\tiny\makebox[0pt]{.}\vfil}\vfil%
+  }%
+}
+\def\hdotfill{%
+  \hbox to\hsize{%
+    \leaders\hbox to2pt{\tiny\smash.\hfil}\hfil%
+  }%
+}
 
 \def\fold@one{%
   \makebox[0pt][r]{%
     \hbox{%
       \leftskip=0pt plus1fil%
       \rightskip=0pt%
-      \lineskip=1pt%
       \def\baselinstretch{0}%
       \vsize=\tot@ht%
       \vbox to\tot@ht{%
+        \lineskip=1pt%
         \vfill%
         \tiny\textbf{1.}\break fold\break back\break here\break%
         \vfill%
@@ -4236,7 +4250,7 @@
 }
 
 \def\@staple{%
-  \smash{\hbox to\hsize{\hfil\tiny\textbf{3.} staple here\hfil}}%
+  \smash{\hbox to\par@wd{\hfil\tiny\textbf{3.} staple here\hfil}}%
 }
 
 
@@ -5998,6 +6012,42 @@
 \newbox\@badgebox
 \newdimen\@badgedimen
 
+\def\nobadgedagger{\let\@badgedagger\empty}
+\def\bigbadgedagger{\let\@badgedagger\relax}
+\def\smallbadgedagger{\let\@badgedagger\null}
+\nobadgedagger
+
+\badgedagger %% get value from .cls file
+
+\def\@daggerbackground{%
+  \unless\ifx\@badgedagger\empty%
+    \makebox[0pt][l]{%
+      \@badgedimen\badgewidth%
+      \advance\@badgedimen-2\whitespace%
+      \makebox[\@badgedimen]{%
+        \ifx\@badgedagger\relax%
+          \def\@fudge{-.9}%
+        \else%
+          \def\@fudge{-.865}%
+        \fi%
+        \raisebox{\@fudge\totalheight}[0pt][0pt]{%
+          \includegraphics[%
+            angle=-100,%
+            origin=c,%
+            width=0.8\badgewidth,%
+          ]{%
+            \ifx\@badgedagger\relax%
+              \postscript/bigdagger%
+            \else%
+              \postscript/smalldagger%
+            \fi%  
+          }%
+        }%
+      }%
+    }%
+  \fi%
+}
+
 \long\def\light@side#1{%
   \begingroup%
     \fboxsep=0pt%
@@ -6011,7 +6061,8 @@
       \leftskip=\whitespace plus1fil%
       \rightskip=\whitespace plus1fil%
       \hsize=\badgewidth%
-      \vskip\whitespace
+      \vskip\whitespace%
+      \@daggerbackground%
       \lefttop \hfill \righttop \vfil
       {#1}
       \leftbottom \hfill \rightbottom
@@ -6067,7 +6118,53 @@
 
 
 
-\DeclareGameSubOption{statcards}{cardsheet}{%
+\DeclareGameSubOption{deathreports}{cardsheet}{%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Uses: deathreports option (internal)
+%%
+%% Commands provided:
+%%   \deathreport
+%%
+%%%%%
+
+
+\gdef\mytype{Death Reports (internal)}
+
+
+%%%%%
+%% \deathreport -> meant to be back side of statcard or skillcard
+\newdimen\death@height
+\newdimen\death@width
+
+\newcommand{\deathreport}{%
+  \vtop to \death@height{%
+    \baselineskip=20pt plus1fil minus1fil%
+    \lineskip=0pt%
+    \parindent=0pt%
+    \def\baselinestretch{0}%
+    \leftskip=\whitespace plus1fil%
+    \rightskip=\whitespace plus1fil%
+    \hsize=\death@width%
+    \vskip\whitespace%
+    {\large\bfseries Death Report}\break
+    When: \hrulefill\break
+    Where: \hrulefill\break
+    How: \hrulefill\break
+    By Whom: \hrulefill\break
+    Why (if you know): \hrulefill\break
+    \null\hrulefill
+    \vskip\whitespace%
+  }%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}
+
+
+
+\DeclareGameSubOption{statcards}{deathreports}{%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% Uses: cardsheet option
@@ -6112,6 +6209,12 @@
 \def\leftbottom{\mbox{\gamenameabbrev}}
 \def\rightbottom{\mbox{\gamedateabbrev}}
 \def\familydefault{\sfdefault}
+
+
+%%%%%
+%% set \death@height and \death@width
+\death@height\statcardheight
+\death@width\statcardwidth
 
 
 %%%%%
@@ -6221,39 +6324,12 @@
 }
 
 
-%%%%%
-%% \deathreport -> back side of stat card
-\newdimen\death@height
-\death@height\statcardheight
-
-\newcommand{\deathreport}{%
-  \vtop to \death@height{%
-    \baselineskip=20pt plus1fil minus1fil%
-    \lineskip=0pt%
-    \parindent=0pt%
-    \def\baselinestretch{0}%
-    \leftskip=\whitespace plus1fil%
-    \rightskip=\whitespace plus1fil%
-    \hsize=\statcardwidth%
-    \vskip\whitespace%
-    {\large\bfseries Death Report}\break
-    When: \hrulefill\break
-    Where: \hrulefill\break
-    How: \hrulefill\break
-    By Whom: \hrulefill\break
-    Why (if you know): \hrulefill\break
-    \null\hrulefill
-    \vskip\whitespace%
-  }%
-}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 }
 
 
 
-\DeclareGameSubOption{skilllists}{cardsheet}{%
+\DeclareGameSubOption{skilllists}{deathreports}{%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% Uses: cardsheet option
@@ -6261,7 +6337,7 @@
 %%
 %%%%%
 
-\SingleCards\SingleSiding
+\DoubleCards\DoubleSiding
 \MarginsXY{15pt}{15pt}\NoFill
 
 \gdef\mytype{Skill List Cards}
@@ -6301,6 +6377,12 @@
 \def\skill@type{Skill List Card}
 \def\skill@trans{Not Transferable}
 \def\skill@owner{\ifx\@transowner\empty\myowner\else\mysubowner\fi}
+
+
+%%%%%
+%% set \death@height and \death@width
+\death@height\skillheight
+\death@width\skillwidth
 
 
 %%%%%
@@ -6352,7 +6434,9 @@
       \skillheight\temp@dimen%
       \typeout{! skill list card oversized}%
     \fi%
-    \card{\fbox{\vbox to\skillheight{\unvbox\skill@front}}}%
+    \doublecard{%
+      \fbox{\vbox to\skillheight{\unvbox\skill@front}}%
+    }{\deathreport}%
   \endgroup%
 }
 
@@ -6366,7 +6450,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%%%%
-\SingleCards\SingleSiding
+\DoubleCards\DoubleSiding
 \MarginsXY{20pt}{0pt}
 \NoFill
 
@@ -6425,7 +6509,7 @@
 \def\BoxLabel#1{%
   \begingroup%
     \def\@bl@box{\parbox{.45\hsize}{\centering\small\bfseries\sffamily#1}}%
-    \card{%
+    \doublecard{%
       \vbox to.4in{%
         \hsize3.75in%
         \vfill%
@@ -6433,7 +6517,7 @@
         \vfill%
         \hrule%
       }%
-    }%
+    }{}%
   \endgroup%
 }
 

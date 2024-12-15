@@ -33,8 +33,6 @@
 %% LabelCover produces a label similar to the cover to a research
 %% notebook.  LabelPage, likewise, produces a page.
 %%
-%% EOG is for full-sized end-of-game signs.
-%%
 %%%%%
 
 \DECLARESUBTYPE{Sign}{Element}
@@ -68,21 +66,17 @@
 \DECLARESUBTYPE{LabelCover}{Label}
 \DECLARESUBTYPE{LabelPage}{Label}
 
-\DECLARESUBTYPE{EOG}{Sign}
-\PRESETS{EOG}{%
-  \s\MYname	{End Of Game}
-  \s\MYtext	{{\bf\Huge You may not pass through here.}}
-}
-
 
 %%%%%
 %% \signbig[<location>]{<name>}{<text>}
-%% \eog[<location>]
 %%
 %% \signmdeium[<location>]{<name>}{<text>}
 %% \signsmall[<location>]{<name>}{<text>}
 %% \signtiny[<location>]{<name>}{<text>}
 %% \signdot[<location>]{<name>}
+%%
+%% \eog[<location>]
+%% \eogmedium[<location>]
 %%
 %% \labelbig{<name>}{<text>}
 %% \labelmedium{<name>}{<text>}
@@ -94,8 +88,6 @@
 \newinstance{Sign}{\signbig[3][\mylocation]}{
   \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
 }
-\newinstance{EOG}{\eog[1][\mylocation]}{\s\MYloc{#1}}
-
 \newinstance{SignMedium}{\signmedium[3][\mylocation]}{
   \s\MYloc{#1}\s\MYname{#2}\s\MYtext{#3}
 }
@@ -107,6 +99,15 @@
 }
 \newinstance{SignDot}{\signdot[2][\mylocation]}{
   \s\MYloc{#1}\s\MYname{#2}
+}
+
+\def\eogname{End of Game}
+\def\eogtext{{\bf\Huge You may not pass through here.}}
+\newinstance{Sign}{\eog[1][\mylocation]}{
+  \s\MYloc{#1}\s\MYname{\eogname}\s\MYtext{\eogtext}
+}
+\newinstance{SignMedium}{\eogmedium[1][\mylocation]}{
+  \s\MYloc{#1}\s\MYname{\eogname}\s\MYtext{\eogtext}
 }
 
 \newinstance{Label}{\labelbig[2]}{
@@ -130,12 +131,6 @@
 }
 
 
-%%%%%
-%% \sEOG{}
-%% use \sEOG[\loc{<location>}]{} for EOG sign at a specific place
-\NEW{EOG}{\sEOG}{}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \NEW{Sign}{\sTest}{
@@ -143,6 +138,20 @@
   \s\MYloc	{10-250}
   \s\MYtext	{A lecture hall with large, sliding blackboards.}
 }
+
+%%%%%
+%% \sEOG[\loc{<location>}]{} and \sMediumEOG[\loc{<location>}]{} are
+%% more-verbose alternatives to \eog[<location>] and
+%% \eogmedium[<location>]
+\NEW{Sign}{\sEOG}{
+  \s\MYname	{\eogname}
+  \s\MYtext	{\eogtext}
+}
+\NEW{SignMedium}{\sMediumEOG}{
+  \s\MYname	{\eogname}
+  \s\MYtext	{\eogtext}
+}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
