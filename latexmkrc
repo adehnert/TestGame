@@ -12,5 +12,5 @@
 # with someone who is using overleaf, you should probably not commit
 # your local changes, in order to not break their overleaf usage.
 
-$ENV{'game'}='/compile';
+$ENV{'testgame'}='/compile';
 $ENV{'TEXINPUTS'}='.:/compile/LaTeX/:';
